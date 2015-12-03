@@ -1,0 +1,37 @@
+{
+  "name": "immuview",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/immuview.js",
+  "scripts": {
+    "test": "./node_modules/.bin/karma start",
+    "test_once": "./node_modules/.bin/karma start --single-run",
+    "start": "./node_modules/.bin/webpack --watch",
+    "build": "./node_modules/.bin/webpack"
+  },
+  "author": "Artur Kulig",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.2.1",
+    "babel-loader": "^6.2.0",
+    "babel-polyfill": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18",
+    "jasmine-core": "^2.3.4",
+    "karma": "^0.13.14",
+    "karma-babel-preprocessor": "^6.0.1",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-commonjs": "0.0.13",
+    "karma-coverage": "^0.5.3",
+    "karma-jasmine": "^0.3.6",
+    "karma-phantomjs-launcher": "^0.2.1",
+    "karma-sourcemap-loader": "^0.3.6",
+    "karma-webpack": "^1.7.0",
+    "phantomjs": "^1.9.18",
+    "webpack": "^1.12.6",
+    "webpack-dev-server": "^1.12.1"
+  },
+  "dependencies": {
+    "immstruct": "git+https://github.com/omniscientjs/immstruct.git",
+    "immutable": "^3.7.5"
+  }
+}
