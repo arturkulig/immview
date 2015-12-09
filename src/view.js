@@ -1,29 +1,21 @@
-class View {
-    constructor() {
-        this.reactors = [];
-        this.lastValue = undefined; //yet declared
-    }
+var I = require('Immutable');
+var Reactor = require('./Reactor.js');
 
-    select(process) {
-        var newReactor = new View(process);
-        this.reactors.push(newReactor);
-        return newReactor;
-    }
+class View extends Reactor {
 
-    process() {
-        throw new Error("override");
-    }
-
-    digest(data) {
-        var newValue = this.process(data);
-        if (newValue !== this.lastValue) {
-            this.flush(this.lastValue = newValue);
+    constructor(masterView, process) {
+        super();
+        if (process) {
+            this.process = process;
         }
+
+        masterView.subscribe(this.digest.bind(this));
     }
 
-    flush(data) {
-        this.reactors.map(reactor => reactor.digest(data));
+    process(data) {
+        return data;
     }
+
 }
 
 module.exports = View;

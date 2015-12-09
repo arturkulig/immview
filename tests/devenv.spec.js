@@ -1,7 +1,8 @@
 describe("test env", function () {
+    var {Data, View} = immview;
     it("works", function () {
         expect(Immutable).toBeDefined();
-        expect(immstruct).toBeDefined();
-        expect(immview).toBeDefined();
+        expect(Data).toBeDefined();
+        expect(View).toBeDefined();
     });
 });

@@ -1,7 +1,7 @@
-var MasterView = require('./masterview.js');
+var Data = require('./Data.js');
+var View = require('./View.js');
 
-function immview(input) {
-    return new MasterView(input);
-}
-
-module.exports = immview;
+module.exports = {
+    Data,
+    View,
+};
