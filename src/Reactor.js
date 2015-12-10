@@ -3,7 +3,7 @@ var I = require('Immutable');
 class Reactor {
     constructor() {
         this.reactors = I.Set();
-        this.lastValue = undefined; //yet declared
+        this.structure = undefined; //yet declared
     }
 
     get isReactor() {
@@ -25,8 +25,8 @@ class Reactor {
 
     digest(data) {
         var newValue = this.process(data);
-        if (newValue !== this.lastValue) {
-            this.flush(this.lastValue = newValue);
+        if (newValue !== this.structure) {
+            this.flush(this.structure = newValue);
         }
     }
 
