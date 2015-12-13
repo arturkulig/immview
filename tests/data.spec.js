@@ -1,7 +1,8 @@
 describe('Data', function() {
     var {Data} = immview;
+
     function getData() {
-        return new Data({a:1, b:{c:2}});
+        return new Data({a: 1, b: {c: 2}});
     }
 
     var d;
@@ -23,13 +24,47 @@ describe('Data', function() {
     });
 
     it('can be subscribed to', function(done) {
-        setTimeout(()=> {
-            var v = d.subscribe(state => {
-              expect(state.get('a')).toBe(1);
-              expect(state.get('d')).toBe(3);
-              done();
-            });
-            d.set('d',3);
+        d.subscribe(state => {
+            expect(state.get('a')).toBe(1);
+            expect(state.get('d')).toBe(3);
+            done();
         });
+        setTimeout(()=> {
+            d.set('d', 3);
+        });
+    });
+
+    it('triggers reaction only for actual change', function(done) {
+
+        var reactions = 0;
+        d.subscribe(state => {
+            reactions++;
+        });
+
+        d.set('d', 3); // change -> reaction
+        expect(reactions).toBe(1);
+        d.set('d', 3); // no change -> no reaction
+        expect(reactions).toBe(1);
+        d.set('d', 4); // change -> reaction
+        expect(reactions).toBe(2);
+
+        done();
+    });
+
+    it('can be unsubscribed from', function(done) {
+        var reactions = 0;
+        var unsub = d.subscribe(state => {
+            reactions++;
+        });
+
+        d.set('d', 3); // change -> reaction
+        expect(reactions).toBe(1);
+
+        unsub(); // halt reactions
+
+        d.set('d', 5); // change -> no reaction
+        expect(reactions).toBe(1);
+
+        done();
     });
 });
