@@ -7,18 +7,19 @@
  */
 function immutableReadWrapper(that) {
     [
-          'get',
-          'has',
-          'getIn',
-          'hasIn',
-          'includes',
-          'first',
-          'last',
-  ].forEach(prop => {
-      that[prop] = that[prop] || (function() {
-          return that.structure[prop].apply(that.structure, arguments);
-      });
-  });
+        'get',
+        'has',
+        'getIn',
+        'hasIn',
+        'includes',
+        'first',
+        'last',
+        'toJS',
+    ].forEach(prop => {
+        that[prop] = that[prop] || (function() {
+            return that.structure[prop].apply(that.structure, arguments);
+        });
+    });
 }
 
 /**

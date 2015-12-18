@@ -62,10 +62,15 @@ describe('View', function() {
             var d1 = new Data({a:1});
             var d2 = new Data({a:2});
             var v2 = new View({d1, d2});
-            expect(v2.getIn(['d1', 'a'])).toBe(1);
-            expect(v2.getIn(['d2', 'a'])).toBe(2);
+            expect(v2.toJS()).toEqual({
+                d1: {a:1},
+                d2: {a:2},
+            });
             d2.set('a', 3);
-            expect(v2.getIn(['d2', 'a'])).toBe(3);
+            expect(v2.toJS()).toEqual({
+                d1: {a:1},
+                d2: {a:3},
+            });
         });
 
         it('with processor func', function() {
@@ -77,10 +82,15 @@ describe('View', function() {
                     b: data.get('d2'),
                 });
             });
-            expect(v2.getIn(['a', 'a'])).toBe(1);
-            expect(v2.getIn(['b', 'a'])).toBe(2);
+            expect(v2.toJS()).toEqual({
+                a: {a:1},
+                b: {a:2},
+            });
             d2.set('a', 3);
-            expect(v2.getIn(['b', 'a'])).toBe(3);
+            expect(v2.toJS()).toEqual({
+                a: {a:1},
+                b: {a:3},
+            });
         });
 
     });
