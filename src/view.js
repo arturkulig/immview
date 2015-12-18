@@ -5,7 +5,7 @@ var { immutableReadWrapper } = require('./ImmutableWrapper.js');
 
 class View extends Reactor {
 
-    constructor(masterView, process) {
+    constructor(source, process) {
         super();
 
         if (process) {
@@ -14,7 +14,13 @@ class View extends Reactor {
 
         immutableReadWrapper(this);
 
-        this.connectToView(masterView);
+        if (source && typeof source === 'object') {
+            if (source.isReactor) {
+                this.connectToView(source);
+            } else {
+                this.connectToViews(source);
+            }
+        }
     }
 
     /**
@@ -22,8 +28,27 @@ class View extends Reactor {
      * @param {Reactor} masterView
      */
     connectToView(masterView) {
-        this._subscriptionCancelations = [masterView.subscribe(this.digest.bind(this))];
+        this.unsubs = [masterView.subscribe(this.digest.bind(this))];
         this.digest(masterView.structure);
+    }
+
+    /**
+     * @private
+     * @param {Object.<Reactor>} views
+     */
+    connectToViews(views) {
+        this.prestructure = I.Map();
+        this.unsubs = Object.keys(views).map(viewName => {
+            var sub = data => {
+                this.digest(
+                    this.prestructure = this.prestructure.set(viewName, data)
+                );
+            };
+
+            sub(views[viewName].structure);
+
+            return views[viewName].subscribe(sub);
+        });
     }
 
     get isView() {
@@ -40,7 +65,7 @@ class View extends Reactor {
     }
 
     destroy() {
-        this._subscriptionCancelations.forEach(func => func());
+        this.unsubs.forEach(func => func());
     }
 
 }

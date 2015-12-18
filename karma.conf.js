@@ -17,7 +17,6 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: (process.env.TRAVIS ? ['node_modules/babel-polyfill/dist/polyfill.min.js'] : []).concat([
             'node_modules/immutable/dist/immutable.js',
-            'node_modules/immstruct/dist/immstruct.js',
         ]).concat([
             'src/index.js',
             'tests/*.spec.js'

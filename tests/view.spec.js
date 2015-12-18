@@ -1,5 +1,6 @@
 describe('View', function() {
     var {Data, View} = immview;
+    var I = Immutable;
 
     function getData() {
         return new Data({a:1, b:{c:2}});
@@ -56,4 +57,31 @@ describe('View', function() {
         expect(v.getIn(['e', 'f'])).toBe(6);
     });
 
+    describe('derives from multiple reactors', function() {
+        it('w/o processor func', function() {
+            var d1 = new Data({a:1});
+            var d2 = new Data({a:2});
+            var v2 = new View({d1, d2});
+            expect(v2.getIn(['d1', 'a'])).toBe(1);
+            expect(v2.getIn(['d2', 'a'])).toBe(2);
+            d2.set('a', 3);
+            expect(v2.getIn(['d2', 'a'])).toBe(3);
+        });
+
+        it('with processor func', function() {
+            var d1 = new Data({a:1});
+            var d2 = new Data({a:2});
+            var v2 = new View({d1, d2}, data => {
+                return I.Map({
+                    a: data.get('d1'),
+                    b: data.get('d2'),
+                });
+            });
+            expect(v2.getIn(['a', 'a'])).toBe(1);
+            expect(v2.getIn(['b', 'a'])).toBe(2);
+            d2.set('a', 3);
+            expect(v2.getIn(['b', 'a'])).toBe(3);
+        });
+
+    });
 });
