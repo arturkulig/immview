@@ -14,17 +14,33 @@ class View extends Reactor {
 
         immutableReadWrapper(this);
 
-        masterView.subscribe(this.digest.bind(this));
+        this.connectToView(masterView);
+    }
 
-        this.digest(masterView.getIn([]));
+    /**
+     * @private
+     * @param {Reactor} masterView
+     */
+    connectToView(masterView) {
+        this._subscriptionCancelations = [masterView.subscribe(this.digest.bind(this))];
+        this.digest(masterView.structure);
     }
 
     get isView() {
         return true;
     }
 
+    /**
+     * @private
+     * @param {*} data
+     * @returns {*}
+     */
     process(data) {
         return data;
+    }
+
+    destroy() {
+        this._subscriptionCancelations.forEach(func => func());
     }
 
 }

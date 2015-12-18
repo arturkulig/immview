@@ -12,11 +12,9 @@ class Reactor {
 
     subscribe(reaction) {
         this.reactors = this.reactors.add(reaction);
-        return () => this.unsubscribe(reaction);
-    }
-
-    unsubscribe(reaction) {
-        this.reactors = this.reactors.delete(reaction);
+        return () => {
+            this.reactors = this.reactors.delete(reaction);
+        };
     }
 
     process() {
@@ -31,7 +29,11 @@ class Reactor {
     }
 
     flush(data) {
-        this.reactors.map(reactor => reactor(data));
+        this.reactors.forEach(reactor => reactor(data));
+    }
+
+    destroy() {
+        throw new Error('abstract');
     }
 }
 

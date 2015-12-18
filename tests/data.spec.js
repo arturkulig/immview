@@ -37,7 +37,7 @@ describe('Data', function() {
     it('triggers reaction only for actual change', function(done) {
 
         var reactions = 0;
-        d.subscribe(state => {
+        d.subscribe(() => {
             reactions++;
         });
 
@@ -53,7 +53,7 @@ describe('Data', function() {
 
     it('can be unsubscribed from', function(done) {
         var reactions = 0;
-        var unsub = d.subscribe(state => {
+        var unsub = d.subscribe(() => {
             reactions++;
         });
 

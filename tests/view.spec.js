@@ -32,6 +32,9 @@ describe('View', function() {
     });
 
     it('is reacting to new data', function() {
+        expect(v.get('a')).toBe(1);
+        expect(v.get('d')).toBe(3);
+        expect(v.get('e')).toBeUndefined();
         d.set('e', 4);
         expect(v.get('a')).toBe(1);
         expect(v.get('d')).toBe(3);
