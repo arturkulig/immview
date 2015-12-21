@@ -1,4 +1,4 @@
-var I = require('Immutable');
+var I = require('immutable');
 var Reactor = require('./Reactor.js');
 var View = require('./View.js');
 

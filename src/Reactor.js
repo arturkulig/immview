@@ -1,4 +1,4 @@
-var I = require('Immutable');
+var I = require('immutable');
 
 class Reactor {
     constructor() {

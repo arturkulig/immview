@@ -1,4 +1,4 @@
-var I = require('Immutable');
+var I = require('immutable');
 
 var dirtyDataReevalTimer = 0;
 var dirtyDatas = I.Set();

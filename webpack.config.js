@@ -8,8 +8,7 @@ module.exports = {
         libraryTarget: "umd"
     },
     externals: {
-        "immstruct": "immstruct",
-        "Immutable": "Immutable"
+        "immutable": "immutable"
     },
     "module": {
         "loaders": [
