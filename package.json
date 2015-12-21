@@ -1,8 +1,8 @@
 {
-  "name": "immuview",
+  "name": "immview",
   "version": "1.1.1",
   "description": "",
-  "main": "dist/immuview.js",
+  "main": "dist/immview.js",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
     "test_once": "./node_modules/.bin/karma start --single-run",
