@@ -31,7 +31,6 @@
     "webpack-dev-server": "^1.12.1"
   },
   "dependencies": {
-    "immstruct": "git+https://github.com/omniscientjs/immstruct.git",
     "immutable": "^3.7.5"
   }
 }
