@@ -7,14 +7,86 @@
  */
 function immutableReadWrapper(that) {
     [
+        'equals',
+        'hashCode',
+
         'get',
         'has',
-        'getIn',
-        'hasIn',
         'includes',
         'first',
         'last',
+
+        'getIn',
+        'hasIn',
+
         'toJS',
+        'toObject',
+        'toArray',
+
+        'toMap',
+        'toOrderedMap',
+        'toSet',
+        'toOrderedSet',
+        'toList',
+        'toStack',
+        'toSeq',
+        'toKeyedSeq',
+        'toIndexedSeq',
+        'toSetSeq',
+
+        'keys',
+        'values',
+        'entries',
+
+        'keySeq',
+        'valueSeq',
+        'entrySeq',
+
+        'map',
+        'filter',
+        'filterNot',
+        'reverse',
+        'sort',
+        'sortBy',
+        'groupBy',
+        'forEach',
+
+        'slice',
+        'rest',
+        'butLast',
+        'skip',
+        'skipLast',
+        'skipWhile',
+        'skipUntil',
+        'take',
+        'takeLast',
+        'takeWhile',
+        'takeUntil',
+
+        'concat',
+        'flatten',
+        'flatMap',
+
+        'reduce',
+        'reduceRight',
+        'every',
+        'some',
+        'join',
+        'isEmpty',
+        'count',
+        'countBy',
+
+        'find',
+        'findLast',
+        'findEntry',
+        'findLastEntry',
+        'max',
+        'maxBy',
+        'min',
+        'minBy',
+
+        'isSubset',
+        'isSuperset',
     ].forEach(prop => {
         that[prop] = that[prop] || (function() {
             return that.structure[prop].apply(that.structure, arguments);
