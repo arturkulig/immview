@@ -7,7 +7,8 @@
     "test": "./node_modules/.bin/karma start",
     "test_once": "./node_modules/.bin/karma start --single-run",
     "start": "./node_modules/.bin/webpack --watch",
-    "build": "./node_modules/.bin/webpack"
+    "build": "./node_modules/.bin/webpack",
+    "preversion": "npm run build; git commit -am \"build\";"
   },
   "author": "Artur Kulig",
   "license": "MIT",
