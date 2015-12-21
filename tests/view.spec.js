@@ -2,16 +2,12 @@ describe('View', function() {
     var {Data, View} = immview;
     var I = Immutable;
 
-    function getData() {
-        return new Data({a:1, b:{c:2}});
-    }
-
     var d;
     var v;
     var vReactions;
 
     beforeEach(() => {
-        d = getData();
+        d = new Data({a: 1, b: {c: 2}});
         vReactions = 0;
         v = new View(d, state => {
             vReactions++;
@@ -33,13 +29,9 @@ describe('View', function() {
     });
 
     it('is reacting to new data', function() {
-        expect(v.get('a')).toBe(1);
-        expect(v.get('d')).toBe(3);
-        expect(v.get('e')).toBeUndefined();
+        expect(v.toJS()).toEqual({a: 1, b: {c: 2}, d: 3});
         d.set('e', 4);
-        expect(v.get('a')).toBe(1);
-        expect(v.get('d')).toBe(3);
-        expect(v.get('e')).toBe(4);
+        expect(v.toJS()).toEqual({a: 1, b: {c: 2}, d: 3, e: 4});
     });
 
     it('reacts only to actual changes', function() {
@@ -59,23 +51,23 @@ describe('View', function() {
 
     describe('derives from multiple reactors', function() {
         it('w/o processor func', function() {
-            var d1 = new Data({a:1});
-            var d2 = new Data({a:2});
+            var d1 = new Data({a: 1});
+            var d2 = new Data({a: 2});
             var v2 = new View({d1, d2});
             expect(v2.toJS()).toEqual({
-                d1: {a:1},
-                d2: {a:2},
+                d1: {a: 1},
+                d2: {a: 2},
             });
             d2.set('a', 3);
             expect(v2.toJS()).toEqual({
-                d1: {a:1},
-                d2: {a:3},
+                d1: {a: 1},
+                d2: {a: 3},
             });
         });
 
         it('with processor func', function() {
-            var d1 = new Data({a:1});
-            var d2 = new Data({a:2});
+            var d1 = new Data({a: 1});
+            var d2 = new Data({a: 2});
             var v2 = new View({d1, d2}, data => {
                 return I.Map({
                     a: data.get('d1'),
@@ -83,13 +75,13 @@ describe('View', function() {
                 });
             });
             expect(v2.toJS()).toEqual({
-                a: {a:1},
-                b: {a:2},
+                a: {a: 1},
+                b: {a: 2},
             });
             d2.set('a', 3);
             expect(v2.toJS()).toEqual({
-                a: {a:1},
-                b: {a:3},
+                a: {a: 1},
+                b: {a: 3},
             });
         });
 

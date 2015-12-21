@@ -1,13 +1,11 @@
 describe('Data', function() {
     var {Data} = immview;
 
-    function getData() {
-        return new Data({a: 1, b: {c: 2}});
-    }
-
     var d;
 
-    beforeEach(()=>d = getData());
+    beforeEach(()=> {
+        d = new Data({a: 1, b: {c: 2}});
+    });
 
     it('can be created', function() {
         expect(d.isData).toBe(true);
@@ -16,6 +14,7 @@ describe('Data', function() {
     it('can be read from', function() {
         expect(d.get('a')).toBe(1);
         expect(d.getIn(['b', 'c'])).toBe(2);
+        expect(d.toJS()).toEqual({a: 1, b: {c: 2}});
     });
 
     it('can be written to', function() {
@@ -29,12 +28,11 @@ describe('Data', function() {
             expect(state.get('d')).toBe(3);
             done();
         });
-        setTimeout(()=> {
-            d.set('d', 3);
-        });
+
+        d.set('d', 3);
     });
 
-    it('triggers reaction only for actual change', function(done) {
+    it('triggers reaction only for actual change', function() {
 
         var reactions = 0;
         d.subscribe(() => {
@@ -47,8 +45,6 @@ describe('Data', function() {
         expect(reactions).toBe(1);
         d.set('d', 4); // change -> reaction
         expect(reactions).toBe(2);
-
-        done();
     });
 
     it('can be unsubscribed from', function(done) {
