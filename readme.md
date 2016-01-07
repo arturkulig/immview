@@ -3,10 +3,16 @@
 A library to create mutable structures with Immutable.js so it enables changes tracking.
 This is similiar to immstruct, but with emphasis on derivative data.
 
-Two classes are available within the lib: `Data` and `View`.
-They both have read functions like `Iterable`
+##Installation
 
-Usage:
+	npm i immview --save
+
+##Idea
+
+Two classes are available within the lib: `Data` and `View`.
+They both share interface with `Iterable` of Immutable.js, but `View` is read-only structure.
+
+##Usage
 
 ```javascript
 var IV = require('immview');
