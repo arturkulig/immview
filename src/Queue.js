@@ -3,20 +3,20 @@ import * as I from 'immutable';
 let _running = false;
 let _line = I.OrderedSet();
 
-export default class Queue {
+let Queue = {
 
-    static createCommand(command, domain) {
+    createCommand(command, context) {
         return function queueAction(...args) {
             _line = _line.add({
                 command,
-                domain,
+                context,
                 args,
             });
             Queue.run();
         };
-    }
+    },
 
-    static run() {
+    run() {
         if (_running) {
             return;
         }
@@ -24,23 +24,26 @@ export default class Queue {
         _running = true;
 
         while (_line.count() > 0) {
-            var toRun = _line.first();
+            let toRun = _line.first();
             _line = _line.rest();
 
             try {
-                var {
-                    domain,
+                let {
+                    context,
                     command,
                     args,
                     } = toRun;
-                domain[command].apply(domain, args);
+                command.apply(context, args);
             } catch (e) {
                 console.error('Immview.Queue run - Error occured while running running a function');
-                console.error(e);
+                console.error(e.message);
             }
 
         }
 
         _running = false;
-    }
-}
+    },
+
+};
+
+export default Queue;
