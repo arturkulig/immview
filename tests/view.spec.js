@@ -1,6 +1,8 @@
+import Data from '../src/Data';
+import View from '../src/View';
+import I from 'immutable';
+
 describe('View', function() {
-    var {Data, View} = immview;
-    var I = Immutable;
 
     var d;
     var v;

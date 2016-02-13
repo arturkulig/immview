@@ -1,5 +1,6 @@
+import Data from '../src/Data';
+
 describe('Data', function() {
-    var {Data} = immview;
 
     var d;
 

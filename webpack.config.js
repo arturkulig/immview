@@ -1,25 +1,25 @@
-var path = require("path");
+var path = require('path');
 module.exports = {
-    "entry": path.resolve(__dirname, "src/index.js"),
-    "output": {
-        path: __dirname + "/dist",
-        filename: "immview.js",
-        library: "immview",
-        libraryTarget: "umd"
+    entry: path.resolve(__dirname, 'src/index.js'),
+    output: {
+        path: __dirname + '/dist',
+        filename: 'immview.js',
+        library: 'immview',
+        libraryTarget: 'umd',
     },
     externals: {
-        "immutable": "immutable"
+        immutable: 'immutable',
     },
-    "module": {
-        "loaders": [
+    module: {
+        loaders: [
             {
                 test: /\.js$/,
-                loader: "babel",
+                loader: 'babel',
                 query: {
-                    presets: ["es2015"]
-                }
-            }
-        ]
+                    presets: ['es2015'],
+                },
+            },
+        ],
     },
-    devtool: "source-map"
+    devtool: 'source-map',
 };

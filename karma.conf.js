@@ -1,6 +1,8 @@
 var webpackConfig = require('./webpack.config.js');
 
 webpackConfig.devtool = 'inline-source-map';
+webpackConfig.entry = './tests/index.js';
+webpackConfig.externals = null;
 
 module.exports = function(config) {
     config.set({
@@ -14,11 +16,11 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: (process.env.TRAVIS ? ['node_modules/babel-polyfill/dist/polyfill.min.js'] : []).concat([
-            'node_modules/immutable/dist/immutable.js',
+            //'node_modules/immutable/dist/immutable.js',
         ]).concat([
             'tests/index.js',
-            'src/index.js',
-            'tests/*.spec.js',
+            //'src/index.js',
+            //'tests/*.spec.js',
         ]),
 
         // list of files to exclude
@@ -27,8 +29,7 @@ module.exports = function(config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'src/index.js': ['webpack', 'sourcemap', 'coverage'],
-            'tests/*.spec.js': ['babel'],
+            'tests/index.js': ['webpack', 'sourcemap', 'coverage'],
         },
 
         webpack: webpackConfig,

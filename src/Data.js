@@ -1,11 +1,11 @@
 var I = require('immutable');
+
 var Reactor = require('./Reactor.js');
-var View = require('./View.js');
 
 var {
     immutableWriteWrapper,
     immutableReadWrapper,
-} = require('./ImmutableWrapper.js');
+    } = require('./ImmutableWrapper.js');
 
 class Data extends Reactor {
 
@@ -22,6 +22,11 @@ class Data extends Reactor {
 
     process(data) {
         return data;
+    }
+
+    destroy() {
+        this.structure = null;
+        this.reactors = null;
     }
 
 }
