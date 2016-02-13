@@ -1,7 +1,9 @@
+var Domain = require('./Domain.js');
 var Data = require('./Data.js');
 var View = require('./View.js');
 
-module.exports = {
+export {
     Data,
     View,
+    Domain,
 };

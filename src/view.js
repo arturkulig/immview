@@ -15,7 +15,7 @@ class View extends Reactor {
         immutableReadWrapper(this);
 
         if (source && typeof source === 'object') {
-            if (source.isReactor) {
+            if (source.isReactor || source.isDomain) {
                 this.connectToView(source);
             } else {
                 this.connectToViews(source);
@@ -66,6 +66,10 @@ class View extends Reactor {
 
     destroy() {
         this.unsubs.forEach(func => func());
+        this.unsubs = null;
+        this.structure = null;
+        this.prestructure = null;
+        this.reactors = null;
     }
 
 }
