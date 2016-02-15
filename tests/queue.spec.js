@@ -12,7 +12,7 @@ describe('Queue', function() {
                 test = true;
             },
         };
-        let command = Queue.createCommand(d.testCmd);
+        let command = Queue.createAction(d.testCmd);
         command();
         expect(test).toBeTruthy();
     });
@@ -30,7 +30,7 @@ describe('Queue', function() {
                 this.testCmd();
             },
         };
-        let command = Queue.createCommand(d.secondTestCmd, d);
+        let command = Queue.createAction(d.secondTestCmd, d);
         command();
         expect(test).toBeTruthy();
     });
@@ -53,9 +53,9 @@ describe('Queue', function() {
             },
         };
         let queueableCommands = {
-            cmd1: Queue.createCommand(commands.cmd1, commands),
-            cmd2: Queue.createCommand(commands.cmd2, commands),
-            cmd3: Queue.createCommand(commands.cmd3, commands),
+            cmd1: Queue.createAction(commands.cmd1, commands),
+            cmd2: Queue.createAction(commands.cmd2, commands),
+            cmd3: Queue.createAction(commands.cmd3, commands),
         };
 
         queueableCommands.cmd1();
@@ -68,8 +68,34 @@ describe('Queue', function() {
     it('passes arguments', function() {
         let test = 'c';
         let action = appendix => test += appendix;
-        let command = Queue.createCommand(action);
+        let command = Queue.createAction(action);
         command('asd');
         expect(test).toBe('casd');
+    });
+
+    it('removes unused context', function() {
+        let test;
+        const startAction = () => {
+            contextNestedAction();
+            contextNestedAction();
+        };
+        const startActionCancellingOut = () => {
+            contextNestedAction();
+            contextNestedAction();
+            Queue.rejectContext(context);
+        };
+        const nestedAction = () => test += 'c';
+        const context = {};
+        const contextStartAction = Queue.createAction(startAction, context);
+        const contextStartActionCancellingOut = Queue.createAction(startActionCancellingOut, context);
+        const contextNestedAction = Queue.createAction(nestedAction, context);
+
+        test = '';
+        contextStartAction();
+        expect(test).toBe('cc');
+
+        test = '';
+        contextStartActionCancellingOut();
+        expect(test).toBe('');
     });
 });

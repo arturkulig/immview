@@ -8,14 +8,15 @@ export default class Domain {
      * @param {Reactor} view
      */
     constructor(view, actions) {
-        this._view = view;
-        var commands = Object.keys(actions);
-        commands.forEach(command => {
-            if (this[command]) {
-                throw new Error('"' + command + '" is reserved for Domain interface');
+        this.view = view;
+        this._actionNames = Object.keys(actions);
+
+        this._actionNames.forEach((actionName) => {
+            if (this[actionName]) {
+                throw new Error('"' + actionName + '" is reserved for Domain interface');
             }
 
-            this[command] = Queue.createCommand(command, this);
+            this[actionName] = Queue.createAction(actions[actionName], this);
         });
     }
 
@@ -24,10 +25,13 @@ export default class Domain {
     }
 
     subscribe(reaction) {
-        return this._view.subscribe(reaction);
+        return this.view.subscribe(reaction);
     }
 
     destroy() {
-        return this._view.destroy();
+        this.view.destroy();
+        this.view = null;
+
+        Queue.rejectContext(this);
     }
 }
