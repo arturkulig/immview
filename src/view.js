@@ -1,9 +1,9 @@
-var I = require('immutable');
-var Reactor = require('./Reactor.js');
+import * as I from 'immutable';
+import Reactor from './Reactor.js';
 
-var { immutableReadWrapper } = require('./ImmutableWrapper.js');
+import { immutableReadWrapper } from './ImmutableWrapper.js';
 
-class View extends Reactor {
+export default class View extends Reactor {
 
     constructor(source, process) {
         super();
@@ -29,7 +29,6 @@ class View extends Reactor {
      */
     connectToView(masterView) {
         this.unsubs = [masterView.subscribe(this.digest.bind(this))];
-        this.digest(masterView.structure);
     }
 
     /**
@@ -44,8 +43,6 @@ class View extends Reactor {
                     this.prestructure = this.prestructure.set(viewName, data)
                 );
             };
-
-            sub(views[viewName].structure);
 
             return views[viewName].subscribe(sub);
         });
@@ -73,5 +70,3 @@ class View extends Reactor {
     }
 
 }
-
-module.exports = View;

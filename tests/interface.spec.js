@@ -4,8 +4,8 @@ import {
     Domain,
 } from '../src';
 
-describe('Immview', function() {
-    it('exports', function() {
+describe('Immview', function () {
+    it('exports', function () {
         expect(Data).toBeDefined();
         expect(View).toBeDefined();
         expect(Domain).toBeDefined();

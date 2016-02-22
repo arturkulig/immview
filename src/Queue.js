@@ -1,64 +1,89 @@
 import * as I from 'immutable';
 
-let _running = false;
-let _line = I.OrderedSet();
+let isRunning = false;
+let queue = I.OrderedSet();
 
-let Queue = {
+/**
+ * Returns a function that is queueable version of provided one.
+ * @param {Function} action
+ * @param {*} [context]
+ * @returns {Function}
+ */
+function createAction(action, context) {
+    return (...args) => {
+        appendToQueue(action, context, args);
+        run();
+    };
+}
 
-    createAction(action, context) {
-        return (...args) => {
-            Queue.append(action, context, args);
-            Queue.run();
-        };
-    },
+/**
+ * Append new action onto end of the queue
+ * @param {Function} action
+ * @param {*} context
+ * @param {Array.<*>} args
+ */
+function appendToQueue(action, context, args) {
+    queue = queue.add({
+        action,
+        context,
+        args,
+    });
+}
 
-    append(action, context, args) {
-        _line = _line.add({
-            action,
-            context,
-            args,
-        });
-    },
+/**
+ * Removes and returns first action from the queue and
+ * @returns {{action:Function,context,args:Array.<*>}}
+ */
+function shiftFromQueue() {
+    let toRun = queue.first();
+    queue = queue.rest();
+    return toRun;
+}
 
-    shift() {
-        let toRun = _line.first();
-        _line = _line.rest();
-        return toRun;
-    },
+/**
+ * Removes all queued actions tied with a context
+ * @param context
+ */
+function rejectContext(context) {
+    queue = queue.filter(item => item.context !== context);
+}
 
-    rejectContext(context) {
-        _line = _line.filter(item => item.context !== context);
-    },
+/**
+ * Starts executing the queue
+ */
+function run() {
+    if (isRunning) {
+        return;
+    }
 
-    run() {
-        if (_running) {
-            return;
+    isRunning = true;
+
+    while (queue.count() > 0) {
+        try {
+            runFirst();
+        } catch (e) {
+            console.error('Immview.Queue run - Error occured while running running a function');
+            console.error(e.message);
         }
+    }
 
-        _running = true;
+    isRunning = false;
+}
 
-        while (_line.count() > 0) {
-            try {
-                Queue.runFirst();
-            } catch (e) {
-                console.error('Immview.Queue run - Error occured while running running a function');
-                console.error(e.message);
-            }
-        }
+/**
+ * Execute first action of current queue
+ */
+function runFirst() {
+    let toRun = shiftFromQueue();
+    let {
+        context,
+        action,
+        args,
+        } = toRun;
+    action.apply(context, args);
+}
 
-        _running = false;
-    },
-
-    runFirst() {
-        let toRun = Queue.shift();
-        let {
-            context,
-            action,
-            args,
-            } = toRun;
-        action.apply(context, args);
-    },
-
+export default {
+    createAction,
+    rejectContext,
 };
-
-export default Queue;

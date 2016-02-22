@@ -1,19 +1,21 @@
-var I = require('immutable');
+import * as I from 'immutable';
 
-var Reactor = require('./Reactor.js');
+import Reactor from './Reactor.js';
 
 var {
     immutableWriteWrapper,
     immutableReadWrapper,
     } = require('./ImmutableWrapper.js');
 
-class Data extends Reactor {
+export default class Data extends Reactor {
 
     constructor(initialData) {
         super();
-        this.digest(I.fromJS(initialData));
+
         immutableReadWrapper(this);
         immutableWriteWrapper(this);
+
+        this.digest(I.fromJS(initialData));
     }
 
     get isData() {
@@ -30,5 +32,3 @@ class Data extends Reactor {
     }
 
 }
-
-module.exports = Data;

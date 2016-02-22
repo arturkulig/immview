@@ -88,7 +88,7 @@ function immutableReadWrapper(that) {
         'isSubset',
         'isSuperset',
     ].forEach(prop => {
-        that[prop] = that[prop] || (function() {
+        that[prop] = that[prop] || (function () {
             return that.structure[prop].apply(that.structure, arguments);
         });
     });
@@ -114,13 +114,13 @@ function immutableWriteWrapper(that) {
         'mergeIn',
         'mergeDeepIn',
   ].forEach(prop => {
-      that[prop] = that[prop] || (function() {
+      that[prop] = that[prop] || (function () {
           return that.digest(that.structure[prop].apply(that.structure, arguments));
       }.bind(that));
   });
 }
 
-module.exports = {
+export {
     immutableWriteWrapper,
     immutableReadWrapper,
 };

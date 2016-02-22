@@ -1,11 +1,11 @@
 import Queue from '../src/Queue';
 
-describe('Queue', function() {
-    it('exists', function() {
+describe('Queue', function () {
+    it('exists', function () {
         expect(typeof Queue).toBeTruthy();
     });
 
-    it('creates a runnable command', function() {
+    it('creates a runnable command', function () {
         let test = false;
         let d = {
             testCmd: () => {
@@ -17,7 +17,7 @@ describe('Queue', function() {
         expect(test).toBeTruthy();
     });
 
-    it('creates a runnable context command', function() {
+    it('creates a runnable context command', function () {
         let test = false;
         let d = {
             testCmd: () => {
@@ -25,7 +25,7 @@ describe('Queue', function() {
                 test = true;
             },
 
-            secondTestCmd: function() {
+            secondTestCmd: function () {
                 console.log('secondTestCmd');
                 this.testCmd();
             },
@@ -35,7 +35,7 @@ describe('Queue', function() {
         expect(test).toBeTruthy();
     });
 
-    it('runs commands separately in call order', function() {
+    it('runs commands separately in call order', function () {
         let testString = '';
         let commands = {
             cmd1: () => {
@@ -65,7 +65,7 @@ describe('Queue', function() {
 
     });
 
-    it('passes arguments', function() {
+    it('passes arguments', function () {
         let test = 'c';
         let action = appendix => test += appendix;
         let command = Queue.createAction(action);
@@ -73,29 +73,32 @@ describe('Queue', function() {
         expect(test).toBe('casd');
     });
 
-    it('removes unused context', function() {
+    it('removes unused context', function () {
         let test;
+
         const startAction = () => {
-            contextNestedAction();
-            contextNestedAction();
+            ctxNestedAction();
+            ctxNestedAction();
         };
+
         const startActionCancellingOut = () => {
-            contextNestedAction();
-            contextNestedAction();
-            Queue.rejectContext(context);
+            ctxNestedAction();
+            ctxNestedAction();
+            Queue.rejectContext(ctx);
         };
+
         const nestedAction = () => test += 'c';
-        const context = {};
-        const contextStartAction = Queue.createAction(startAction, context);
-        const contextStartActionCancellingOut = Queue.createAction(startActionCancellingOut, context);
-        const contextNestedAction = Queue.createAction(nestedAction, context);
+        const ctx = {};
+        const ctxStartAction = Queue.createAction(startAction, ctx);
+        const ctxStartActionCancellingOut = Queue.createAction(startActionCancellingOut, ctx);
+        const ctxNestedAction = Queue.createAction(nestedAction, ctx);
 
         test = '';
-        contextStartAction();
+        ctxStartAction();
         expect(test).toBe('cc');
 
         test = '';
-        contextStartActionCancellingOut();
+        ctxStartActionCancellingOut();
         expect(test).toBe('');
     });
 });

@@ -1,6 +1,8 @@
-import I from 'immutable';
+import * as I from 'immutable';
 
 import Queue from './Queue.js';
+
+let noop = () => {};
 
 export default class Domain {
     /**
@@ -8,8 +10,24 @@ export default class Domain {
      * @param {Reactor} view
      */
     constructor(view, actions) {
-        this.view = view;
-        this._actionNames = Object.keys(actions);
+        this._claimView(view);
+        this._claimActions(actions);
+    }
+
+    _claimView(view) {
+        if (view.isReactor) {
+            this.view = view;
+
+            if (view.isData) {
+                this.data = view;
+            }
+        } else {
+            throw new Error('view is not inheriting Reactor type');
+        }
+    }
+
+    _claimActions(actions) {
+        this._actionNames = actions ? Object.keys(actions) : [];
 
         this._actionNames.forEach((actionName) => {
             if (this[actionName]) {
@@ -18,6 +36,10 @@ export default class Domain {
 
             this[actionName] = Queue.createAction(actions[actionName], this);
         });
+    }
+
+    get structure() {
+        return this.view && this.view.structure;
     }
 
     get isDomain() {
@@ -29,9 +51,16 @@ export default class Domain {
     }
 
     destroy() {
+        // destroy and unmount a structure
         this.view.destroy();
         this.view = null;
 
+        // remove all queued actions
         Queue.rejectContext(this);
+
+        // unmount all domain methods
+        this._actionNames.forEach((actionName) => {
+            this[actionName] = noop;
+        });
     }
 }

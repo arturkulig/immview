@@ -1,6 +1,6 @@
-var Domain = require('./Domain.js');
-var Data = require('./Data.js');
-var View = require('./View.js');
+import Domain from './Domain.js';
+import Data from './Data.js';
+import View from './View.js';
 
 export {
     Data,

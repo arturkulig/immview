@@ -1,6 +1,6 @@
-var I = require('immutable');
+import * as I from 'immutable';
 
-class Reactor {
+export default class Reactor {
     constructor() {
         this.reactors = I.Set();
         this.structure = undefined; //yet declared
@@ -12,6 +12,7 @@ class Reactor {
 
     subscribe(reaction) {
         this.reactors = this.reactors.add(reaction);
+        reaction(this.structure);
         return () => {
             this.reactors = this.reactors.delete(reaction);
         };
@@ -24,17 +25,16 @@ class Reactor {
     digest(data) {
         var newValue = this.process(data);
         if (newValue !== this.structure) {
-            this.flush(this.structure = newValue);
+            this.structure = newValue;
+            this.flush();
         }
     }
 
-    flush(data) {
-        this.reactors.forEach(reactor => reactor(data));
+    flush() {
+        this.reactors.forEach(reactor => reactor(this.structure));
     }
 
     destroy() {
         throw new Error('abstract');
     }
 }
-
-module.exports = Reactor;
