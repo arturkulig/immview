@@ -1,3 +1,5 @@
+import Queue from './Queue';
+
 /**
  * adds read methods to `that`
  * that enable reading from its structure
@@ -88,9 +90,9 @@ function immutableReadWrapper(that) {
         'isSubset',
         'isSuperset',
     ].forEach(prop => {
-        that[prop] = that[prop] || (function () {
-            return that.structure[prop].apply(that.structure, arguments);
-        });
+        that[prop] = function (...args) {
+            return that.structure[prop].apply(that.structure, args);
+        };
     });
 }
 
@@ -113,11 +115,11 @@ function immutableWriteWrapper(that) {
         'updateIn',
         'mergeIn',
         'mergeDeepIn',
-  ].forEach(prop => {
-      that[prop] = that[prop] || (function () {
-          return that.digest(that.structure[prop].apply(that.structure, arguments));
-      }.bind(that));
-  });
+    ].forEach(prop => {
+        that[prop] = Queue.createAction(function (...args) {
+            that.digest(that.structure[prop].apply(that.structure, args));
+        });
+    });
 }
 
 export {

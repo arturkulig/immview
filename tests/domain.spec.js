@@ -8,7 +8,7 @@ describe('Domain', function () {
     });
 
     it('cannot be created from non-Reactor type', function () {
-        expect(function() {
+        expect(function () {
             new Domain({});
         }).toThrow();
     });

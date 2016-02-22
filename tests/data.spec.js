@@ -30,7 +30,7 @@ describe('Data', function () {
             expect(state.get('a')).toBe(1);
             expect(state.get('d')).toBe(forthVal);
             if (forthVal) {
-                done();
+                setTimeout(done);
             }
         });
 
