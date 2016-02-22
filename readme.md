@@ -83,17 +83,23 @@ new View ( dataSource: Data )
 // duplicate View source
 new View ( dataSource: View )
 
-// join sources into a Map
-new View ( dataSources: { [string]: Data/View } )
+// duplicate Domain source
+new View ( dataSource: Domain )
 
-// transform every Data source with processor function
+// join sources into a Map
+new View ( dataSources: { [string]: Data/View/Domain } )
+
+// transform Data source with processor function
 new View ( dataSource: Data, processor: dataSource => void )
 
-// transform every View source with processor function
+// transform View source with processor function
 new View ( dataSource: View , processor: dataSource => void )
 
+// transform Domain source with processor function
+new View ( dataSource: Domain , processor: dataSource => void )
+
 // join sources into a Map and transform it with processor function
-new View ( dataSources: { [string]: Data/View } , processor: dataSource => void )
+new View ( dataSources: { [string]: Data/View/Domain } , processor: dataSource => void )
 ```
 
 ## Domain
@@ -108,12 +114,12 @@ new Domain ( source: Data , { [string]:Function } )
 new Domain ( source: View , { [string]:Function } )
 
 // example
-let Sight = new View ({
+const Sight = new View({
 	Horizon,
 	Muscles,
 });
 
-let Eyes = new Domain (
+const Eyes = new Domain(
 	Sight,
 	{
 		roll() {
