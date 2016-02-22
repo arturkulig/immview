@@ -10,6 +10,13 @@ export default class Domain {
      * @param {Reactor} view
      */
     constructor(view, actions) {
+        /** @type {View} */
+        this.view = null;
+        /** @type {Data} */
+        this.data = null;
+        /** @type {String[]} */
+        this._actionNames = null;
+
         this._claimView(view);
         this._claimActions(actions);
     }
@@ -54,6 +61,7 @@ export default class Domain {
         // destroy and unmount a structure
         this.view.destroy();
         this.view = null;
+        this.data = null;
 
         // remove all queued actions
         Queue.rejectContext(this);
@@ -62,5 +70,6 @@ export default class Domain {
         this._actionNames.forEach((actionName) => {
             this[actionName] = noop;
         });
+        this._actionNames = null;
     }
 }
