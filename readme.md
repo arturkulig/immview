@@ -1,28 +1,29 @@
 #immview
 
-A library to create data structures with Immutable.js enabling efficient change tracking.
+A library to create data structures with Immutable.js enabling efficient change tracking. It can be used in place of any flux implementation, redux, immstruct+omniscent.
+
+## Compounds
 
 **Data** is independent data source class. Allows direct changes.
 
 **View** is derivative data source class. Consists of **Data** input(s) and processor function. Changes everytime each **Data** input changes.
 
+> They both share interface with `Iterable` of Immutable.js, but `View` is read-only structure.
+
 > Direct changes are queued and executed one after another, so they change reactions will never recur.
 
-**Domain** is wrapper for both, gathering actions so they are executed in queued fashion as well.
+**Domain** is wrapper for both **Data** and **View**, gathering actions so they are executed in queued fashion as well.
 
 ## Installation
 
-	npm i immview --save
-
-## Idea
-
-Two classes are available within the lib: `Data` and `View`.
-They both share interface with `Iterable` of Immutable.js, but `View` is read-only structure.
+```bash
+npm i immview --save
+```
 
 ## Example
 
 ```javascript
-var IV = require('immview');
+import * as IV from 'immview';
 
 var dataSource = new IV.Data({
 	a:1,
@@ -68,9 +69,15 @@ If you are using React to create presentation layer of your app you should check
 
 ```javascript
 import {Data} from 'immview';
+
 new Data( initialData: Object )
 ```
-initialData will be transformed to Immutable.js structure immediately.
+
+> Data have both read and write functions (list below).
+
+> Write functions are queued with Domain actions.
+
+> An initialData object can be object any Immutable.js data structure. Plain objects will be transformed to Immutable.js data structures.
 
 ## View
 
@@ -102,6 +109,9 @@ new View ( dataSource: Domain , processor: dataSource => void )
 new View ( dataSources: { [string]: Data/View/Domain } , processor: dataSource => void )
 ```
 
+> A View instance has only read functions (list below).
+> A processor function result can be any Immutable.js data structure.
+
 ## Domain
 
 ```javascript
@@ -130,3 +140,85 @@ const Eyes = new Domain(
 
 Eyes.roll();
 ```
+
+## Read functions
+- equals
+- hashCode
+- get
+- has
+- includes
+- first
+- last
+- getIn
+- hasIn
+- toJS
+- toObject
+- toArray
+- toMap
+- toOrderedMap
+- toSet
+- toOrderedSet
+- toList
+- toStack
+- toSeq
+- toKeyedSeq
+- toIndexedSeq
+- toSetSeq
+- keys
+- values
+- entries
+- keySeq
+- valueSeq
+- entrySeq
+- map
+- filter
+- filterNot
+- reverse
+- sort
+- sortBy
+- groupBy
+- forEach
+- slice
+- rest
+- butLast
+- skip
+- skipLast
+- skipWhile
+- skipUntil
+- take
+- takeLast
+- takeWhile
+- takeUntil
+- concat
+- flatten
+- flatMap
+- reduce
+- reduceRight
+- every
+- some
+- join
+- isEmpty
+- count
+- countBy
+- find
+- findLast
+- findEntry
+- findLastEntry
+- max
+- maxBy
+- min
+- minBy
+- isSubset
+- isSuperset
+
+## Write functions
+- set
+- delete
+- update
+- merge
+- mergeDeep
+- setIn
+- deleteIn
+- updateIn
+- mergeIn
+- mergeDeepIn
