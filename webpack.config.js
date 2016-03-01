@@ -1,4 +1,5 @@
 var path = require('path');
+
 module.exports = {
     entry: path.resolve(__dirname, 'src/index.js'),
     output: {
@@ -12,6 +13,10 @@ module.exports = {
     },
     module: {
         loaders: [
+            {
+                test: /\.js$/,
+                loader: 'uglify',
+            },
             {
                 test: /\.js$/,
                 loader: 'babel',

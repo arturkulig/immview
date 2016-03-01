@@ -1,5 +1,6 @@
 var webpackConfig = require('./webpack.config.js');
 
+webpackConfig.module.loaders = webpackConfig.module.loaders.filter(entry => entry.loader !== 'uglify');
 webpackConfig.devtool = 'inline-source-map';
 webpackConfig.entry = './tests/index.js';
 webpackConfig.externals = null;
