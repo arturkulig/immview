@@ -115,6 +115,12 @@ function immutableWriteWrapper(that) {
         'updateIn',
         'mergeIn',
         'mergeDeepIn',
+        /* Set */
+        'add',
+        'clear',
+        'union',
+        'intersect',
+        'substract',
     ].forEach(prop => {
         that[prop] = Queue.createAction(function (...args) {
             that.digest(that.structure[prop].apply(that.structure, args));
