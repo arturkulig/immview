@@ -1,4 +1,5 @@
 import Data from '../src/Data';
+import * as I from 'immutable';
 
 describe('Data', function () {
 
@@ -41,15 +42,21 @@ describe('Data', function () {
     it('triggers reaction only for actual change', function () {
 
         var reactions = 0;
+
+        var getDataMap = () => I.fromJS({ a: 1, b: { c: 2 } });
+
+        var d = new Data(getDataMap());
+
         d.subscribe(() => {
             reactions++;
         });
+
         expect(reactions).toBe(1); // subscription -> fake reaction
-        d.set('d', 3); // change -> reaction
+        d.update(() => getDataMap().set('d', 3)); // change -> reaction
         expect(reactions).toBe(2);
-        d.set('d', 3); // no change -> no reaction
+        d.update(() => getDataMap().set('d', 3)); // no change -> no reaction
         expect(reactions).toBe(2);
-        d.set('d', 4); // change -> reaction
+        d.update(() => getDataMap().set('d', 4)); // change -> reaction
         expect(reactions).toBe(3);
     });
 

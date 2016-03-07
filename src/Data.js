@@ -15,7 +15,11 @@ export default class Data extends Reactor {
         immutableReadWrapper(this);
         immutableWriteWrapper(this);
 
-        this.digest(I.fromJS(initialData));
+        if (I.Iterable.isIterable(initialData)) {
+            this.digest(initialData);
+        } else {
+            this.digest(I.fromJS(initialData));
+        }
     }
 
     get isData() {

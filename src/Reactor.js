@@ -1,5 +1,12 @@
 import * as I from 'immutable';
 
+function hasValue(v) {
+    return (
+        v !== undefined &&
+        v !== null
+    );
+}
+
 export default class Reactor {
     constructor() {
         this.reactors = I.Set();
@@ -24,7 +31,12 @@ export default class Reactor {
 
     digest(data) {
         var newValue = this.process(data);
-        if (newValue !== this.structure) {
+        if (
+            hasValue(newValue) && (
+                !hasValue(this.structure) ||
+                I.is(newValue, this.structure) === false
+            )
+        ) {
             this.structure = newValue;
             this.flush();
         }
