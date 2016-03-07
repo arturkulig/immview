@@ -2,7 +2,8 @@ import * as I from 'immutable';
 
 import Queue from './Queue.js';
 
-let noop = () => {};
+let noop = () => {
+};
 
 export default class Domain {
     /**
@@ -10,11 +11,17 @@ export default class Domain {
      * @param {Reactor} view
      */
     constructor(view, actions) {
-        /** @type {View} */
+        /**
+         * @private
+         * @type {View} */
         this.view = null;
-        /** @type {Data} */
+        /**
+         * @private
+         * @type {Data} */
         this.data = null;
-        /** @type {String[]} */
+        /**
+         * @private
+         * @type {String[]} */
         this._actionNames = null;
 
         this._claimView(view);
@@ -48,6 +55,17 @@ export default class Domain {
     get structure() {
         return this.view && this.view.structure;
     }
+
+    read() {
+        if (this.view) {
+            return this.view.read();
+        }
+    }
+
+    // no write method now and in the future
+    // as it would encourage developers
+    // to modify domain data
+    // outside of the domain scope
 
     get isDomain() {
         return true;

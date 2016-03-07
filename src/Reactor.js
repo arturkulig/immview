@@ -9,7 +9,14 @@ function hasValue(v) {
 
 export default class Reactor {
     constructor() {
+        /**
+         * @private
+         */
         this.reactors = I.Set();
+        /**
+         * @private
+         * @type {I.Iterable}
+         */
         this.structure = undefined; //yet declared
     }
 
@@ -48,5 +55,9 @@ export default class Reactor {
 
     destroy() {
         throw new Error('abstract');
+    }
+
+    read() {
+        return this.structure;
     }
 }

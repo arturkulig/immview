@@ -1,5 +1,6 @@
 import * as I from 'immutable';
 
+import Queue from './Queue';
 import Reactor from './Reactor.js';
 
 var {
@@ -33,6 +34,16 @@ export default class Data extends Reactor {
     destroy() {
         this.structure = null;
         this.reactors = null;
+    }
+
+    write(change) {
+        if (typeof change === 'function') {
+            Queue.appendAndRunQueue(function updateStructure() {
+                this.digest(change.apply(this, [this.read()]));
+            }, this, [change]);
+        } else {
+            Queue.appendAndRunQueue(this.digest, this, [change]);
+        }
     }
 
 }

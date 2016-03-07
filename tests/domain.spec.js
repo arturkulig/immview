@@ -18,20 +18,20 @@ describe('Domain', function () {
 
         // this should be really tested here
         // so it is just informative
-        expect(d.get('a')).toBe(1);
+        expect(d.read().get('a')).toBe(1);
 
         let dmn = new Domain(d);
-        expect(dmn.structure.get('a')).toBe(1);
+        expect(dmn.read().get('a')).toBe(1);
     });
 
     it('can be created from a View type', function () {
         let d = new Data({ a: 1 });
 
         let v = new View(d, data => data);
-        expect(d.get('a')).toBe(1);
+        expect(d.read().get('a')).toBe(1);
 
         let dmn2 = new Domain(v);
-        expect(dmn2.structure.get('a')).toBe(1);
+        expect(dmn2.read().get('a')).toBe(1);
     });
 
     it('acquire queueable methods', function () {
@@ -68,7 +68,7 @@ describe('Domain', function () {
 
         expect(testVar).toBe(1);
 
-        dmn.data.set('a', 2);
+        d.write(v => v.set('a', 2));
 
         expect(testVar).toBe(3);
     });

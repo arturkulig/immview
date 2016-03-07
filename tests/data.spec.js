@@ -1,3 +1,4 @@
+import Queue from '../src/Queue.js';
 import Data from '../src/Data';
 import * as I from 'immutable';
 
@@ -14,14 +15,37 @@ describe('Data', function () {
     });
 
     it('can be read from', function () {
-        expect(d.get('a')).toBe(1);
-        expect(d.getIn(['b', 'c'])).toBe(2);
-        expect(d.toJS()).toEqual({ a: 1, b: { c: 2 } });
+        expect(d.read().get('a')).toBe(1);
+        expect(d.read().getIn(['b', 'c'])).toBe(2);
+        expect(d.read().toJS()).toEqual({ a: 1, b: { c: 2 } });
     });
 
-    it('can be written to', function () {
-        d.set('d', 3);
-        expect(d.get('d')).toBe(3);
+    it('can be written to with a new data', function () {
+        d.write(d.read().setIn(['b', 'c'], 3));
+        d.write(d.read().set('d', 3));
+        expect(d.read().getIn(['b', 'c'])).toBe(3);
+        expect(d.read().get('d')).toBe(3);
+    });
+
+    it('can be written to with a new data', function () {
+        Queue.appendAndRunQueue(function () {
+            //this time both writes will be executed after current command execution
+            d.write(d.read().setIn(['b', 'c'], 3));
+            d.write(d.read().set('d', 3));
+        });
+
+        // with a value only last write
+        // requested during one queue command or outside of queue
+        // will last
+        expect(d.read().getIn(['b', 'c'])).toBe(2);
+        expect(d.read().get('d')).toBe(3);
+    });
+
+    it('can be written to with a function returning data', function () {
+        d.write(v => v.setIn(['b', 'c'], 3));
+        d.write(v => v.set('d', 3));
+        expect(d.read().getIn(['b', 'c'])).toBe(3);
+        expect(d.read().get('d')).toBe(3);
     });
 
     it('can be subscribed to', function (done) {
@@ -36,7 +60,7 @@ describe('Data', function () {
         });
 
         forthVal = 3;
-        d.set('d', forthVal);
+        d.write(d.read().set('d', forthVal));
     });
 
     it('triggers reaction only for actual change', function () {
@@ -52,28 +76,26 @@ describe('Data', function () {
         });
 
         expect(reactions).toBe(1); // subscription -> fake reaction
-        d.update(() => getDataMap().set('d', 3)); // change -> reaction
+        d.write(getDataMap().set('d', 3)); // change -> reaction
         expect(reactions).toBe(2);
-        d.update(() => getDataMap().set('d', 3)); // no change -> no reaction
+        d.write(getDataMap().set('d', 3)); // no change -> no reaction
         expect(reactions).toBe(2);
-        d.update(() => getDataMap().set('d', 4)); // change -> reaction
+        d.write(getDataMap().set('d', 4)); // change -> reaction
         expect(reactions).toBe(3);
     });
 
-    it('can be unsubscribed from', function (done) {
+    it('can be unsubscribed from', function () {
         var reactions = 0;
         var unsub = d.subscribe(() => {
             reactions++;
         });
 
-        d.set('d', 3); // change -> reaction
+        d.write(d.read().set('d', 3)); // change -> reaction
         expect(reactions).toBe(2);
 
         unsub(); // halt reactions
 
-        d.set('d', 5); // change -> no reaction
+        d.write(d.read().set('d', 5)); // change -> no reaction
         expect(reactions).toBe(2);
-
-        done();
     });
 });

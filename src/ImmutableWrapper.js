@@ -1,6 +1,11 @@
 import Queue from './Queue';
 
 /**
+ * @deprecated
+ * @description this module is meant for deprecation in next major
+ */
+
+/**
  * adds read methods to `that`
  * that enable reading from its structure
  *

@@ -11,8 +11,7 @@ let queue = I.OrderedSet();
  */
 function createAction(action, context) {
     return (...args) => {
-        appendToQueue(action, context, args);
-        run();
+        appendAndRunQueue(action, context, args);
     };
 }
 
@@ -28,6 +27,11 @@ function appendToQueue(action, context, args) {
         context,
         args,
     });
+}
+
+function appendAndRunQueue(action, context, args) {
+    appendToQueue(action, context, args);
+    run();
 }
 
 /**
@@ -86,4 +90,5 @@ function runFirst() {
 export default {
     createAction,
     rejectContext,
+    appendAndRunQueue,
 };
