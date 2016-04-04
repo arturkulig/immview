@@ -59,7 +59,7 @@ console.log(dataDerivative.toJS());
 */
 
 /** A CHANGE! */
-dataSource.set('a', 3);
+dataSource.write(data => data.set('a', 3));
 
 console.log(dataSource.toJS());
 /* data source changed
