@@ -1,8 +1,6 @@
-import * as I from 'immutable';
-
 import Queue from './Queue.js';
 
-let noop = () => {
+const noop = () => {
 };
 
 export default class Domain {
@@ -57,9 +55,11 @@ export default class Domain {
     }
 
     read() {
-        if (this.view) {
-            return this.view.read();
-        }
+        return this.view.read();
+    }
+    
+    map(nextProcessor) {
+        return this.view.map(nextProcessor);
     }
 
     // no write method now and in the future

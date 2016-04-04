@@ -92,7 +92,7 @@ Write functions are queued with Domain actions.
 
 An **initialData** object can be object any Immutable.js data structure. Plain objects will be transformed to Immutable.js data structures.
 
-### Data::read() => Immutable.Iterable
+### Data::read() => Iterable
 
 Method used to retrieve current structure holden by the Data.
 
@@ -102,8 +102,8 @@ let d = new Data({a: 1});
 d.read().get('a'); // = 1
 ```
 
-### Data::write(change: Immutable.Iterable ) => void
-### Data::write(change: (currentStructure) => Immutable.Iterable) => void
+### Data::write(change: Iterable ) => void
+### Data::write(change: (currentStructure) => Iterable) => void
 
 Method used to store new Immutable data structure.
 
@@ -112,7 +112,7 @@ Method used to store new Immutable data structure.
 - is any Immutable data structure that should replace current one. If passed value is either undefined or null, replacement will not occur.
 - is a function that should return Immutable data structure that should replace current one. If function returns undefined or null, replacement will not occur.
 
-This function will not return changed structure so chaining will not be possible. It is because if this the change is requested mid queue run, it will be postponed and executed after all currently queued commands.
+This function will not return changed structure so chaining will not be possible. It is because if this the change is requested during inside queued function (another *write* call or a **Domain** command), it will be postponed and executed after all currently queued commands. You should never presume timing of write execution.
 
 ```javascript
 //Example
@@ -129,45 +129,57 @@ d.write(structure => structure.set('b', 2));
 ### Data::subscribe( reaction: (data) => void )
 Registers a function called every time when the Data changes value that it holds.
 
+### Data::map( processor: (sourceData: Iterable) => Iterable )
+Creates new View with the Data instance as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
+
 ## View
 
 ```javascript
 import {View} from 'immview';
 
 // duplicate Data source
-new View ( dataSource: Data )
+new View ( sourceDataProvider: Data )
 
 // duplicate View source
-new View ( dataSource: View )
+new View ( sourceDataProvider: View )
 
 // duplicate Domain source
-new View ( dataSource: Domain )
+new View ( sourceDataProvider: Domain )
 
 // join sources into a Map
-new View ( dataSources: { [string]: Data/View/Domain } )
+new View ( sourceDataProvider: { [string]: Data/View/Domain } )
 
 // transform Data source with processor function
-new View ( dataSource: Data, processor: dataSource => void )
+new View ( sourceDataProvider: Data, processor: (sourceData: Iterable) => Iterable )
 
 // transform View source with processor function
-new View ( dataSource: View , processor: dataSource => void )
+new View ( sourceDataProvider: View , processor: (sourceData: Iterable) => Iterable )
 
 // transform Domain source with processor function
-new View ( dataSource: Domain , processor: dataSource => void )
+new View ( 
+	sourceDataProvider: Domain ,
+	processor: (sourceData: Iterable) => Iterable
+	)
 
 // join sources into a Map and transform it with processor function
-new View ( dataSources: { [string]: Data/View/Domain } , processor: dataSource => void )
+new View (
+	sourceDataProvider: { [string]: Data/View/Domain } ,
+	processor: (sourceData: Iterable) => Iterable
+	)
 ```
 
-A View instance has only read functions (list below).
-A processor function result can be any Immutable.js data structure.
+Constructor of View object takes source data provider (Data, View or Domain) as first argument and optionally function transforming this data as a second argument.
+A processor function will receive an Immutable data structure and its result must be any Immutable.js data structure.
 
-### View::read() => Immutable.Iterable
+### View::read() => Iterable
 
 Method used to retrieve current structure holden by the View.
 
 ### View::subscribe( reaction: (data) => void )
 Registers a function called every time when the View changes value that it holds.
+
+### View::map( processor: (sourceData: Iterable) => Iterable )
+Creates new View with current instance as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
 ## Domain
 
@@ -198,6 +210,14 @@ const Eyes = new Domain(
 Eyes.roll();
 ```
 
+First argument of constructor is a data source tied to the **Domain**. Can be thought of as a flux's store equivalent. Only single data source can be tied to it, so it can be used as data source, but when you have many approaches to format the same or just related data you can either merge all views to one with...
+```
+new View ( {view1, view2} );
+```
+
+Second argument is an object aggregating functions used to create commands that will be exposed as part of the **Domain** interface. These functions will be wrapped - they won't be returning anything and will be executed in call order, one after another even if calls will be nested, which will be probably very common situation in most installations.
+Those functions can be thought of as equivalent of actions and reducers as they will be bubbling events to parent **Domains** or modifying their **Data** sources.
+
 ### Domain::read() => Immutable.Iterable
 
 Method used to retrieve current structure holden by the Domain's View or Data.
@@ -206,3 +226,6 @@ Method used to retrieve current structure holden by the Domain's View or Data.
 
 ### Domain::subscribe( reaction: (data) => void )
 Registers a function called every time when the Domain's View or Data changes value that it holds.
+
+### Domain::map( processor: (sourceData: Iterable) => Iterable )
+Creates new View with the Domain instance source as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.

@@ -1,4 +1,7 @@
-import * as I from 'immutable';
+import {
+    Set,
+    is,
+} from 'immutable';
 
 function hasValue(v) {
     return (
@@ -7,15 +10,17 @@ function hasValue(v) {
     );
 }
 
+const emptySet = Set();
+
 export default class Reactor {
     constructor() {
         /**
          * @private
          */
-        this.reactors = I.Set();
+        this.reactors = emptySet;
         /**
          * @private
-         * @type {I.Iterable}
+         * @type {Iterable}
          */
         this.structure = undefined; //yet declared
     }
@@ -24,27 +29,34 @@ export default class Reactor {
         return true;
     }
 
-    subscribe(reaction) {
+    /**
+     * @param {function} reaction
+     * @returns {function()}
+     */
+    appendReactor(reaction) {
         this.reactors = this.reactors.add(reaction);
-        reaction(this.structure);
         return () => {
             this.reactors = this.reactors.delete(reaction);
         };
     }
 
-    process() {
-        throw new Error('abstract');
+    /**
+     * @param {function} reaction
+     * @returns {function()}
+     */
+    subscribe(reaction) {
+        reaction(this.structure);
+        return this.appendReactor(reaction);
     }
 
     digest(data) {
-        var newValue = this.process(data);
         if (
-            hasValue(newValue) && (
+            hasValue(data) && (
                 !hasValue(this.structure) ||
-                I.is(newValue, this.structure) === false
+                is(data, this.structure) === false
             )
         ) {
-            this.structure = newValue;
+            this.structure = data;
             this.flush();
         }
     }
@@ -53,8 +65,13 @@ export default class Reactor {
         this.reactors.forEach(reactor => reactor(this.structure));
     }
 
+    destroyReactor() {
+        this.structure = null;
+        this.reactors = emptySet;
+    }
+
     destroy() {
-        throw new Error('abstract');
+        this.destroyReactor();
     }
 
     read() {

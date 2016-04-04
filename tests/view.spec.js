@@ -90,6 +90,8 @@ describe('View', function () {
                 var d1 = new Data({ a: 1 });
                 var d2 = new Data({ a: 2 });
                 var v2 = new View({ d1, d2 }, data => {
+                    expect(data.get('d1')).toBeDefined();
+                    expect(data.get('d2')).toBeDefined();
                     return I.Map({
                         a: data.get('d1'),
                         b: data.get('d2'),
@@ -107,5 +109,17 @@ describe('View', function () {
             });
 
         });
+    });
+
+    it('creates new View deriving from current with \'map\' functions', done => {
+        new Domain(new Data(I.Map({ a: 1 })), {})
+            .map(data => data.set('b', 2)) // <- view from data
+            .map(data => data.setIn(['c'], 3)) // <- view from view
+            .subscribe(data => {
+                expect(data.get('a')).toBe(1);
+                expect(data.get('b')).toBe(2);
+                expect(data.get('c')).toBe(3);
+                done();
+            });
     });
 });

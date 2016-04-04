@@ -1,20 +1,13 @@
 import * as I from 'immutable';
 
 import Queue from './Queue';
+import View from './View.js';
 import Reactor from './Reactor.js';
-
-var {
-    immutableWriteWrapper,
-    immutableReadWrapper,
-    } = require('./ImmutableWrapper.js');
 
 export default class Data extends Reactor {
 
     constructor(initialData) {
         super();
-
-        immutableReadWrapper(this);
-        immutableWriteWrapper(this);
 
         if (I.Iterable.isIterable(initialData)) {
             this.digest(initialData);
@@ -27,15 +20,6 @@ export default class Data extends Reactor {
         return true;
     }
 
-    process(data) {
-        return data;
-    }
-
-    destroy() {
-        this.structure = null;
-        this.reactors = null;
-    }
-
     write(change) {
         if (typeof change === 'function') {
             Queue.appendAndRunQueue(function updateStructure() {
@@ -44,6 +28,10 @@ export default class Data extends Reactor {
         } else {
             Queue.appendAndRunQueue(this.digest, this, [change]);
         }
+    }
+
+    map(nextProcessor) {
+        return new View(this, nextProcessor);
     }
 
 }
