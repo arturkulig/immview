@@ -4,7 +4,14 @@ A library to create data structures with Immutable.js enabling efficient change 
 
 ## Idea
 
-With full usage of the library, you can think of it as of streams lines going only vertically, layer by layer, so it is always clear which layer depends on each other. **Down streams** (because of usage of Immutable.js) will only push data further only if data they contain (**Data**) or produce (**View**) actually changed. Layer **up stream** is a way to signal upper layers - they are counterpart of actions in flux. 
+Think of the library as tool for creating application layers/**domains** that are encapsulating concerns. These domains are revealing **single storage with [streaming](https://en.wikipedia.org/wiki/Stream_%28computing%29) capability** and an **interface to manipulate that storage** either directly or indirectly if assigned storage is transformation product of some other domain storage.
+
+Storage of a **Domain** can be either original data source (**Data**) or derivative data source (**View**). **Views** can be created as derivative from a **Data**, other **View** or combination of those and optionally use a transformation function. By doing so derivative data source subscribes to all changes to its source or sources and recalculates itself upon these changes optionally using provided transformation function.
+Due to this functionality if you familiar with stream libraries like Rx* they can be seen as **Data** being observable and **View** be merging and/or mapping stream.
+All **Domains** must have a storage (so either **Data** or a **View**), but not all storages must be assigned to a **Domain**.
+**Storages** (thanks to utilizing Immutable.js) will only push changes only if actual change is detected.
+
+**Domains** are exposing interface to either manipulate **Data** instances or use interface of other **Domains**.
 
 ### Compounds
 
@@ -32,7 +39,7 @@ Immview is registered on NPM.
 npm i immview --save
 ```
 
-## Example
+## Simple down stream example
 
 ```javascript
 // immview has no default export
