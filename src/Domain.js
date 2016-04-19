@@ -57,7 +57,7 @@ export default class Domain {
     read() {
         return this.view.read();
     }
-    
+
     map(nextProcessor) {
         return this.view.map(nextProcessor);
     }
@@ -73,6 +73,10 @@ export default class Domain {
 
     subscribe(reaction) {
         return this.view.subscribe(reaction);
+    }
+
+    appendReactor(reaction) {
+        return this.view.appendReactor(reaction);
     }
 
     destroy() {

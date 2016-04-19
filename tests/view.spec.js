@@ -26,6 +26,14 @@ describe('View', function () {
         expect(resultView.read().get('a')).toBe(1);
     });
 
+    it('can be created from a Domains', function () {
+        var aData = new Data({ a: 1 });
+        var aView = new View(aData, i=>i);
+        var aDomain = new Domain(aView, {});
+        var resultView = new View({ aD: aDomain }, i=>i);
+        expect(resultView.read().getIn(['aD', 'a'])).toBe(1);
+    });
+
     describe('', function () {
         var d;
         var v;
