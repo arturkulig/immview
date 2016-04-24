@@ -1,43 +1,41 @@
 import Queue from '../src/Queue';
 
-describe('Queue', function () {
-    it('exists', function () {
+describe('Queue', () => {
+    it('exists', () => {
         expect(typeof Queue).toBeTruthy();
     });
 
-    it('creates a runnable command', function () {
+    it('creates a runnable command', () => {
         let test = false;
-        let d = {
+        const d = {
             testCmd: () => {
                 test = true;
             },
         };
-        let command = Queue.createAction(d.testCmd);
+        const command = Queue.createAction(d.testCmd);
         command();
         expect(test).toBeTruthy();
     });
 
-    it('creates a runnable context command', function () {
+    it('creates a runnable context command', () => {
         let test = false;
-        let d = {
-            testCmd: () => {
-                console.log('testCmd');
+        const d = {
+            testCmd: function () {
                 test = true;
             },
 
             secondTestCmd: function () {
-                console.log('secondTestCmd');
                 this.testCmd();
             },
         };
-        let command = Queue.createAction(d.secondTestCmd, d);
+        const command = Queue.createAction(d.secondTestCmd, d);
         command();
         expect(test).toBeTruthy();
     });
 
-    it('runs commands separately in call order', function () {
+    it('runs commands separately in call order', () => {
         let testString = '';
-        let commands = {
+        const commands = {
             cmd1: () => {
                 testString += '1';
             },
@@ -52,7 +50,7 @@ describe('Queue', function () {
                 queueableCommands.cmd2();
             },
         };
-        let queueableCommands = {
+        const queueableCommands = {
             cmd1: Queue.createAction(commands.cmd1, commands),
             cmd2: Queue.createAction(commands.cmd2, commands),
             cmd3: Queue.createAction(commands.cmd3, commands),
@@ -65,15 +63,15 @@ describe('Queue', function () {
 
     });
 
-    it('passes arguments', function () {
+    it('passes arguments', () => {
         let test = 'c';
-        let action = appendix => test += appendix;
-        let command = Queue.createAction(action);
+        const action = appendix => test += appendix;
+        const command = Queue.createAction(action);
         command('asd');
         expect(test).toBe('casd');
     });
 
-    it('removes unused context', function () {
+    it('removes unused context', () => {
         let test;
 
         const startAction = () => {

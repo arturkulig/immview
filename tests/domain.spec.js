@@ -2,42 +2,42 @@ import Domain from '../src/Domain';
 import Data from '../src/Data';
 import View from '../src/View';
 
-describe('Domain', function () {
-    it('exists', function () {
+describe('Domain', () => {
+    it('exists', () => {
         expect(typeof Domain).toBeTruthy();
     });
 
-    it('cannot be created from non-Reactor type', function () {
-        expect(function () {
+    it('cannot be created from non-Reactor type', () => {
+        expect(() => {
             new Domain({});
         }).toThrow();
     });
 
-    it('can be created from Data type', function () {
-        let d = new Data({ a: 1 });
+    it('can be created from Data type', () => {
+        const d = new Data({ a: 1 });
 
         // this should be really tested here
         // so it is just informative
         expect(d.read().get('a')).toBe(1);
 
-        let dmn = new Domain(d);
+        const dmn = new Domain(d);
         expect(dmn.read().get('a')).toBe(1);
     });
 
-    it('can be created from a View type', function () {
-        let d = new Data({ a: 1 });
+    it('can be created from a View type', () => {
+        const d = new Data({ a: 1 });
 
-        let v = new View(d, data => data);
+        const v = new View(d, data => data);
         expect(d.read().get('a')).toBe(1);
 
-        let dmn2 = new Domain(v);
+        const dmn2 = new Domain(v);
         expect(dmn2.read().get('a')).toBe(1);
     });
 
-    it('acquire queueable methods', function () {
+    it('acquire queueable methods', () => {
         let testVar = '';
-        let d = new Data({ a: 1 });
-        let dmn = new Domain(d, {
+        const d = new Data({ a: 1 });
+        const dmn = new Domain(d, {
             testMethod1: () => {
                 testVar += '1';
             },
@@ -55,10 +55,10 @@ describe('Domain', function () {
         expect(testVar).toBe('211');
     });
 
-    it('allow subscriptions', function () {
+    it('allow subscriptions', () => {
         let testVar = 0;
-        let d = new Data({ a: 1 });
-        let dmn = new Domain(d);
+        const d = new Data({ a: 1 });
+        const dmn = new Domain(d);
 
         expect(testVar).toBe(0);
 
@@ -73,10 +73,10 @@ describe('Domain', function () {
         expect(testVar).toBe(3);
     });
 
-    it('can be destroyed mid-digest', function () {
+    it('can be destroyed mid-digest', () => {
         let testVar = '';
-        let d = new Data({ a: 1 });
-        let dmn = new Domain(d, {
+        const d = new Data({ a: 1 });
+        const dmn = new Domain(d, {
             testMethod1: () => {
                 testVar += '1';
             },

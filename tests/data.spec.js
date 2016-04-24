@@ -1,54 +1,39 @@
-import Queue from '../src/Queue.js';
 import Data from '../src/Data';
 import * as I from 'immutable';
 
-describe('Data', function () {
+describe('Data', () => {
 
-    var d;
+    let d;
 
     beforeEach(()=> {
         d = new Data({ a: 1, b: { c: 2 } });
     });
 
-    it('can be created', function () {
+    it('can be created', () => {
         expect(d.isData).toBe(true);
     });
 
-    it('can be read from', function () {
+    it('can be read from', () => {
         expect(d.read().get('a')).toBe(1);
         expect(d.read().getIn(['b', 'c'])).toBe(2);
         expect(d.read().toJS()).toEqual({ a: 1, b: { c: 2 } });
     });
 
-    it('can be written to with a new data', function () {
+    it('can be written to with a new data', () => {
         d.write(d.read().setIn(['b', 'c'], 3));
         d.write(d.read().set('d', 3));
         expect(d.read().getIn(['b', 'c'])).toBe(3);
         expect(d.read().get('d')).toBe(3);
     });
 
-    it('can be written to with a new data', function () {
-        Queue.appendAndRunQueue(function () {
-            //this time both writes will be executed after current command execution
-            d.write(d.read().setIn(['b', 'c'], 3));
-            d.write(d.read().set('d', 3));
-        });
-
-        // with a value only last write
-        // requested during one queue command or outside of queue
-        // will last
-        expect(d.read().getIn(['b', 'c'])).toBe(2);
-        expect(d.read().get('d')).toBe(3);
-    });
-
-    it('can be written to with a function returning data', function () {
+    it('can be written to with a function returning data', () => {
         d.write(v => v.setIn(['b', 'c'], 3));
         d.write(v => v.set('d', 3));
         expect(d.read().getIn(['b', 'c'])).toBe(3);
         expect(d.read().get('d')).toBe(3);
     });
 
-    it('can be subscribed to', function (done) {
+    it('can be subscribed to', done => {
         let forthVal;
 
         d.subscribe(state => {
@@ -63,13 +48,13 @@ describe('Data', function () {
         d.write(d.read().set('d', forthVal));
     });
 
-    it('triggers reaction only for actual change', function () {
+    it('triggers reaction only for actual change', () => {
 
-        var reactions = 0;
+        let reactions = 0;
 
-        var getDataMap = () => I.fromJS({ a: 1, b: { c: 2 } });
+        const getDataMap = () => I.fromJS({ a: 1, b: { c: 2 } });
 
-        var d = new Data(getDataMap());
+        const d = new Data(getDataMap());
 
         d.subscribe(() => {
             reactions++;
@@ -84,9 +69,9 @@ describe('Data', function () {
         expect(reactions).toBe(3);
     });
 
-    it('can be unsubscribed from', function () {
-        var reactions = 0;
-        var unsub = d.subscribe(() => {
+    it('can be unsubscribed from', () => {
+        let reactions = 0;
+        const unsub = d.subscribe(() => {
             reactions++;
         });
 
