@@ -3,6 +3,7 @@
   "version": "1.4.1",
   "description": "",
   "main": "dist/immview.js",
+  "jsnext:main": "src/index.js",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
     "test_once": "./node_modules/.bin/karma start --single-run",
