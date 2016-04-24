@@ -101,4 +101,17 @@ describe('Queue', function () {
         ctxStartActionCancellingOut();
         expect(test).toBe('');
     });
+
+    it('catches action error', done => {
+        const action = () => {
+            throw new Error('dope!');
+        };
+
+        Queue.runInQueue(
+            action,
+            null,
+            null
+        );
+        done();
+    });
 });
