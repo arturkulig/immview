@@ -2,6 +2,13 @@ import * as I from 'immutable';
 
 let isRunning = false;
 let queue = I.OrderedSet();
+const errorPrefix = 'Immview::Queue: ';
+
+export default {
+    createAction,
+    rejectContext,
+    runInQueue,
+};
 
 /**
  * Returns a function that is queueable version of provided one.
@@ -11,7 +18,7 @@ let queue = I.OrderedSet();
  */
 function createAction(action, context) {
     return (...args) => {
-        appendAndRunQueue(action, context, args);
+        runInQueue(action, context, args);
     };
 }
 
@@ -29,9 +36,9 @@ function appendToQueue(action, context, args) {
     });
 }
 
-function appendAndRunQueue(action, context, args) {
+function runInQueue(action, context, args) {
     appendToQueue(action, context, args);
-    run();
+    startQueue();
 }
 
 /**
@@ -55,7 +62,7 @@ function rejectContext(context) {
 /**
  * Starts executing the queue
  */
-function run() {
+function startQueue() {
     if (isRunning) {
         return;
     }
@@ -64,31 +71,42 @@ function run() {
 
     while (queue.count() > 0) {
         try {
-            runFirst();
+            tick(runFirst);
         } catch (e) {
-            console.error('Immview.Queue run - Error occured while running running a function');
-            console.error(e.message);
+            logError(e);
         }
     }
 
     isRunning = false;
 }
 
+// TODO make it replacable
+function tick(func) {
+    func();
+}
+
+function logError(e) {
+    console.error(`${errorPrefix}Error occured while running a function`);
+    if (typeof e === 'object') {
+        if (e.stack) {
+            console.error(e.stack);
+        } else {
+            console.error(e.name, e.message);
+        }
+    } else {
+        console.error(e);
+    }
+}
+
 /**
  * Execute first action of current queue
  */
 function runFirst() {
-    let toRun = shiftFromQueue();
-    let {
+    const toRun = shiftFromQueue();
+    const {
         context,
         action,
         args,
         } = toRun;
     action.apply(context, args);
 }
-
-export default {
-    createAction,
-    rejectContext,
-    appendAndRunQueue,
-};

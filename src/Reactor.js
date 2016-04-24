@@ -3,30 +3,41 @@ import {
     is,
 } from 'immutable';
 
-function hasValue(v) {
-    return (
-        v !== undefined &&
-        v !== null
-    );
-}
+const hasValue = v => (
+    v !== undefined &&
+    v !== null
+);
 
-const emptySet = Set();
+const shouldStructureBeReplaced = (structure, candidate) => {
+    return (
+        hasValue(candidate) && (
+            !hasValue(structure) ||
+            is(candidate, structure) === false
+        )
+    );
+};
 
 export default class Reactor {
     constructor() {
         /**
          * @private
          */
-        this.reactors = emptySet;
-        /**
-         * @private
-         * @type {Iterable}
-         */
-        this.structure = undefined; //yet declared
+        this.reactors = Set();
     }
 
     get isReactor() {
         return true;
+    }
+
+    read() {
+        return this.structure;
+    }
+
+    digest(data) {
+        if (shouldStructureBeReplaced(this.structure, data)) {
+            this.structure = data;
+            this.flush();
+        }
     }
 
     /**
@@ -45,36 +56,16 @@ export default class Reactor {
      * @returns {function()}
      */
     subscribe(reaction) {
-        reaction(this.structure);
+        reaction(this.read());
         return this.appendReactor(reaction);
     }
 
-    digest(data) {
-        if (
-            hasValue(data) && (
-                !hasValue(this.structure) ||
-                is(data, this.structure) === false
-            )
-        ) {
-            this.structure = data;
-            this.flush();
-        }
-    }
-
     flush() {
-        this.reactors.forEach(reactor => reactor(this.structure));
-    }
-
-    destroyReactor() {
-        this.structure = null;
-        this.reactors = emptySet;
+        this.reactors.forEach(reaction => reaction(this.read()));
     }
 
     destroy() {
-        this.destroyReactor();
-    }
-
-    read() {
-        return this.structure;
+        this.structure = null;
+        this.reactors = Set();
     }
 }

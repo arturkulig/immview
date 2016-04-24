@@ -1,11 +1,13 @@
-import * as I from 'immutable';
+import {
+    Map,
+} from 'immutable';
 import Reactor from './Reactor.js';
 
-const pass = data => data;
+const bypass = data => data;
 
 export default class View extends Reactor {
 
-    constructor(source, process = pass) {
+    constructor(source, process = bypass) {
         super();
 
         if (source && typeof source === 'object') {
@@ -15,6 +17,10 @@ export default class View extends Reactor {
                 this.connectToViews(source, process);
             }
         }
+    }
+
+    get isView() {
+        return true;
     }
 
     /**
@@ -33,11 +39,11 @@ export default class View extends Reactor {
      */
     connectToViews(views, process) {
         // initialize as a map{string:Iterable}
-        let mergedStructure = I.Map();
+        let mergedStructure = Map();
 
         const viewsNames = Object.keys(views);
 
-        //prefill mergedStructure before launching subscriptions
+        // prefill mergedStructure before launching subscriptions
         viewsNames.forEach(viewName => {
             const viewData = views[viewName].read();
             if (viewData) {
@@ -47,7 +53,7 @@ export default class View extends Reactor {
 
         const digestMerged = () => this.digest(process(mergedStructure));
 
-        //subscribe to all data changes in parent views
+        // subscribe to all data changes in parent views
         this.unsubs = viewsNames.map(
             viewName => views[viewName].appendReactor(
                 data => {
@@ -60,8 +66,12 @@ export default class View extends Reactor {
         digestMerged();
     }
 
-    get isView() {
-        return true;
+    /**
+     * Creates a View by digesting the stream
+     * @param {Function} nextProcessor
+     */
+    map(nextProcessor) {
+        return new View(this, nextProcessor);
     }
 
     destroy() {
@@ -72,14 +82,6 @@ export default class View extends Reactor {
         }
 
         this.unsubs = null;
-    }
-
-    /**
-     * Creates a View by digesting current View data
-     * @param {Function} nextProcessor
-     */
-    map(nextProcessor) {
-        return new View(this, nextProcessor);
     }
 
 }

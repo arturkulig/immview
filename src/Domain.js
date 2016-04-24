@@ -1,49 +1,49 @@
 import Queue from './Queue.js';
 
-const noop = () => {
-};
+const noop = () => null;
+
+const errorPrefix = 'Immview::Domain: ';
 
 export default class Domain {
     /**
      * Create a domain holding a view
-     * @param {Reactor} view
+     * @param {Reactor} stream
+     * @optional
+     * @param {Object.<function>} actions
      */
-    constructor(view, actions) {
-        /**
-         * @private
-         * @type {View} */
-        this.view = null;
-        /**
-         * @private
-         * @type {Data} */
-        this.data = null;
-        /**
-         * @private
-         * @type {String[]} */
-        this._actionNames = null;
-
-        this._claimView(view);
+    constructor(stream, actions) {
+        this._claimStream(stream);
         this._claimActions(actions);
     }
 
-    _claimView(view) {
-        if (view.isReactor) {
-            this.view = view;
-
-            if (view.isData) {
-                this.data = view;
-            }
-        } else {
-            throw new Error('view is not inheriting Reactor type');
+    /**
+     * @private
+     */
+    _claimStream(stream) {
+        if (stream.isReactor) {
+            this.stream = stream;
+            return;
         }
+
+        throw new Error(`${errorPrefix} provided stream is not inheriting from Reactor class`);
     }
 
+    /**
+     * @private
+     */
     _claimActions(actions) {
+        /**
+         * @private
+         */
         this._actionNames = actions ? Object.keys(actions) : [];
 
         this._actionNames.forEach((actionName) => {
             if (this[actionName]) {
-                throw new Error('"' + actionName + '" is reserved for Domain interface');
+                throw new Error(`${errorPrefix}${actionName} is reserved for Domain interface`);
+            }
+
+            if (typeof actions[actionName] !== 'function') {
+                throw new Error(`${errorPrefix}${actionName} action is not a function`);
             }
 
             this[actionName] = Queue.createAction(actions[actionName], this);
@@ -51,17 +51,27 @@ export default class Domain {
     }
 
     get structure() {
-        return this.view && this.view.structure;
+        return this.read();
     }
 
+    /**
+     * Retrieve last value on stream attached to the Domain
+     * @returns {Iterable}
+     */
     read() {
-        return this.view.read();
+        return this.stream.read();
     }
 
+    /**
+     * Create a new stream from a stream attached to the Domain
+     * @param {function(Iterable)} nextProcessor
+     * @returns {View}
+     */
     map(nextProcessor) {
-        return this.view.map(nextProcessor);
+        return this.stream.map(nextProcessor);
     }
 
+    // WRITE ?
     // no write method now and in the future
     // as it would encourage developers
     // to modify domain data
@@ -71,19 +81,34 @@ export default class Domain {
         return true;
     }
 
+    /**
+     * Register a listener to changes on data stream.
+     * Calls provided method upon registration.
+     * @param reaction
+     * @returns {function()} unsubscribe
+     */
     subscribe(reaction) {
-        return this.view.subscribe(reaction);
+        return this.stream.subscribe(reaction);
     }
 
+    /**
+     * Register a listener to changes on data stream.
+     * @param reaction
+     * @returns {function()} unsubscribe
+     */
     appendReactor(reaction) {
-        return this.view.appendReactor(reaction);
+        return this.stream.appendReactor(reaction);
     }
 
+    /**
+     * Remove all subscriptions caused by the domain.
+     * Destroy stream attached to it.
+     * Cancel all currently dispatched actions.
+     */
     destroy() {
         // destroy and unmount a structure
-        this.view.destroy();
-        this.view = null;
-        this.data = null;
+        this.stream.destroy();
+        this.stream = null;
 
         // remove all queued actions
         Queue.rejectContext(this);

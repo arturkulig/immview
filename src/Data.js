@@ -1,4 +1,7 @@
-import * as I from 'immutable';
+import {
+    Iterable,
+    fromJS,
+} from 'immutable';
 
 import Queue from './Queue';
 import View from './View.js';
@@ -9,10 +12,10 @@ export default class Data extends Reactor {
     constructor(initialData) {
         super();
 
-        if (I.Iterable.isIterable(initialData)) {
+        if (Iterable.isIterable(initialData)) {
             this.digest(initialData);
         } else {
-            this.digest(I.fromJS(initialData));
+            this.digest(fromJS(initialData));
         }
     }
 
@@ -20,16 +23,25 @@ export default class Data extends Reactor {
         return true;
     }
 
+    /**
+     * Dispatch a change instruction to the Data
+     * @param {Iterable|function(data: Iterable):Iterable} change
+     */
     write(change) {
         if (typeof change === 'function') {
-            Queue.appendAndRunQueue(function updateStructure() {
-                this.digest(change.apply(this, [this.read()]));
-            }, this, [change]);
+            Queue.runInQueue(
+                () => this.digest(change(this.read())),
+                this
+            );
         } else {
-            Queue.appendAndRunQueue(this.digest, this, [change]);
+            Queue.runInQueue(this.digest, this, [change]);
         }
     }
 
+    /**
+     * Creates a View by digesting the stream
+     * @param {Function} nextProcessor
+     */
     map(nextProcessor) {
         return new View(this, nextProcessor);
     }
