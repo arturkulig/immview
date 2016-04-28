@@ -30,11 +30,12 @@ export default class Data extends Reactor {
     write(change) {
         if (typeof change === 'function') {
             Queue.runInQueue(
+                2,
                 () => this.digest(change(this.read())),
                 this
             );
         } else {
-            Queue.runInQueue(this.digest, this, [change]);
+            Queue.runInQueue(2, this.digest, this, [change]);
         }
     }
 

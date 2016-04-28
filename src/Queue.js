@@ -1,53 +1,48 @@
-import * as I from 'immutable';
+import { OrderedSet } from 'immutable';
 
 let isRunning = false;
-let queue = I.OrderedSet();
+let queue = OrderedSet();
 const errorPrefix = 'Immview::Queue: ';
 
 export default {
-    createAction,
-    rejectContext,
     runInQueue,
+    rejectContext,
 };
 
-/**
- * Returns a function that is queueable version of provided one.
- * @param {Function} action
- * @param {*} [context]
- * @returns {Function}
- */
-function createAction(action, context) {
-    return (...args) => {
-        runInQueue(action, context, args);
-    };
-}
+const PRIORITY_DOMAIN = 1;
+const PRIORITY_DATA = 2;
 
 /**
  * Append new action onto end of the queue
+ * @param {number} priority (higher number - quicker execution)
  * @param {Function} action
  * @param {*} context
  * @param {Array.<*>} args
  */
-function appendToQueue(action, context, args) {
+function appendToQueue(priority = PRIORITY_DOMAIN, action, context, args) {
     queue = queue.add({
+        priority,
         action,
         context,
         args,
     });
 }
 
-function runInQueue(action, context, args) {
-    appendToQueue(action, context, args);
+function runInQueue(priority, action, context, args) {
+    appendToQueue(priority, action, context, args);
     startQueue();
 }
 
 /**
- * Removes and returns first action from the queue and
+ * Removes and returns action from the queue
  * @returns {{action:Function,context,args:Array.<*>}}
  */
 function shiftFromQueue() {
-    let toRun = queue.first();
-    queue = queue.rest();
+    const toRun = (
+        queue.find(item => item.priority === PRIORITY_DATA) ||
+        queue.find(item => item.priority === PRIORITY_DOMAIN)
+    );
+    queue = queue.delete(toRun);
     return toRun;
 }
 
@@ -85,6 +80,7 @@ function tick(func) {
     func();
 }
 
+// TODO make it replacable
 function logError(e) {
     console.error(`${errorPrefix}Error occured while running a function`);
     if (typeof e === 'object') {
@@ -102,11 +98,10 @@ function logError(e) {
  * Execute first action of current queue
  */
 function runFirst() {
-    const toRun = shiftFromQueue();
     const {
         context,
         action,
         args,
-        } = toRun;
+    } = shiftFromQueue();
     action.apply(context, args);
 }

@@ -46,7 +46,9 @@ export default class Domain {
                 throw new Error(`${errorPrefix}${actionName} action is not a function`);
             }
 
-            this[actionName] = Queue.createAction(actions[actionName], this);
+            this[actionName] = (...args) => {
+                Queue.runInQueue(1, actions[actionName], this, args);
+            };
         });
     }
 

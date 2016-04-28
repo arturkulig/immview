@@ -5,31 +5,29 @@ describe('Queue', () => {
         expect(typeof Queue).toBeTruthy();
     });
 
-    it('creates a runnable command', () => {
+    it('runs a command', () => {
         let test = false;
-        const d = {
-            testCmd: () => {
-                test = true;
-            },
+        const testCmd = () => {
+            test = true;
         };
-        const command = Queue.createAction(d.testCmd);
-        command();
+
+        Queue.runInQueue(1, testCmd);
         expect(test).toBeTruthy();
     });
 
     it('creates a runnable context command', () => {
         let test = false;
+        
         const d = {
-            testCmd: function () {
+            testCmd: function() {
                 test = true;
             },
-
-            secondTestCmd: function () {
+            secondTestCmd: function() {
                 this.testCmd();
-            },
+            }
         };
-        const command = Queue.createAction(d.secondTestCmd, d);
-        command();
+        
+        Queue.runInQueue(1, d.secondTestCmd, d);
         expect(test).toBeTruthy();
     });
 
@@ -51,9 +49,9 @@ describe('Queue', () => {
             },
         };
         const queueableCommands = {
-            cmd1: Queue.createAction(commands.cmd1, commands),
-            cmd2: Queue.createAction(commands.cmd2, commands),
-            cmd3: Queue.createAction(commands.cmd3, commands),
+            cmd1: () => Queue.runInQueue(1, commands.cmd1, commands),
+            cmd2: () => Queue.runInQueue(1, commands.cmd2, commands),
+            cmd3: () => Queue.runInQueue(1, commands.cmd3, commands),
         };
 
         queueableCommands.cmd1();
@@ -66,8 +64,7 @@ describe('Queue', () => {
     it('passes arguments', () => {
         let test = 'c';
         const action = appendix => test += appendix;
-        const command = Queue.createAction(action);
-        command('asd');
+        Queue.runInQueue(1, action, null, ['asd']);
         expect(test).toBe('casd');
     });
 
@@ -87,9 +84,9 @@ describe('Queue', () => {
 
         const nestedAction = () => test += 'c';
         const ctx = {};
-        const ctxStartAction = Queue.createAction(startAction, ctx);
-        const ctxStartActionCancellingOut = Queue.createAction(startActionCancellingOut, ctx);
-        const ctxNestedAction = Queue.createAction(nestedAction, ctx);
+        const ctxStartAction = () => Queue.runInQueue(1, startAction, ctx);
+        const ctxStartActionCancellingOut = () => Queue.runInQueue(1, startActionCancellingOut, ctx);
+        const ctxNestedAction = () => Queue.runInQueue(1, nestedAction, ctx);
 
         test = '';
         ctxStartAction();
@@ -105,11 +102,17 @@ describe('Queue', () => {
             throw new Error('dope!');
         };
 
-        Queue.runInQueue(
-            action,
-            null,
-            null
-        );
+        Queue.runInQueue(1, action);
         done();
+    });
+
+    it('prioritizes', () => {
+        let test = '';
+        Queue.runInQueue(1, () => {
+            Queue.runInQueue(1, () => test += 'b');
+            Queue.runInQueue(1, () => test += 'c');
+            Queue.runInQueue(2, () => test += 'a');
+        });
+        expect(test).toBe('abc');
     });
 });
