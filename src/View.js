@@ -66,14 +66,6 @@ export default class View extends Reactor {
         digestMerged();
     }
 
-    /**
-     * Creates a View by digesting the stream
-     * @param {Function} nextProcessor
-     */
-    map(nextProcessor) {
-        return new View(this, nextProcessor);
-    }
-
     destroy() {
         Reactor.prototype.destroy.call(this);
 

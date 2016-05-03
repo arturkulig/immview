@@ -17,16 +17,17 @@ describe('Queue', () => {
 
     it('creates a runnable context command', () => {
         let test = false;
-        
+
         const d = {
-            testCmd: function() {
+            testCmd: function () {
                 test = true;
             },
-            secondTestCmd: function() {
+
+            secondTestCmd: function () {
                 this.testCmd();
-            }
+            },
         };
-        
+
         Queue.runInQueue(1, d.secondTestCmd, d);
         expect(test).toBeTruthy();
     });
@@ -85,7 +86,10 @@ describe('Queue', () => {
         const nestedAction = () => test += 'c';
         const ctx = {};
         const ctxStartAction = () => Queue.runInQueue(1, startAction, ctx);
-        const ctxStartActionCancellingOut = () => Queue.runInQueue(1, startActionCancellingOut, ctx);
+        const ctxStartActionCancellingOut = () => {
+            Queue.runInQueue(1, startActionCancellingOut, ctx);
+        };
+
         const ctxNestedAction = () => Queue.runInQueue(1, nestedAction, ctx);
 
         test = '';

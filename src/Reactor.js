@@ -68,4 +68,14 @@ export default class Reactor {
         this.structure = null;
         this.reactors = Set();
     }
+
+    map(processor) {
+        const View = require('./View.js').default;
+        return new View(this, processor);
+    }
+
+    debounce(timeout) {
+        const Debounce = require('./Debounce.js').default;
+        return new Debounce(this, timeout);
+    }
 }

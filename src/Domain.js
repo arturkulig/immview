@@ -73,6 +73,16 @@ export default class Domain {
         return this.stream.map(nextProcessor);
     }
 
+    /**
+     * Create a new stream that will not trigger its subscription
+     * until given amount of miliseconds will pass
+     * @param {number} timeout
+     * @returns {View}
+     */
+    debounce(timeout) {
+        return this.stream.debounce(timeout);
+    }
+
     // WRITE ?
     // no write method now and in the future
     // as it would encourage developers

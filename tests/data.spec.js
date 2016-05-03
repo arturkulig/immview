@@ -83,4 +83,14 @@ describe('Data', () => {
         d.write(d.read().set('d', 5)); // change -> no reaction
         expect(reactions).toBe(2);
     });
+
+    it('can create a View by map function', () => {
+        let reactions = 0;
+        d.map(dData => {
+            reactions += dData.get('a');
+        });
+
+        d.write(d.read().set('d', 3)); // change -> reaction
+        expect(reactions).toBe(2);
+    });
 });

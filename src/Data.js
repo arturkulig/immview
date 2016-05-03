@@ -39,12 +39,4 @@ export default class Data extends Reactor {
         }
     }
 
-    /**
-     * Creates a View by digesting the stream
-     * @param {Function} nextProcessor
-     */
-    map(nextProcessor) {
-        return new View(this, nextProcessor);
-    }
-
 }

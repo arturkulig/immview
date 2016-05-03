@@ -236,3 +236,42 @@ Registers a function called every time when the Domain's View or Data changes va
 
 ### Domain::map( processor: (sourceData: Iterable) => Iterable )
 Creates new View with the Domain instance source as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
+
+
+##Changelog
+###1.5
+
+- feat: Data writes are prioritized over Domain actions
+- feat: Debounce and *.debounce has been added
+
+###1.4.2
+
+- fix: Queue (dispatcher) returns stack trace instead of just error message
+
+### 1.4.1
+
+- fix: broken contract - View could not be created from a domain as a source
+
+### 1.4.0
+
+- fix: merged views processors will receive already fully merged source at first run
+- feat: *.map function on all classes
+- removed Immutable.Iterable functions from Data to promote read & write functions
+
+### 1.3.0
+
+- read & write methods
+
+### 1.2.2
+
+- Data exposes Immutable.Set functions too
+
+### 1.2.1
+
+- uglify dist version
+
+### 1.2.0
+
+- Domain and Queue have been added
+
+

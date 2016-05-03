@@ -1,6 +1,7 @@
 import {
     Data,
     View,
+    Debounce,
     Domain,
 } from '../src';
 
@@ -23,6 +24,12 @@ describe('Immview', () => {
             expect(View).toBeDefined();
             const v = new View();
             fulfillsReactorInterface(v);
+        });
+        it('Debounce', () => {
+            expect(Debounce).toBeDefined();
+            const v = new View();
+            const instance = new Debounce(v);
+            fulfillsReactorInterface(instance);
         });
         it('Domain', () => {
             expect(Domain).toBeDefined();
