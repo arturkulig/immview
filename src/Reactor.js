@@ -25,10 +25,6 @@ export default class Reactor {
         this.reactors = Set();
     }
 
-    get isReactor() {
-        return true;
-    }
-
     read() {
         return this.structure;
     }

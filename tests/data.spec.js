@@ -10,7 +10,7 @@ describe('Data', () => {
     });
 
     it('can be created', () => {
-        expect(d.isData).toBe(true);
+        expect(!!d.subscribe).toBe(true);
     });
 
     it('can be read from', () => {

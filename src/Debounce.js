@@ -23,10 +23,6 @@ export default class Debounce extends Reactor {
         });
     }
 
-    get isDebounce() {
-        return true;
-    }
-
     destroy() {
         if (this.timeoutID) {
             window.clearTimeout(this.timeoutID);

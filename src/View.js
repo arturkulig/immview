@@ -11,16 +11,12 @@ export default class View extends Reactor {
         super();
 
         if (source && typeof source === 'object') {
-            if (source.isReactor || source.isDomain) {
+            if (source.subscribe) {
                 this.connectToView(source, process);
             } else {
                 this.connectToViews(source, process);
             }
         }
-    }
-
-    get isView() {
-        return true;
     }
 
     /**

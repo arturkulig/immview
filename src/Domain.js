@@ -1,4 +1,4 @@
-import Queue from './Queue.js';
+import Dispatcher from './Dispatcher.js';
 
 const noop = () => null;
 
@@ -12,20 +12,12 @@ export default class Domain {
      * @param {Object.<function>} actions
      */
     constructor(stream, actions) {
-        this._claimStream(stream);
-        this._claimActions(actions);
-    }
-
-    /**
-     * @private
-     */
-    _claimStream(stream) {
-        if (stream.isReactor) {
+        if (stream.subscribe) {
             this.stream = stream;
-            return;
+        } else {
+            throw new Error(`${errorPrefix}Data or View stream source required`);
         }
-
-        throw new Error(`${errorPrefix} provided stream is not inheriting from Reactor class`);
+        this._claimActions(actions);
     }
 
     /**
@@ -47,13 +39,9 @@ export default class Domain {
             }
 
             this[actionName] = (...args) => {
-                Queue.runInQueue(1, actions[actionName], this, args);
+                Dispatcher.runInQueue(1, actions[actionName], this, args);
             };
         });
-    }
-
-    get structure() {
-        return this.read();
     }
 
     /**
@@ -89,10 +77,6 @@ export default class Domain {
     // to modify domain data
     // outside of the domain scope
 
-    get isDomain() {
-        return true;
-    }
-
     /**
      * Register a listener to changes on data stream.
      * Calls provided method upon registration.
@@ -123,7 +107,7 @@ export default class Domain {
         this.stream = null;
 
         // remove all queued actions
-        Queue.rejectContext(this);
+        Dispatcher.rejectContext(this);
 
         // unmount all domain methods
         this._actionNames.forEach((actionName) => {

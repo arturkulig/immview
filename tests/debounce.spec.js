@@ -81,7 +81,6 @@ describe('Debounce', () => {
     it('can be created from a Data', () => {
         const source = new Data(1);
         const debounced = source.debounce(10);
-        expect(debounced.isDebounce).toBeTruthy();
         expect(debounced.read()).toBe(1);
     });
 
@@ -89,7 +88,6 @@ describe('Debounce', () => {
         const source = new Data(1);
         const derivative = source.map();
         const debounced = derivative.debounce(10);
-        expect(debounced.isDebounce).toBeTruthy();
         expect(debounced.read()).toBe(1);
     });
 
@@ -97,7 +95,6 @@ describe('Debounce', () => {
         const source = new Data(1);
         const domain = new Domain(source, {});
         const debounced = domain.debounce(10);
-        expect(debounced.isDebounce).toBeTruthy();
         expect(debounced.read()).toBe(1);
     });
 

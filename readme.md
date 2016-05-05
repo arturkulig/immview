@@ -243,6 +243,7 @@ Creates new View with the Domain instance source as a data source and **processo
 
 - feat: Data writes are prioritized over Domain actions
 - feat: Debounce and *.debounce has been added
+- feat: Dispatcher is exposed now, so its methods can be replaced
 
 ###1.4.2
 
