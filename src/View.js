@@ -5,20 +5,21 @@ import Reactor from './Reactor.js';
 
 const bypass = data => data;
 
-export default class View extends Reactor {
+export default function View(source, process = bypass) {
+    Reactor.call(this);
 
-    constructor(source, process = bypass) {
-        super();
-
-        if (source && typeof source === 'object') {
-            if (source.subscribe) {
-                this.connectToView(source, process);
-            } else {
-                this.connectToViews(source, process);
-            }
+    if (source && typeof source === 'object') {
+        if (source.subscribe) {
+            this.connectToView(source, process);
+        } else {
+            this.connectToViews(source, process);
         }
     }
+}
 
+View.prototype = {
+    ...Reactor.prototype,
+    
     /**
      * @private
      * @param {Reactor} view
@@ -27,7 +28,7 @@ export default class View extends Reactor {
         this.unsubs = [
             view.subscribe(data => this.digest(process(data))),
         ];
-    }
+    },
 
     /**
      * @private
@@ -60,7 +61,7 @@ export default class View extends Reactor {
         );
 
         digestMerged();
-    }
+    },
 
     destroy() {
         Reactor.prototype.destroy.call(this);
@@ -70,6 +71,5 @@ export default class View extends Reactor {
         }
 
         this.unsubs = null;
-    }
-
-}
+    },
+};

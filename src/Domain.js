@@ -4,22 +4,22 @@ const noop = () => null;
 
 const errorPrefix = 'Immview::Domain: ';
 
-export default class Domain {
-    /**
-     * Create a domain holding a view
-     * @param {Reactor} stream
-     * @optional
-     * @param {Object.<function>} actions
-     */
-    constructor(stream, actions) {
-        if (stream.subscribe) {
-            this.stream = stream;
-        } else {
-            throw new Error(`${errorPrefix}Data or View stream source required`);
-        }
-        this._claimActions(actions);
+/**
+ * Create a domain holding a view
+ * @param {Reactor} stream
+ * @optional
+ * @param {Object.<function>} actions
+ */
+export default function Domain(stream, actions) {
+    if (stream.subscribe) {
+        this.stream = stream;
+    } else {
+        throw new Error(`${errorPrefix}Data or View stream source required`);
     }
+    this._claimActions(actions);
+}
 
+Domain.prototype = {
     /**
      * @private
      */
@@ -42,7 +42,7 @@ export default class Domain {
                 Dispatcher.runInQueue(1, actions[actionName], this, args);
             };
         });
-    }
+    },
 
     /**
      * Retrieve last value on stream attached to the Domain
@@ -50,7 +50,7 @@ export default class Domain {
      */
     read() {
         return this.stream.read();
-    }
+    },
 
     /**
      * Create a new stream from a stream attached to the Domain
@@ -59,7 +59,7 @@ export default class Domain {
      */
     map(nextProcessor) {
         return this.stream.map(nextProcessor);
-    }
+    },
 
     /**
      * Create a new stream that will not trigger its subscription
@@ -69,7 +69,7 @@ export default class Domain {
      */
     debounce(timeout) {
         return this.stream.debounce(timeout);
-    }
+    },
 
     // WRITE ?
     // no write method now and in the future
@@ -85,7 +85,7 @@ export default class Domain {
      */
     subscribe(reaction) {
         return this.stream.subscribe(reaction);
-    }
+    },
 
     /**
      * Register a listener to changes on data stream.
@@ -94,7 +94,7 @@ export default class Domain {
      */
     appendReactor(reaction) {
         return this.stream.appendReactor(reaction);
-    }
+    },
 
     /**
      * Remove all subscriptions caused by the domain.
@@ -114,5 +114,5 @@ export default class Domain {
             this[actionName] = noop;
         });
         this._actionNames = null;
-    }
-}
+    },
+};
