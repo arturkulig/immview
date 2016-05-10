@@ -244,6 +244,8 @@ Creates new View with the Domain instance source as a data source and **processo
 - feat: Data writes are prioritized over Domain actions
 - feat: Debounce and *.debounce has been added
 - feat: Dispatcher is exposed now, so it's methods can be replaced or used
+- feat: dispatch function is directly exposed by package for convenience
+- feat: Dispatcher.logger (default: console) can be replaced
 
 ###1.4.2
 

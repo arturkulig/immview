@@ -4,13 +4,15 @@ let isRunning = false;
 let queue = OrderedSet();
 const errorPrefix = 'Immview::Dispatcher: ';
 
+const PRIORITY_EXT = 0;
 const PRIORITY_DOMAIN = 1;
 const PRIORITY_DATA = 2;
 
 const shiftFromQueue = () => {
     const toRun = (
         queue.find(item => item.priority === PRIORITY_DATA) ||
-        queue.find(item => item.priority === PRIORITY_DOMAIN)
+        queue.find(item => item.priority === PRIORITY_DOMAIN) ||
+        queue.find(item => item.priority === PRIORITY_EXT)
     );
     queue = queue.delete(toRun);
     return toRun;
@@ -30,12 +32,12 @@ const runFirstQueuedItem = () => {
 
 /**
  * Append new action onto end of the queue
- * @param {number} priority (higher number - quicker execution)
  * @param {Function} action
  * @param {*} context
  * @param {Array.<*>} args
+ * @param {number} priority (higher number - sooner execution)
  */
-function appendToQueue(action, context, args, priority = PRIORITY_DOMAIN) {
+function appendToQueue(action, context, args, priority = PRIORITY_EXT) {
     queue = queue.add({
         priority,
         action,
@@ -70,9 +72,9 @@ const Dispatcher = {
     /**
      * Place provided function on a queue and run it as soon as possible
      * @param {function} action
-     * @param {*} context
-     * @param {Array.<*>} args
-     * @param {1|2} priority
+     * @param {*} [context]
+     * @param {Array.<*>} [args]
+     * @param {number} [priority=0] priority for dispatched action. 0, 1, 2 are acceptable
      */
     dispatch(action, context, args, priority) {
         appendToQueue(action, context, args, priority);
@@ -92,17 +94,19 @@ const Dispatcher = {
     },
 
     logError(e) {
-        console.error(`${errorPrefix}Error occured while running a function`);
+        Dispatcher.logger.error(`${errorPrefix}Error occured while running a function`);
         if (typeof e === 'object') {
             if (e.stack) {
-                console.error(e.stack);
+                Dispatcher.logger.error(e.stack);
             } else {
-                console.error(e.name, e.message);
+                Dispatcher.logger.error(e.name, e.message);
             }
         } else {
-            console.error(e);
+            Dispatcher.logger.error(e);
         }
     },
+
+    logger: console,
 };
 
 export default Dispatcher;
