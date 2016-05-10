@@ -19,7 +19,7 @@ export default function View(source, process = bypass) {
 
 View.prototype = {
     ...Reactor.prototype,
-    
+
     /**
      * @private
      * @param {Reactor} view

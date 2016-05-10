@@ -2,7 +2,7 @@ import { OrderedSet } from 'immutable';
 
 let isRunning = false;
 let queue = OrderedSet();
-const errorPrefix = 'Immview::Queue: ';
+const errorPrefix = 'Immview::Dispatcher: ';
 
 const PRIORITY_DOMAIN = 1;
 const PRIORITY_DATA = 2;
@@ -28,26 +28,55 @@ const runFirstQueuedItem = () => {
     action.apply(context, args);
 };
 
+/**
+ * Append new action onto end of the queue
+ * @param {number} priority (higher number - quicker execution)
+ * @param {Function} action
+ * @param {*} context
+ * @param {Array.<*>} args
+ */
+function appendToQueue(action, context, args, priority = PRIORITY_DOMAIN) {
+    queue = queue.add({
+        priority,
+        action,
+        context,
+        args,
+    });
+}
+
+/**
+ * Starts executing the queue
+ */
+function startQueue() {
+    if (isRunning) {
+        return;
+    }
+
+    isRunning = true;
+
+    while (queue.count() > 0) {
+        try {
+            Dispatcher.tick(runFirstQueuedItem);
+        } catch (e) {
+            Dispatcher.logError(e);
+        }
+    }
+
+    isRunning = false;
+}
+
 const Dispatcher = {
+
     /**
-     * Append new action onto end of the queue
-     * @param {number} priority (higher number - quicker execution)
-     * @param {Function} action
+     * Place provided function on a queue and run it as soon as possible
+     * @param {function} action
      * @param {*} context
      * @param {Array.<*>} args
+     * @param {1|2} priority
      */
-    appendToQueue(priority = PRIORITY_DOMAIN, action, context, args) {
-        queue = queue.add({
-            priority,
-            action,
-            context,
-            args,
-        });
-    },
-
-    runInQueue(priority, action, context, args) {
-        Dispatcher.appendToQueue(priority, action, context, args);
-        Dispatcher.startQueue();
+    dispatch(action, context, args, priority) {
+        appendToQueue(action, context, args, priority);
+        startQueue();
     },
 
     /**
@@ -56,27 +85,6 @@ const Dispatcher = {
      */
     rejectContext(context) {
         queue = queue.filter(item => item.context !== context);
-    },
-
-    /**
-     * Starts executing the queue
-     */
-    startQueue() {
-        if (isRunning) {
-            return;
-        }
-
-        isRunning = true;
-
-        while (queue.count() > 0) {
-            try {
-                Dispatcher.tick(runFirstQueuedItem);
-            } catch (e) {
-                Dispatcher.logError(e);
-            }
-        }
-
-        isRunning = false;
     },
 
     tick(func) {

@@ -1,8 +1,8 @@
-import Queue from '../src/Dispatcher';
+import Dispatcher from '../src/Dispatcher';
 
-describe('Queue', () => {
+describe('Dispatcher', () => {
     it('exists', () => {
-        expect(typeof Queue).toBeTruthy();
+        expect(typeof Dispatcher).toBeTruthy();
     });
 
     it('runs a command', () => {
@@ -11,7 +11,7 @@ describe('Queue', () => {
             test = true;
         };
 
-        Queue.runInQueue(1, testCmd);
+        Dispatcher.dispatch(testCmd);
         expect(test).toBeTruthy();
     });
 
@@ -28,7 +28,7 @@ describe('Queue', () => {
             },
         };
 
-        Queue.runInQueue(1, d.secondTestCmd, d);
+        Dispatcher.dispatch(d.secondTestCmd, d);
         expect(test).toBeTruthy();
     });
 
@@ -50,9 +50,9 @@ describe('Queue', () => {
             },
         };
         const queueableCommands = {
-            cmd1: () => Queue.runInQueue(1, commands.cmd1, commands),
-            cmd2: () => Queue.runInQueue(1, commands.cmd2, commands),
-            cmd3: () => Queue.runInQueue(1, commands.cmd3, commands),
+            cmd1: () => Dispatcher.dispatch(commands.cmd1, commands),
+            cmd2: () => Dispatcher.dispatch(commands.cmd2, commands),
+            cmd3: () => Dispatcher.dispatch(commands.cmd3, commands),
         };
 
         queueableCommands.cmd1();
@@ -65,7 +65,7 @@ describe('Queue', () => {
     it('passes arguments', () => {
         let test = 'c';
         const action = appendix => test += appendix;
-        Queue.runInQueue(1, action, null, ['asd']);
+        Dispatcher.dispatch(action, null, ['asd']);
         expect(test).toBe('casd');
     });
 
@@ -80,17 +80,17 @@ describe('Queue', () => {
         const startActionCancellingOut = () => {
             ctxNestedAction();
             ctxNestedAction();
-            Queue.rejectContext(ctx);
+            Dispatcher.rejectContext(ctx);
         };
 
         const nestedAction = () => test += 'c';
         const ctx = {};
-        const ctxStartAction = () => Queue.runInQueue(1, startAction, ctx);
+        const ctxStartAction = () => Dispatcher.dispatch(startAction, ctx);
         const ctxStartActionCancellingOut = () => {
-            Queue.runInQueue(1, startActionCancellingOut, ctx);
+            Dispatcher.dispatch(startActionCancellingOut, ctx);
         };
 
-        const ctxNestedAction = () => Queue.runInQueue(1, nestedAction, ctx);
+        const ctxNestedAction = () => Dispatcher.dispatch(nestedAction, ctx);
 
         test = '';
         ctxStartAction();
@@ -106,17 +106,17 @@ describe('Queue', () => {
             throw new Error('dope!');
         };
 
-        Queue.runInQueue(1, action);
+        Dispatcher.dispatch(action);
         done();
     });
 
     it('prioritizes', () => {
         let test = '';
-        Queue.runInQueue(1, () => {
-            Queue.runInQueue(1, () => test += 'b');
-            Queue.runInQueue(1, () => test += 'c');
-            Queue.runInQueue(2, () => test += 'a');
-        });
+        Dispatcher.dispatch(() => {
+            Dispatcher.dispatch(() => test += 'b', null, null, 1);
+            Dispatcher.dispatch(() => test += 'c', null, null, 1);
+            Dispatcher.dispatch(() => test += 'a', null, null, 2);
+        }, null, null, 1);
         expect(test).toBe('abc');
     });
 });

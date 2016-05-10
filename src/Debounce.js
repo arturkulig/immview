@@ -24,7 +24,7 @@ export default function Debounce(source, timeout = 0) {
 
 Debounce.prototype = {
     ...Reactor.prototype,
-    
+
     destroy() {
         if (this.timeoutID) {
             window.clearTimeout(this.timeoutID);

@@ -3,6 +3,8 @@ import {
     View,
     Debounce,
     Domain,
+    Dispatcher,
+    dispatch,
 } from '../src';
 
 function fulfillsReactorInterface(instance) {
@@ -36,6 +38,12 @@ describe('Immview', () => {
             const testData = new Data();
             const testDomain = new Domain(testData);
             fulfillsReactorInterface(testDomain);
+        });
+        it('Dispatcher', () => {
+            expect(Dispatcher).toBeDefined();
+        });
+        it('dispatch', () => {
+            expect(dispatch).toBeDefined();
         });
     });
 });

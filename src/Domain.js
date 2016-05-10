@@ -39,7 +39,7 @@ Domain.prototype = {
             }
 
             this[actionName] = (...args) => {
-                Dispatcher.runInQueue(1, actions[actionName], this, args);
+                Dispatcher.dispatch(actions[actionName], this, args, 1);
             };
         });
     },

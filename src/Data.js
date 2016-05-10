@@ -25,13 +25,14 @@ Data.prototype = {
      */
     write(change) {
         if (typeof change === 'function') {
-            Dispatcher.runInQueue(
-                2,
+            Dispatcher.dispatch(
                 () => this.digest(change(this.read())),
-                this
+                this,
+                [],
+                2
             );
         } else {
-            Dispatcher.runInQueue(2, this.digest, this, [change]);
+            Dispatcher.dispatch(this.digest, this, [change], 2);
         }
     },
 };
