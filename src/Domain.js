@@ -1,4 +1,7 @@
-import Dispatcher from './Dispatcher.js';
+import {
+    dispatchDomainAction,
+    rejectContext,
+} from './Dispatcher.js';
 
 const noop = () => null;
 
@@ -39,7 +42,7 @@ Domain.prototype = {
             }
 
             this[actionName] = (...args) => {
-                Dispatcher.dispatch(actions[actionName], this, args, 1);
+                dispatchDomainAction(actions[actionName], this, args, 1);
             };
         });
     },
@@ -107,7 +110,7 @@ Domain.prototype = {
         this.stream = null;
 
         // remove all queued actions
-        Dispatcher.rejectContext(this);
+        rejectContext(this);
 
         // unmount all domain methods
         this._actionNames.forEach((actionName) => {

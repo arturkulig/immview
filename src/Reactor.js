@@ -3,6 +3,8 @@ import {
     is,
 } from 'immutable';
 
+import { dispatchDataPush } from './Dispatcher';
+
 const hasValue = v => (
     v !== undefined &&
     v !== null
@@ -32,7 +34,7 @@ Reactor.prototype = {
     digest(data) {
         if (shouldStructureBeReplaced(this.structure, data)) {
             this.structure = data;
-            this.flush();
+            dispatchDataPush(this.flush, this);
         }
     },
 

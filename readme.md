@@ -237,15 +237,45 @@ Registers a function called every time when the Domain's View or Data changes va
 ### Domain::map( processor: (sourceData: Iterable) => Iterable )
 Creates new View with the Domain instance source as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
+## Dispatcher
+
+### Dispatcher.logger
+
+(default: console)
+Replace to change for logging errors in queue runner
+
+### Dispatcher.tick
+
+(default: console)
+Replace to change for logging errors in queue runner
+
+### Dispatcher.dispatch( action: function, context: any, args: Array<any> ) 
+
+Call to place action on a queue. Can be imported directly from package too.
+```
+import { dispatch } from 'immview';
+```
+
+### Dispatcher.rejectContext( context: any )
+
+Call to remove actions with provided context from queue.
+
+## TODO
+
+- Throttle
+- Streams processing prioritization
 
 ##Changelog
-###1.5
+###1.5 (coming)
 
 - feat: Data writes are prioritized over Domain actions
 - feat: Debounce and *.debounce has been added
-- feat: Dispatcher is exposed now, so it's methods can be replaced or used
+- feat: Dispatcher is exposed now
+    - Dispatcher.logger
+    - Dispatcher.tick
+    - Dispatcher.dispatch
+    - Dispatcher.rejectContext
 - feat: dispatch function is directly exposed by package for convenience
-- feat: Dispatcher.logger (default: console) can be replaced
 
 ###1.4.2
 

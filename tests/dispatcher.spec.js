@@ -1,4 +1,8 @@
-import Dispatcher from '../src/Dispatcher';
+import {
+    Dispatcher,
+    dispatch,
+    rejectContext,
+} from '../src/Dispatcher';
 
 describe('Dispatcher', () => {
     it('exists', () => {
@@ -11,7 +15,7 @@ describe('Dispatcher', () => {
             test = true;
         };
 
-        Dispatcher.dispatch(testCmd);
+        dispatch(testCmd);
         expect(test).toBeTruthy();
     });
 
@@ -28,7 +32,7 @@ describe('Dispatcher', () => {
             },
         };
 
-        Dispatcher.dispatch(d.secondTestCmd, d);
+        dispatch(d.secondTestCmd, d);
         expect(test).toBeTruthy();
     });
 
@@ -50,9 +54,9 @@ describe('Dispatcher', () => {
             },
         };
         const queueableCommands = {
-            cmd1: () => Dispatcher.dispatch(commands.cmd1, commands),
-            cmd2: () => Dispatcher.dispatch(commands.cmd2, commands),
-            cmd3: () => Dispatcher.dispatch(commands.cmd3, commands),
+            cmd1: () => dispatch(commands.cmd1, commands),
+            cmd2: () => dispatch(commands.cmd2, commands),
+            cmd3: () => dispatch(commands.cmd3, commands),
         };
 
         queueableCommands.cmd1();
@@ -65,7 +69,7 @@ describe('Dispatcher', () => {
     it('passes arguments', () => {
         let test = 'c';
         const action = appendix => test += appendix;
-        Dispatcher.dispatch(action, null, ['asd']);
+        dispatch(action, null, ['asd']);
         expect(test).toBe('casd');
     });
 
@@ -80,17 +84,17 @@ describe('Dispatcher', () => {
         const startActionCancellingOut = () => {
             ctxNestedAction();
             ctxNestedAction();
-            Dispatcher.rejectContext(ctx);
+            rejectContext(ctx);
         };
 
         const nestedAction = () => test += 'c';
         const ctx = {};
-        const ctxStartAction = () => Dispatcher.dispatch(startAction, ctx);
+        const ctxStartAction = () => dispatch(startAction, ctx);
         const ctxStartActionCancellingOut = () => {
-            Dispatcher.dispatch(startActionCancellingOut, ctx);
+            dispatch(startActionCancellingOut, ctx);
         };
 
-        const ctxNestedAction = () => Dispatcher.dispatch(nestedAction, ctx);
+        const ctxNestedAction = () => dispatch(nestedAction, ctx);
 
         test = '';
         ctxStartAction();
@@ -106,16 +110,16 @@ describe('Dispatcher', () => {
             throw new Error('dope!');
         };
 
-        Dispatcher.dispatch(action);
+        dispatch(action);
         done();
     });
 
     it('prioritizes', () => {
         let test = '';
-        Dispatcher.dispatch(() => {
-            Dispatcher.dispatch(() => test += 'b', null, null, 1);
-            Dispatcher.dispatch(() => test += 'c', null, null, 1);
-            Dispatcher.dispatch(() => test += 'a', null, null, 2);
+        dispatch(() => {
+            dispatch(() => test += 'b', null, null, 1);
+            dispatch(() => test += 'c', null, null, 1);
+            dispatch(() => test += 'a', null, null, 2);
         }, null, null, 1);
         expect(test).toBe('abc');
     });

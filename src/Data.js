@@ -3,7 +3,7 @@ import {
     fromJS,
 } from 'immutable';
 
-import Dispatcher from './Dispatcher';
+import { dispatchDataPush } from './Dispatcher';
 import Reactor from './Reactor.js';
 
 export default function Data(initialData) {
@@ -25,14 +25,12 @@ Data.prototype = {
      */
     write(change) {
         if (typeof change === 'function') {
-            Dispatcher.dispatch(
+            dispatchDataPush(
                 () => this.digest(change(this.read())),
-                this,
-                [],
-                2
+                this
             );
         } else {
-            Dispatcher.dispatch(this.digest, this, [change], 2);
+            dispatchDataPush(this.digest, this, [change]);
         }
     },
 };

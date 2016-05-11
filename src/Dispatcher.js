@@ -37,7 +37,7 @@ const runFirstQueuedItem = () => {
  * @param {Array.<*>} args
  * @param {number} priority (higher number - sooner execution)
  */
-function appendToQueue(action, context, args, priority = PRIORITY_EXT) {
+function appendToQueue(action, context = null, args = [], priority = PRIORITY_EXT) {
     queue = queue.add({
         priority,
         action,
@@ -60,14 +60,52 @@ function startQueue() {
         try {
             Dispatcher.tick(runFirstQueuedItem);
         } catch (e) {
-            Dispatcher.logError(e);
+            logError(e);
         }
     }
 
     isRunning = false;
 }
 
-const Dispatcher = {
+function logError(e) {
+    Dispatcher.logger.error(`${errorPrefix}Error occured while running a function`);
+    if (typeof e === 'object') {
+        if (e.stack) {
+            Dispatcher.logger.error(e.stack);
+        } else {
+            Dispatcher.logger.error(e.name, e.message);
+        }
+    } else {
+        Dispatcher.logger.error(e);
+    }
+}
+
+export function dispatch(action, context, args, priority) {
+    appendToQueue(action, context, args, priority);
+    startQueue();
+}
+
+export function dispatchDomainAction(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DOMAIN);
+}
+
+export function dispatchDataPush(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DATA);
+}
+
+export function dispatchExt(action, context, args) {
+    dispatch(action, context, args, PRIORITY_EXT);
+}
+
+/**
+ * Removes all queued actions tied with a context
+ * @param context
+ */
+export function rejectContext(context) {
+    queue = queue.filter(item => item.context !== context);
+}
+
+export const Dispatcher = {
 
     /**
      * Place provided function on a queue and run it as soon as possible
@@ -76,35 +114,13 @@ const Dispatcher = {
      * @param {Array.<*>} [args]
      * @param {number} [priority=0] priority for dispatched action. 0, 1, 2 are acceptable
      */
-    dispatch(action, context, args, priority) {
-        appendToQueue(action, context, args, priority);
-        startQueue();
-    },
-
-    /**
-     * Removes all queued actions tied with a context
-     * @param context
-     */
-    rejectContext(context) {
-        queue = queue.filter(item => item.context !== context);
-    },
+    dispatch: dispatchExt,
 
     tick(func) {
         func();
     },
 
-    logError(e) {
-        Dispatcher.logger.error(`${errorPrefix}Error occured while running a function`);
-        if (typeof e === 'object') {
-            if (e.stack) {
-                Dispatcher.logger.error(e.stack);
-            } else {
-                Dispatcher.logger.error(e.name, e.message);
-            }
-        } else {
-            Dispatcher.logger.error(e);
-        }
-    },
+    rejectContext,
 
     logger: console,
 };
