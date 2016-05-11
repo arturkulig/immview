@@ -1,4 +1,4 @@
-# immview
+# immview 1.4.2
 
 A library to create data structures with Immutable.js enabling efficient change tracking. It can be used in place of any flux implementation, redux, immstruct+omniscent.
 
@@ -136,7 +136,7 @@ d.write(structure => structure.set('b', 2));
 ### Data::subscribe( reaction: (data) => void )
 Registers a function called every time when the Data changes value that it holds.
 
-### Data::map( processor: (sourceData: Iterable) => Iterable )
+### Data::map( processor: (sourceData: Iterable) => Iterable ) (since 1.4)
 Creates new View with the Data instance as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
 ## View
@@ -185,7 +185,7 @@ Method used to retrieve current structure holden by the View.
 ### View::subscribe( reaction: (data) => void )
 Registers a function called every time when the View changes value that it holds.
 
-### View::map( processor: (sourceData: Iterable) => Iterable )
+### View::map( processor: (sourceData: Iterable) => Iterable ) (since 1.4)
 Creates new View with current instance as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
 ## Domain
@@ -225,38 +225,38 @@ new View ( {view1, view2} );
 Second argument is an object aggregating functions used to create commands that will be exposed as part of the **Domain** interface. These functions will be wrapped - they won't be returning anything and will be executed in call order, one after another even if calls will be nested, which will be probably very common situation in most installations.
 Those functions can be thought of as equivalent of actions and reducers as they will be bubbling events to parent **Domains** or modifying their **Data** sources.
 
-### Domain::read() => Immutable.Iterable
+### Domain::read() => Immutable.Iterable (since 1.2)
 
 Method used to retrieve current structure holden by the Domain's View or Data.
 
 > Although **Domain** can be created using **Data**, Domain won't be having **write** method available to discourage writing directly from dependent instances.
 
-### Domain::subscribe( reaction: (data) => void )
+### Domain::subscribe( reaction: (data) => void ) (since 1.2)
 Registers a function called every time when the Domain's View or Data changes value that it holds.
 
-### Domain::map( processor: (sourceData: Iterable) => Iterable )
+### Domain::map( processor: (sourceData: Iterable) => Iterable ) (since 1.4)
 Creates new View with the Domain instance source as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
 ## Dispatcher
 
-### Dispatcher.logger
+### Dispatcher.logger (since 1.5)
 
 (default: console)
 Replace to change for logging errors in queue runner
 
-### Dispatcher.tick
+### Dispatcher.tick (since 1.5)
 
 (default: console)
 Replace to change for logging errors in queue runner
 
-### Dispatcher.dispatch( action: function, context: any, args: Array<any> ) 
+### Dispatcher.dispatch( action: function, context: any, args: Array<any> ) (since 1.5)
 
 Call to place action on a queue. Can be imported directly from package too.
 ```
 import { dispatch } from 'immview';
 ```
 
-### Dispatcher.rejectContext( context: any )
+### Dispatcher.rejectContext( context: any ) (since 1.5)
 
 Call to remove actions with provided context from queue.
 
@@ -270,6 +270,7 @@ Call to remove actions with provided context from queue.
 
 - feat: Data writes are prioritized over Domain actions
 - feat: Debounce and *.debounce has been added
+- Queue is renamed to Dispatcher
 - feat: Dispatcher is exposed now
     - Dispatcher.logger
     - Dispatcher.tick
