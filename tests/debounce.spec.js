@@ -1,44 +1,25 @@
 import { Data, View, Domain, Debounce } from '../src';
 
 describe('Debounce', () => {
-    let timeouts = [];
-    let timeouted = [];
-    beforeEach(() => {
-        window._setTimeout = window.setTimeout;
-        window._clearTimeout = window.clearTimeout;
-        timeouts = [];
-        timeouted = [];
-        window.setTimeout = (f, t) => {
-            timeouts.push(t);
-            timeouted.push(f);
-            return timeouted.length;
-        };
-        window.clearTimeout = id => {
-            timeouted = timeouted.filter((f, idx) => idx !== id - 1);
-        };
-        window.flushTimeout = () => {
-            timeouted.forEach(f => f());
-            timeouted = [];
-        };
+
+    beforeEach(function() {
+        jasmine.clock().install();
     });
-    afterEach(() => {
-        window.setTimeout = window._setTimeout;
-        window.clearTimeout = window._clearTimeout;
+
+    afterEach(function() {
+        jasmine.clock().uninstall();
     });
+
     it('can be tested', () => {
         let testValue = 0;
         window.setTimeout(() => {
             testValue += 1;
         }, 100);
-        window.flushTimeout();
-        expect(timeouts).toEqual([100]);
-        expect(testValue).toBe(1);
-
         let defered = window.setTimeout(() => {
             testValue += 1;
         }, 100);
         window.clearTimeout(defered);
-        window.flushTimeout();
+        jasmine.clock().tick(101);
         expect(testValue).toBe(1);
     });
 
@@ -53,11 +34,9 @@ describe('Debounce', () => {
         const debounced = new Debounce(source, 10);
 
         source.write('j');
-        expect(timeouts).toEqual([10]);
         expect(debounced.read()).toBe('i');
 
-        window.flushTimeout();
-        expect(timeouts).toEqual([10]);
+        jasmine.clock().tick(11);
         expect(debounced.read()).toBe('j');
     });
 
@@ -66,15 +45,12 @@ describe('Debounce', () => {
         const debounced = new Debounce(source, 10);
 
         source.write(2);
-        expect(timeouts).toEqual([10]);
         expect(debounced.read()).toBe(1);
 
         source.write(3);
-        expect(timeouts).toEqual([10, 10]);
         expect(debounced.read()).toBe(1);
 
-        window.flushTimeout();
-        expect(timeouts).toEqual([10, 10]);
+        jasmine.clock().tick(11);
         expect(debounced.read()).toBe(3);
     });
 
@@ -101,7 +77,7 @@ describe('Debounce', () => {
     it('can be destroyed', done => {
         const source = new Data(1);
         const debounced = source.debounce(10);
-        debounced.destroy();
+        expect(() => debounced.destroy()).not.toThrow();
         done();
     });
 });
