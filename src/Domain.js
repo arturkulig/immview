@@ -17,7 +17,7 @@ export default function Domain(stream, actions) {
     if (stream.subscribe) {
         this.stream = stream;
     } else {
-        throw new Error(`${errorPrefix}Data or View stream source required`);
+        throw new Error(`${errorPrefix} stream source required`);
     }
     this._claimActions(actions);
 }
@@ -55,6 +55,12 @@ Domain.prototype = {
         return this.stream.read();
     },
 
+    // WRITE ?
+    // no write method now and in the future
+    // as it would encourage developers
+    // to modify domain data
+    // outside of the domain scope
+
     /**
      * Create a new stream from a stream attached to the Domain
      * @param {function(Iterable)} nextProcessor
@@ -65,20 +71,27 @@ Domain.prototype = {
     },
 
     /**
-     * Create a new stream that will not trigger its subscription
-     * until given amount of miliseconds will pass
+     * Create a new stream that will not trigger its subscriptions
+     * until given amount of miliseconds will pass from last call
      * @param {number} timeout
-     * @returns {View}
+     * @returns {Debounce}
      */
     debounce(timeout) {
         return this.stream.debounce(timeout);
     },
 
-    // WRITE ?
-    // no write method now and in the future
-    // as it would encourage developers
-    // to modify domain data
-    // outside of the domain scope
+    /**
+     * Create a new stream
+     * that will not trigger its subscriptions immediately,
+     * but defers updates for a number of miliseconds
+     * provided with timeout argument
+     * after first call
+     * @param {number} timeout
+     * @returns {Throttle}
+     */
+    throttle(timeout) {
+        return this.stream.throttle(timeout);
+    },
 
     /**
      * Register a listener to changes on data stream.

@@ -76,4 +76,9 @@ Reactor.prototype = {
         const Debounce = require('./Debounce.js').default;
         return new Debounce(this, timeout);
     },
+
+    throttle(timeout) {
+        const Throttle = require('./Throttle.js').default;
+        return new Throttle(this, timeout);
+    },
 };
