@@ -13,9 +13,9 @@ export default function Debounce(source, timeout = 0) {
     this.digest(source.read());
     this.subscription = source.appendReactor(data => {
         if (this.timeoutID) {
-            window.clearTimeout(this.timeoutID);
+            clearTimeout(this.timeoutID);
         }
-        this.timeoutID = window.setTimeout(() => {
+        this.timeoutID = setTimeout(() => {
             this.timeoutID = null;
             this.digest(data);
         }, timeout);
@@ -27,7 +27,7 @@ Debounce.prototype = {
 
     destroy() {
         if (this.timeoutID) {
-            window.clearTimeout(this.timeoutID);
+            clearTimeout(this.timeoutID);
             this.timeoutID = null;
         }
         if (this.subscription) {

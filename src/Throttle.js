@@ -15,7 +15,7 @@ export default function Throttle(source, timeout = 0) {
     this.subscription = source.appendReactor(data => {
         this.timeoutedData = data;
         if (!this.timeoutID) {
-            this.timeoutID = window.setTimeout(() => {
+            this.timeoutID = setTimeout(() => {
                 this.timeoutID = null;
                 this.digest(this.timeoutedData);
             }, timeout);
@@ -28,7 +28,7 @@ Throttle.prototype = {
 
     destroy() {
         if (this.timeoutID) {
-            window.clearTimeout(this.timeoutID);
+            clearTimeout(this.timeoutID);
             this.timeoutID = null;
         }
         if (this.subscription) {

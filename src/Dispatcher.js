@@ -93,7 +93,7 @@ export function dispatchDataPush(action, context, args) {
     dispatch(action, context, args, PRIORITY_DATA);
 }
 
-export function dispatchExt(action, context, args) {
+export function dispatchExternal(action, context, args) {
     dispatch(action, context, args, PRIORITY_EXT);
 }
 
@@ -114,7 +114,7 @@ export const Dispatcher = {
      * @param {Array.<*>} [args]
      * @param {number} [priority=0] priority for dispatched action. 0, 1, 2 are acceptable
      */
-    dispatch: dispatchExt,
+    dispatch: dispatchExternal,
 
     tick(func) {
         func();
