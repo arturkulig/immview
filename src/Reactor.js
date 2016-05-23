@@ -2,6 +2,7 @@ import {
     Set,
     is,
 } from 'immutable';
+
 import {
     scheduleLength,
     scheduleJob,
@@ -10,16 +11,23 @@ import {
     copyQueueOntoSchedule,
 } from './streamScheduler';
 
-const hasValue = v => (
-    v !== undefined &&
-    v !== null
-);
+import {
+    dispatchDataWrite,
+    dispatchDataConsume,
+} from './Dispatcher';
 
-const shouldStructureBeReplaced = (structure, candidate) => {
+function hasValue(v) {
+    return (
+        v !== undefined &&
+        v !== null
+    );
+}
+
+function shouldStructureBeReplaced(structure, candidate) {
     return (
         hasValue(candidate) && (
             !hasValue(structure) ||
-            is(candidate, structure) === false
+            !is(candidate, structure)
         )
     );
 };
@@ -31,11 +39,6 @@ function restoreNodeJobs(edges, currentSchedule) {
     const digestJobMap = createSchedule(edges);
     return copyQueueOntoSchedule(currentSchedule, digestJobMap);
 }
-
-import {
-    dispatchDataWrite,
-    dispatchDataPush,
-} from './Dispatcher';
 
 function doNextJob() {
     if (scheduleLength(digestQueue) > 0) {
@@ -50,11 +53,6 @@ export default function Reactor() {
      */
     this.reactors = Set();
 }
-
-Reactor.resetDigest = () => {
-    digestLinks = [];
-    digestQueue = [];
-};
 
 Reactor.prototype = {
     read() {
@@ -72,7 +70,7 @@ Reactor.prototype = {
     },
 
     consume(data, chew = v => v) {
-        dispatchDataPush(() => {
+        dispatchDataConsume(() => {
             digestQueue = scheduleJob(this, () => this.digest(chew(data)), digestQueue);
             dispatchDataWrite(doNextJob);
         });

@@ -5,7 +5,7 @@ const errorPrefix = 'Immview::Dispatcher: ';
 const PRIORITY_EXT = 0;
 const PRIORITY_DOMAIN = 1;
 const PRIORITY_DATA_WRITE = 2;
-const PRIORITY_DATA_PUSH = 3;
+const PRIORITY_DATA_CONSUMING = 3;
 
 function findMaxPriority() {
     let maxPriority = -1;
@@ -19,14 +19,6 @@ function findMaxPriority() {
     }
     return firstOfPriority;
 }
-
-// function findJob(priority) {
-//     for (let i = 0; i < queue.length; i++) {
-//         if (queue[i].priority === priority) {
-//             return queue[i];
-//         }
-//     }
-// }
 
 function shiftFromQueue() {
     const toRun = findMaxPriority();
@@ -112,8 +104,8 @@ export function dispatchDataWrite(action, context, args) {
     dispatch(action, context, args, PRIORITY_DATA_WRITE);
 }
 
-export function dispatchDataPush(action, context, args) {
-    dispatch(action, context, args, PRIORITY_DATA_PUSH);
+export function dispatchDataConsume(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DATA_CONSUMING);
 }
 
 export function dispatchExternal(action, context, args) {
