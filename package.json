@@ -10,7 +10,7 @@
     "test_node": "NODE_ENV=testing node test_node.js",
     "start": "NODE_ENV=testing $(npm bin)/webpack --watch",
     "build": "NODE_ENV=production $(npm bin)/webpack",
-    "preversion": "npm run test_node; npm run build; git add -A; git commit -m \"build\";",
+    "preversion": "npm run test_node && npm run build && git add -A && git commit -m \"build\";",
     "fix:src": "$(npm bin)/jscs --fix src/*.js",
     "fix:tests": "$(npm bin)/jscs --fix tests/*.js",
     "fix": "npm run fix:src; npm run fix:tests;"
