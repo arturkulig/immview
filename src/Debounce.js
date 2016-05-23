@@ -8,7 +8,7 @@ export default function Debounce(source, timeout = 0) {
     if (!(source && source.subscribe)) {
         throw new Error(`${errorPrefix}incorrect source`);
     }
-    
+
     this.linkTo(source);
 
     this.timeoutID = null;

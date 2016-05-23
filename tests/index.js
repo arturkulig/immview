@@ -6,3 +6,5 @@ import './debounce.spec';
 import './throttle.spec';
 import './interface.spec';
 import './graphsort.spec.js';
+import './streamscheduler.spec.js';
+import './branchingStreamPerformantRender';

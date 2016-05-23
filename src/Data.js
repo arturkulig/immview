@@ -1,9 +1,8 @@
 import {
-    Iterable,
     fromJS,
 } from 'immutable';
 
-import { dispatchDataPush } from './Dispatcher';
+import { dispatchDataWrite } from './Dispatcher';
 import Reactor from './Reactor.js';
 
 export default function Data(initialData) {
@@ -20,10 +19,12 @@ Data.prototype = {
      * @param {Iterable|function(data: Iterable):Iterable} change
      */
     write(change) {
-        if (typeof change === 'function') {
-            this.consume(this.read(), change);
-        } else {
-            this.consume(change);
-        }
+        dispatchDataWrite(() => {
+            if (typeof change === 'function') {
+                this.consume(this.read(), change);
+            } else {
+                this.consume(change);
+            }
+        });
     },
 };

@@ -2,11 +2,11 @@ import { Data, View, Domain, Debounce } from '../src';
 
 describe('Debounce', () => {
 
-    beforeEach(function() {
+    beforeEach(function () {
         jasmine.clock().install();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         jasmine.clock().uninstall();
     });
 

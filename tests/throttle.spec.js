@@ -2,11 +2,11 @@ import { Data, View, Domain, Throttle } from '../src';
 
 describe('Throttle', () => {
 
-    beforeEach(function() {
+    beforeEach(function () {
         jasmine.clock().install();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         jasmine.clock().uninstall();
     });
 

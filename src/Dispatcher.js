@@ -1,20 +1,39 @@
-import { OrderedSet } from 'immutable';
-
 let isRunning = false;
-let queue = OrderedSet();
+let queue = [];
 const errorPrefix = 'Immview::Dispatcher: ';
 
 const PRIORITY_EXT = 0;
 const PRIORITY_DOMAIN = 1;
-const PRIORITY_DATA = 2;
+const PRIORITY_DATA_WRITE = 2;
+const PRIORITY_DATA_PUSH = 3;
 
-const shiftFromQueue = () => {
-    const toRun = (
-        queue.find(item => item.priority === PRIORITY_DATA) ||
-        queue.find(item => item.priority === PRIORITY_DOMAIN) ||
-        queue.find(item => item.priority === PRIORITY_EXT)
+function findMaxPriority() {
+    let maxPriority = -1;
+    let firstOfPriority = null;
+    for (let i = 0; i < queue.length; i++) {
+        const jobPriority = queue[i].priority;
+        if (jobPriority > maxPriority) {
+            firstOfPriority = queue[i];
+            maxPriority = jobPriority;
+        }
+    }
+    return firstOfPriority;
+}
+
+// function findJob(priority) {
+//     for (let i = 0; i < queue.length; i++) {
+//         if (queue[i].priority === priority) {
+//             return queue[i];
+//         }
+//     }
+// }
+
+function shiftFromQueue() {
+    const toRun = findMaxPriority();
+    queue.splice(
+        queue.indexOf(toRun),
+        1
     );
-    queue = queue.delete(toRun);
     return toRun;
 };
 
@@ -38,7 +57,7 @@ const runFirstQueuedItem = () => {
  * @param {number} priority (higher number - sooner execution)
  */
 function appendToQueue(action, context = null, args = [], priority = PRIORITY_EXT) {
-    queue = queue.add({
+    queue.push({
         priority,
         action,
         context,
@@ -56,7 +75,7 @@ function startQueue() {
 
     isRunning = true;
 
-    while (queue.count() > 0) {
+    while (queue.length > 0) {
         try {
             Dispatcher.tick(runFirstQueuedItem);
         } catch (e) {
@@ -89,8 +108,12 @@ export function dispatchDomainAction(action, context, args) {
     dispatch(action, context, args, PRIORITY_DOMAIN);
 }
 
+export function dispatchDataWrite(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DATA_WRITE);
+}
+
 export function dispatchDataPush(action, context, args) {
-    dispatch(action, context, args, PRIORITY_DATA);
+    dispatch(action, context, args, PRIORITY_DATA_PUSH);
 }
 
 export function dispatchExternal(action, context, args) {

@@ -1,17 +1,14 @@
 import {
-    OrderedMap,
     Set,
     is,
 } from 'immutable';
-
 import {
-    getGraphFromEdges,
-    sortJobs,
-    appendJob,
-    runDigestQueue,
+    scheduleLength,
+    scheduleJob,
+    runScheduledPriorityJob,
+    createSchedule,
+    copyQueueOntoSchedule,
 } from './streamScheduler';
-
-import { dispatchDataPush } from './Dispatcher';
 
 const hasValue = v => (
     v !== undefined &&
@@ -27,6 +24,26 @@ const shouldStructureBeReplaced = (structure, candidate) => {
     );
 };
 
+let digestLinks = [];
+let digestQueue = [];
+
+function restoreNodeJobs(edges, currentSchedule) {
+    const digestJobMap = createSchedule(edges);
+    return copyQueueOntoSchedule(currentSchedule, digestJobMap);
+}
+
+import {
+    dispatchDataWrite,
+    dispatchDataPush,
+} from './Dispatcher';
+
+function doNextJob() {
+    if (scheduleLength(digestQueue) > 0) {
+        digestQueue = runScheduledPriorityJob(digestQueue);
+        dispatchDataWrite(doNextJob);
+    }
+}
+
 export default function Reactor() {
     /**
      * @private
@@ -34,43 +51,30 @@ export default function Reactor() {
     this.reactors = Set();
 }
 
-let links = [];
-let digestGraph;
-let digestQueue = OrderedMap();
-
-function nextDigest() {
-    dispatchDataPush(() => {
-        if (digestQueue.count() > 0) {
-            digestQueue = runDigestQueue(digestQueue);
-            if (digestQueue.count() > 0) {
-                nextDigest();
-            }
-        }
-    });
-}
+Reactor.resetDigest = () => {
+    digestLinks = [];
+    digestQueue = [];
+};
 
 Reactor.prototype = {
     read() {
         return this.structure;
     },
-    
+
     linkTo(sourceNode) {
-        links.push([sourceNode, this]);
-        digestGraph = getGraphFromEdges(links);
+        digestLinks.push([sourceNode, this]);
+        digestQueue = restoreNodeJobs(digestLinks, digestQueue);
     },
-    
+
     unlink() {
-        links = links.filter(link => link[0] !== this && link[1] !== this);
-        digestGraph = getGraphFromEdges(links);
+        digestLinks = digestLinks.filter(link => link[0] !== this && link[1] !== this);
+        digestQueue = restoreNodeJobs(digestLinks, digestQueue);
     },
-    
+
     consume(data, chew = v => v) {
         dispatchDataPush(() => {
-            digestQueue = sortJobs(
-                digestGraph,
-                appendJob(this, () => this.digest(chew(data)), digestQueue)
-            );
-            nextDigest();
+            digestQueue = scheduleJob(this, () => this.digest(chew(data)), digestQueue);
+            dispatchDataWrite(doNextJob);
         });
     },
 

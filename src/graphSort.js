@@ -1,51 +1,47 @@
-import {
-    List,
-    OrderedSet,
-    Set,
-    is,
-} from 'immutable';
-
-export function addEdge(from, to, edges = OrderedSet()) {
-    return edges.add(List([from, to]));
-}
-
 export function getGraphNodes(edges) {
     return edges.reduce(
-        (result, edge) =>
-            result
-                .add(edge.get(0))
-                .add(edge.get(1)),
-        OrderedSet()
+        (result, edge) => {
+            if (result.indexOf(edge[0]) < 0) {
+                result.push(edge[0]);
+            }
+            if (result.indexOf(edge[1]) < 0) {
+                result.push(edge[1]);
+            }
+            return result;
+        },
+        []
     );
 }
 
 export function getOrder(edges) {
-    let visited;
-    let stack;
+    let visited = [];
+    let stack = [];
     getGraphNodes(edges).forEach(node => {
-        if (!visited || !visited.has(node)) {
+        if (!visited || visited.indexOf(node) < 0) {
             const result = visit(edges, node, stack, visited);
             visited = result.visited;
             stack = result.stack;
         }
     });
-    return stack.toList();
+    return stack;
 }
 
-export function visit(edges, node, stack = OrderedSet(), visited = Set()) {
-    let tmpVisited = visited.add(node);
+export function visit(edges, node, stack, visited) {
+    let tmpVisited = visited.concat([node]);
     let tmpStack = stack;
     getNodeChildren(edges, node).forEach(childNode => {
-        const result = visit(edges, childNode, tmpStack, tmpVisited);
-        tmpVisited = result.visited;
-        tmpStack = result.stack;
+        if (!tmpVisited || tmpVisited.indexOf(childNode) < 0) {
+            const result = visit(edges, childNode, tmpStack, tmpVisited);
+            tmpVisited = result.visited;
+            tmpStack = result.stack;
+        }
     });
     return {
-        stack: tmpStack.add(node),
         visited: tmpVisited,
+        stack: tmpStack.concat([node]),
     };
 }
 
 export function getNodeChildren(edges, node) {
-    return edges.filter(edge => is(edge.get(0), node)).map(edge => edge.get(1));
+    return edges.filter(edge => edge[0] === node).map(edge => edge[1]);
 }

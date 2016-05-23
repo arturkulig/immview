@@ -6,36 +6,22 @@ import {
     visit,
 } from '../src/graphSort.js';
 
-function addEdges(edges) {
-    let graph;
-    edges.forEach(edge => {
-        graph = addEdge(edge[0], edge[1], graph);
-    });
-    return graph;
-}
-
 describe('graphsort', () => {
-    it('can add edge to empty graph', () => {
-        expect(
-            addEdge('a', 'b').toJS()
-        ).toEqual([['a','b']]);
-    });
-    it('can add edge to filled graph', () => {
-        const edges = [
-            ['a', 'b'],
-            ['a', 'c'],
-        ];
-        const graph = addEdges(edges);
-        expect(graph.toJS()).toEqual(edges);
-    });
     it('can get nodes', () => {
-        const edges = [
+        expect(getGraphNodes([
+            ['a', 'c'],
+        ])).toEqual(['a', 'c']);
+        expect(getGraphNodes([
             ['a', 'b'],
             ['a', 'c'],
-        ];
-        const graph = addEdges(edges);
-        expect(getGraphNodes(graph).toJS()).toEqual(['a', 'b', 'c']);
+        ])).toEqual(['a', 'b', 'c']);
+        expect(getGraphNodes([
+            ['a', 'b'],
+            ['a', 'c'],
+            ['e', 'f'],
+        ])).toEqual(['a', 'b', 'c', 'e', 'f']);
     });
+
     it('can get node children', () => {
         const edges = [
             ['a', 'b'],
@@ -43,10 +29,10 @@ describe('graphsort', () => {
             ['e', 'a'],
             ['a', 'c'],
         ];
-        const graph = addEdges(edges);
-        const result = getNodeChildren(graph, 'a');
-        expect(result.toJS()).toEqual(['b', 'd', 'c']);
+        const result = getNodeChildren(edges, 'a');
+        expect(result).toEqual(['b', 'd', 'c']);
     });
+
     it('can visit a node', () => {
         const edges = [
             ['c', 'f'],
@@ -55,10 +41,10 @@ describe('graphsort', () => {
             ['d', 'c'],
             ['e', 'a'],
         ];
-        const graph = addEdges(edges);
-        const result = visit(graph, 'a');
-        expect(result.stack.toJS()).toEqual(['b', 'f', 'c', 'd', 'a']);
+        const result = visit(edges, 'a', [], []);
+        expect(result.stack).toEqual(['b', 'f', 'c', 'd', 'a']);
     });
+
     it('can sort graph nodes', () => {
         const edges = [
             ['c', 'f'],
@@ -69,8 +55,9 @@ describe('graphsort', () => {
             ['d', 'c'],
             ['e', 'a'],
         ];
-        const graph = addEdges(edges);
-        const stack = getOrder(graph);
+        const stack = getOrder(edges);
+
+        expect(stack.length).toBe(8);
 
         const compare = ([shouldBeHigher, shouldBeLower]) => {
             expect(
@@ -83,5 +70,5 @@ describe('graphsort', () => {
             ['e', 'd'],
             ['e', 'c'],
         ].forEach(compare);
-    })
+    });
 });
