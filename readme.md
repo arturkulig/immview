@@ -1,4 +1,4 @@
-# immview 1.4.2
+# immview 1.5
 
 Immview is a library to create **Domains** - *non-visual components* - similar to flux stores, exposing their **state** through *observables* pushing immutable data structures and having their own, specific to them **actions**. It can be used in place of any flux implementation, redux.
 
@@ -222,14 +222,11 @@ import { dispatch } from 'immview';
 
 Call to remove actions with provided context from queue.
 
-## TODO
-
-- Streams processing prioritization
-
 ##Changelog
-###1.5 (coming)
+###1.5
 
 - feat: `Data` writes are prioritized over Domain actions
+- feat: streams are sorted so nodes are waiting with their updates for their dependencies are resolved
 - feat: `Debounce` and *.debounce() added
 - feat: `Throttle` and *.throttle() added
 - feat: `Dispatcher` is exposed now
