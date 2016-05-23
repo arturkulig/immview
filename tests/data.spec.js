@@ -5,8 +5,8 @@ describe('Data', () => {
 
     let d;
 
-    beforeEach(()=> {
-        d = new Data({ a: 1, b: { c: 2 } });
+    beforeEach(() => {
+        d = new Data(I.Map({ a: 1, b: I.Map({ c: 2 }) }));
     });
 
     it('can be created', () => {

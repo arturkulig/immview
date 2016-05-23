@@ -1,7 +1,15 @@
 import {
+    OrderedMap,
     Set,
     is,
 } from 'immutable';
+
+import {
+    getGraphFromEdges,
+    sortJobs,
+    appendJob,
+    runDigestQueue,
+} from './streamScheduler';
 
 import { dispatchDataPush } from './Dispatcher';
 
@@ -26,15 +34,50 @@ export default function Reactor() {
     this.reactors = Set();
 }
 
+let links = [];
+let digestGraph;
+let digestQueue = OrderedMap();
+
+function nextDigest() {
+    dispatchDataPush(() => {
+        if (digestQueue.count() > 0) {
+            digestQueue = runDigestQueue(digestQueue);
+            if (digestQueue.count() > 0) {
+                nextDigest();
+            }
+        }
+    });
+}
+
 Reactor.prototype = {
     read() {
         return this.structure;
+    },
+    
+    linkTo(sourceNode) {
+        links.push([sourceNode, this]);
+        digestGraph = getGraphFromEdges(links);
+    },
+    
+    unlink() {
+        links = links.filter(link => link[0] !== this && link[1] !== this);
+        digestGraph = getGraphFromEdges(links);
+    },
+    
+    consume(data, chew = v => v) {
+        dispatchDataPush(() => {
+            digestQueue = sortJobs(
+                digestGraph,
+                appendJob(this, () => this.digest(chew(data)), digestQueue)
+            );
+            nextDigest();
+        });
     },
 
     digest(data) {
         if (shouldStructureBeReplaced(this.structure, data)) {
             this.structure = data;
-            dispatchDataPush(this.flush, this);
+            this.flush();
         }
     },
 
@@ -63,6 +106,7 @@ Reactor.prototype = {
     },
 
     destroy() {
+        this.unlink();
         this.structure = null;
         this.reactors = Set();
     },

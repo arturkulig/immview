@@ -8,16 +8,18 @@ export default function Debounce(source, timeout = 0) {
     if (!(source && source.subscribe)) {
         throw new Error(`${errorPrefix}incorrect source`);
     }
+    
+    this.linkTo(source);
 
     this.timeoutID = null;
-    this.digest(source.read());
+    this.consume(source.read());
     this.subscription = source.appendReactor(data => {
         if (this.timeoutID) {
             clearTimeout(this.timeoutID);
         }
         this.timeoutID = setTimeout(() => {
             this.timeoutID = null;
-            this.digest(data);
+            this.consume(data);
         }, timeout);
     });
 }

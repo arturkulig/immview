@@ -9,12 +9,8 @@ import Reactor from './Reactor.js';
 export default function Data(initialData) {
     Reactor.call(this);
 
-    // TODO drop else branch
-    if (Iterable.isIterable(initialData)) {
-        this.digest(initialData);
-    } else {
-        this.digest(fromJS(initialData));
-    }
+    this.linkTo(null);
+    this.consume(fromJS(initialData));
 }
 
 Data.prototype = {
@@ -25,12 +21,9 @@ Data.prototype = {
      */
     write(change) {
         if (typeof change === 'function') {
-            dispatchDataPush(
-                () => this.digest(change(this.read())),
-                this
-            );
+            this.consume(this.read(), change);
         } else {
-            dispatchDataPush(this.digest, this, [change]);
+            this.consume(change);
         }
     },
 };

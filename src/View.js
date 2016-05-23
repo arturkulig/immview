@@ -3,16 +3,16 @@ import {
 } from 'immutable';
 import Reactor from './Reactor.js';
 
-const bypass = data => data;
+const identity = data => data;
 
-export default function View(source, process = bypass) {
+export default function View(source, process = identity) {
     Reactor.call(this);
 
     if (source && typeof source === 'object') {
         if (source.subscribe) {
-            this.connectToView(source, process);
+            this.connectToSource(source, process);
         } else {
-            this.connectToViews(source, process);
+            this.connectToMultipleSources(source, process);
         }
     }
 }
@@ -22,45 +22,44 @@ View.prototype = {
 
     /**
      * @private
-     * @param {Reactor} view
+     * @param {Reactor} source
      */
-    connectToView(view, process) {
+    connectToSource(source, process) {
+        this.linkTo(source);
         this.unsubs = [
-            view.subscribe(data => this.digest(process(data))),
+            source.subscribe(data => this.consume(process(data))),
         ];
     },
 
     /**
      * @private
-     * @param {Object.<Reactor>} views
+     * @param {Object.<Reactor>} sources
      */
-    connectToViews(views, process) {
+    connectToMultipleSources(sources, process) {
         // initialize as a map{string:Iterable}
         let mergedStructure = Map();
 
-        const viewsNames = Object.keys(views);
+        const sourcesNames = Object.keys(sources);
 
         // prefill mergedStructure before launching subscriptions
-        viewsNames.forEach(viewName => {
-            const viewData = views[viewName].read();
-            if (viewData) {
-                mergedStructure = mergedStructure.set(viewName, viewData);
-            }
+        sourcesNames.forEach(sourceName => {
+            const source = sources[sourceName];
+            this.linkTo(source);
+            const sourceData = source.read();
+            mergedStructure = mergedStructure.set(sourceName, sourceData);
         });
 
-        const digestMerged = () => this.digest(process(mergedStructure));
-
         // subscribe to all data changes in parent views
-        this.unsubs = viewsNames.map(
-            viewName => views[viewName].appendReactor(
+        this.unsubs = sourcesNames.map(
+            sourceName => sources[sourceName].appendReactor(
                 data => {
-                    mergedStructure = mergedStructure.set(viewName, data);
-                    digestMerged();
+                    mergedStructure = mergedStructure.set(sourceName, data);
+                    this.consume(mergedStructure, process);
                 }
             )
         );
 
-        digestMerged();
+        this.consume(mergedStructure, process);
     },
 
     destroy() {

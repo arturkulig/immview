@@ -5,3 +5,4 @@ import './domain.spec';
 import './debounce.spec';
 import './throttle.spec';
 import './interface.spec';
+import './graphsort.spec.js';

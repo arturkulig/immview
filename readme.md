@@ -130,14 +130,14 @@ new View (
 Constructor of **View** object takes any source (a stream or a **Domain**) as first argument and optionally function transforming this data as a second argument.
 A processor function will receive an Immutable data structure and its result must be any Immutable.js data structure. Returning Null or undefined will result in no subscription being fired.
 
-### View::read() => Immutable
+### read() => Immutable
 
 Method used to retrieve current structure holden by the View.
 
-### View::subscribe( reaction: (data) => void ) => () => void
+### subscribe( reaction: (data) => void ) => () => void
 Registers a function called every time when the View changes value that it holds. Returns a function to unregister the subscription.
 
-### View::map( processor: (sourceData: Immutable) => Immutable ) => View (since 1.4)
+### map( processor: (sourceData: Immutable) => Immutable ) => View (since 1.4)
 Creates new View with current instance as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
 ### debounce( timeout: number ) => Debounce (since 1.5)
@@ -175,16 +175,16 @@ const EyesDomain = new Domain(
 EyesDomain.roll();
 ```
 
-### Domain::read() => Immutable (since 1.2)
+### read() => Immutable (since 1.2)
 
 Method used to retrieve current Domain's *state*.
 
 > Although **Domain** can be created using **Data**, Domain won't be having **write** method available to discourage writing directly from dependent instances.
 
-### Domain::subscribe( reaction: (data) => void ) => () => void (since 1.2)
+### subscribe( reaction: (data) => void ) => () => void (since 1.2)
 Registers a function called every time when the Domain's *state* changes. Returns a function to unsubscribe from updates.
 
-### Domain::map( processor: (sourceData: Immutable) => Immutable ) => View (since 1.4)
+### map( processor: (sourceData: Immutable) => Immutable ) => View (since 1.4)
 Creates new View with the Domain instance source as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
 ### debounce( timeout: number ) => Debounce (since 1.5)
@@ -200,13 +200,16 @@ These share interface with a **View**.
 
 ### Dispatcher.logger (since 1.5)
 
-(default: console)
 Replace to change for logging errors in queue runner
+(default: console)
 
 ### Dispatcher.tick (since 1.5)
 
-(default: console)
-Replace to change for logging errors in queue runner
+Replace to change how next function is being called.
+default:
+```
+func => func()
+```
 
 ### Dispatcher.dispatch( action: function, context: any, args: Array<any> ) (since 1.5)
 
@@ -227,11 +230,11 @@ Call to remove actions with provided context from queue.
 ###1.5 (coming)
 
 - feat: `Data` writes are prioritized over Domain actions
-- feat: `Debounce` and *.debounce added
-- feat: `Throttle` and *.throttle added
-- `Queue` is now a `Dispatcher`
+- feat: `Debounce` and *.debounce() added
+- feat: `Throttle` and *.throttle() added
 - feat: `Dispatcher` is exposed now
 - feat: `dispatch` function is directly exposed by package for convenience
+- feat: guaranteed to work in node
 
 ###1.4.2
 
