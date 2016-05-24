@@ -223,6 +223,11 @@ import { dispatch } from 'immview';
 Call to remove actions with provided context from queue.
 
 ##Changelog
+
+###1.5.1
+
+- fix: support for deferring ticker replacements
+
 ###1.5
 
 - feat: `Data` writes are prioritized over Domain actions
