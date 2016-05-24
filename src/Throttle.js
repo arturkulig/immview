@@ -12,7 +12,7 @@ export default function Throttle(source, timeout = 0) {
     this.linkTo(source);
     this.timeoutID = null;
     this.timeoutedData = null;
-    this.consume(source.read());
+    this.digest(source.read());
     this.subscription = source.appendReactor(data => {
         this.timeoutedData = data;
         if (!this.timeoutID) {

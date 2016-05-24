@@ -52,7 +52,7 @@ export function copyQueueOntoSchedule(source, target) {
         const sourceEntry = source[i];
         const sourceEntryNode = sourceEntry[0];
         const sourceEntryJob = sourceEntry[1];
-        
+
         if (sourceEntryJob) {
             for (let j = 0; j < result.length; j++) {
                 const targetEntry = result[j];

@@ -33,12 +33,15 @@ function shiftFromQueue() {
  * Execute first action of current queue
  */
 const runFirstQueuedItem = () => {
-    const {
-        context,
-        action,
-        args,
-    } = shiftFromQueue();
-    action.apply(context, args);
+    const task = shiftFromQueue();
+    if (task) {
+        const {
+            context,
+            action,
+            args,
+        } = task;
+        action && action.apply(context, args);
+    }
 };
 
 /**
@@ -65,17 +68,18 @@ function startQueue() {
         return;
     }
 
-    isRunning = true;
-
-    while (queue.length > 0) {
-        try {
-            Dispatcher.tick(runFirstQueuedItem);
-        } catch (e) {
-            logError(e);
-        }
+    if (queue.length > 0) {
+        isRunning = true;
+        Dispatcher.tick(() => {
+            try {
+                runFirstQueuedItem();
+            } catch (e) {
+                logError(e);
+            }
+            isRunning = false;
+            startQueue();
+        });
     }
-
-    isRunning = false;
 }
 
 function logError(e) {

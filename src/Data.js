@@ -9,7 +9,7 @@ export default function Data(initialData) {
     Reactor.call(this);
 
     this.linkTo(null);
-    this.consume(fromJS(initialData));
+    this.digest(fromJS(initialData));
 }
 
 Data.prototype = {

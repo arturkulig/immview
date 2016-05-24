@@ -1,4 +1,4 @@
-import { Data, View } from '../src';
+import { Data, View, Domain } from '../src';
 
 describe('branching and merged streams', () => {
     it('are causing only single rerender of child stream', () => {
@@ -6,11 +6,12 @@ describe('branching and merged streams', () => {
         const branch1 = new View(start, d => d * 10);
         const branch2a = new View(start, d => d * 100);
         const branch3a = new View(start, d => d * 1000);
-        const branch2b = new View({
+        const branch3aDomain = new Domain(branch3a);
+        const branch2b = new Domain(new View({
             branch2a,
             branch3a,
-        }, data => data.get('branch2a') + data.get('branch3a'));
-        const branch3b = new View(branch3a, d => d * 10000);
+        }, data => data.get('branch2a') + data.get('branch3a')));
+        const branch3b = new View(branch3aDomain, d => d * 10000);
         const end = new View({
             branch1,
             branch2b,

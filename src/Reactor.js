@@ -47,6 +47,10 @@ function doNextJob() {
     }
 }
 
+function identity(v) {
+    return v;
+}
+
 export default function Reactor() {
     /**
      * @private
@@ -60,7 +64,10 @@ Reactor.prototype = {
     },
 
     linkTo(sourceNode) {
-        digestLinks.push([sourceNode, this]);
+        digestLinks.push([
+            sourceNode && (sourceNode.stream ? sourceNode.stream : sourceNode),
+            this,
+        ]);
         digestQueue = restoreNodeJobs(digestLinks, digestQueue);
     },
 
@@ -69,7 +76,7 @@ Reactor.prototype = {
         digestQueue = restoreNodeJobs(digestLinks, digestQueue);
     },
 
-    consume(data, chew = v => v) {
+    consume(data, chew = identity) {
         dispatchDataConsume(() => {
             digestQueue = scheduleJob(this, () => this.digest(chew(data)), digestQueue);
             dispatchDataWrite(doNextJob);

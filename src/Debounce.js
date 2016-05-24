@@ -12,7 +12,7 @@ export default function Debounce(source, timeout = 0) {
     this.linkTo(source);
 
     this.timeoutID = null;
-    this.consume(source.read());
+    this.digest(source.read());
     this.subscription = source.appendReactor(data => {
         if (this.timeoutID) {
             clearTimeout(this.timeoutID);

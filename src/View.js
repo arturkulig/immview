@@ -26,8 +26,9 @@ View.prototype = {
      */
     connectToSource(source, process) {
         this.linkTo(source);
+        this.digest(process(source.read()));
         this.unsubs = [
-            source.subscribe(data => this.consume(process(data))),
+            source.appendReactor(data => this.digest(process(data))),
         ];
     },
 
@@ -59,7 +60,7 @@ View.prototype = {
             )
         );
 
-        this.consume(mergedStructure, process);
+        this.digest(process(mergedStructure));
     },
 
     destroy() {
