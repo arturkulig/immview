@@ -9,3 +9,4 @@ import './graphsort.spec.js';
 import './streamscheduler.spec.js';
 import './branchingStreamPerformantRender';
 import './switchedTicker.spec';
+import './classExtending';
