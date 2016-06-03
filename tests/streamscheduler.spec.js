@@ -5,7 +5,7 @@ import {
     findJob,
     runScheduledPriorityJob,
     copyQueueOntoSchedule,
-} from '../src/streamScheduler';
+} from '../src/StreamSchedule';
 
 const graph = [
     ['a', 'b'],

@@ -73,9 +73,10 @@ export function runScheduledPriorityJob(schedule) {
         const entry = schedule[i];
         const node = entry[0];
         const job = entry[1];
-        if (job && !currentJob) {
+        if (job) {
             currentJob = job;
             restOfJobs[i] = [node, null];
+            break;
         }
     };
     if (currentJob) {

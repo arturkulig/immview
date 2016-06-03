@@ -12,14 +12,17 @@ describe('branching and merged streams', () => {
             branch3a,
         }, data => data.get('branch2a') + data.get('branch3a')));
         const branch3b = new View(branch3aDomain, d => d * 10000);
+        const constantStream = new Data(2);
         const end = new View({
             branch1,
             branch2b,
             branch3b,
+            constantStream,
         }, data =>
             data.get('branch1') +
             data.get('branch2b') +
-            data.get('branch3b')
+            data.get('branch3b') +
+            data.get('constantStream')
         );
 
         let hits = 0;
@@ -33,6 +36,6 @@ describe('branching and merged streams', () => {
 
         start.write(2);
         expect(hits).toBe(2);
-        expect(output).toBe(20002220);
+        expect(output).toBe(20002222);
     });
 });

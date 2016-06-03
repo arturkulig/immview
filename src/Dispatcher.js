@@ -32,7 +32,7 @@ function shiftFromQueue() {
 /**
  * Execute first action of current queue
  */
-const runFirstQueuedItem = () => {
+function runFirstQueuedItem() {
     const task = shiftFromQueue();
     if (task) {
         const {

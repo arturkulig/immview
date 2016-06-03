@@ -9,7 +9,7 @@ import {
     runScheduledPriorityJob,
     createSchedule,
     copyQueueOntoSchedule,
-} from './streamScheduler';
+} from './StreamSchedule';
 
 import {
     dispatchDataWrite,
@@ -32,8 +32,8 @@ function shouldStructureBeReplaced(structure, candidate) {
     );
 };
 
-let digestLinks = [];
-let digestQueue = [];
+let digestEdges = [];
+let digestSchedule = [];
 
 function restoreNodeJobs(edges, currentSchedule) {
     const digestJobMap = createSchedule(edges);
@@ -41,8 +41,8 @@ function restoreNodeJobs(edges, currentSchedule) {
 }
 
 function doNextJob() {
-    if (scheduleLength(digestQueue) > 0) {
-        digestQueue = runScheduledPriorityJob(digestQueue);
+    if (scheduleLength(digestSchedule) > 0) {
+        digestSchedule = runScheduledPriorityJob(digestSchedule);
         dispatchDataWrite(doNextJob);
     }
 }
@@ -64,21 +64,21 @@ Reactor.prototype = {
     },
 
     linkTo(sourceNode) {
-        digestLinks.push([
+        digestEdges.push([
             sourceNode && (sourceNode.stream ? sourceNode.stream : sourceNode),
             this,
         ]);
-        digestQueue = restoreNodeJobs(digestLinks, digestQueue);
+        digestSchedule = restoreNodeJobs(digestEdges, digestSchedule);
     },
 
     unlink() {
-        digestLinks = digestLinks.filter(link => link[0] !== this && link[1] !== this);
-        digestQueue = restoreNodeJobs(digestLinks, digestQueue);
+        digestEdges = digestEdges.filter(link => link[0] !== this && link[1] !== this);
+        digestSchedule = restoreNodeJobs(digestEdges, digestSchedule);
     },
 
     consume(data, chew = identity) {
         dispatchDataConsume(() => {
-            digestQueue = scheduleJob(this, () => this.digest(chew(data)), digestQueue);
+            digestSchedule = scheduleJob(this, () => this.digest(chew(data)), digestSchedule);
             dispatchDataWrite(doNextJob);
         });
     },

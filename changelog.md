@@ -1,10 +1,14 @@
 ##Changelog
 
-###1.5.1
+### 1.5.2
+ 
+- fix: writing during single tick, to the same Data twice or more, causing to reject all but last change
+
+### 1.5.1
 
 - fix: support for deferring ticker replacements
 
-###1.5
+### 1.5
 
 - feat: `Data` writes are prioritized over Domain actions
 - feat: streams are sorted so nodes are waiting with their updates for their dependencies are resolved
@@ -14,7 +18,7 @@
 - feat: `dispatch` function is directly exposed by package for convenience
 - feat: guaranteed to work in node
 
-###1.4.2
+### 1.4.2
 
 - fix: `Queue` (dispatcher) returns stack trace instead of just error message
 

@@ -28,7 +28,7 @@ View.prototype = {
         this.linkTo(source);
         this.digest(process(source.read()));
         this.unsubs = [
-            source.appendReactor(data => this.digest(process(data))),
+            source.appendReactor(data => this.consume(data, process)),
         ];
     },
 

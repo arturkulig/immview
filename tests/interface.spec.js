@@ -41,6 +41,9 @@ describe('Immview', () => {
         });
         it('Dispatcher', () => {
             expect(Dispatcher).toBeDefined();
+            expect(Dispatcher.dispatch).toBeDefined();
+            expect(Dispatcher.rejectContext).toBeDefined();
+            expect(Dispatcher.logger).toBeDefined();
         });
         it('dispatch', () => {
             expect(dispatch).toBeDefined();

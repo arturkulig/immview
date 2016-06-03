@@ -82,9 +82,9 @@ describe('Domain', () => {
             },
 
             testMethod2: () => {
+                testVar += '2';
                 dmn.testMethod1();
                 dmn.destroy();
-                testVar += '2';
             },
 
             testMethod3: () => {

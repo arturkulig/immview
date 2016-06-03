@@ -93,4 +93,16 @@ describe('Data', () => {
         d.write(d.read().set('d', 3)); // change -> reaction
         expect(reactions).toBe(2);
     });
+    
+    it('writes can still be queued up and all performed', () => {
+        const a = new Data(0);
+        const b = new Data(0);
+        a.write(i => {
+            b.write(i => i + 1); 
+            b.write(i => i + 1);
+            return i + 1;
+        });
+        expect(a.read()).toBe(1);
+        expect(b.read()).toBe(2);
+    });
 });

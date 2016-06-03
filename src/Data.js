@@ -21,9 +21,9 @@ Data.prototype = {
     write(change) {
         dispatchDataWrite(() => {
             if (typeof change === 'function') {
-                this.consume(this.read(), change);
+                this.digest(change(this.read()));
             } else {
-                this.consume(change);
+                this.digest(change);
             }
         });
     },
