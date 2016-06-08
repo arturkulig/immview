@@ -1,7 +1,3 @@
-import {
-    fromJS,
-} from 'immutable';
-
 import { dispatchDataWrite } from './Dispatcher';
 import Reactor from './Reactor.js';
 
@@ -9,7 +5,7 @@ export default function Data(initialData) {
     Reactor.call(this);
 
     this.linkTo(null);
-    this.digest(fromJS(initialData));
+    this.digest(initialData);
 }
 
 Data.prototype = Object.create(Reactor.prototype);

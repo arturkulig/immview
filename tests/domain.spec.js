@@ -1,6 +1,9 @@
 import Domain from '../src/Domain';
 import Data from '../src/Data';
 import View from '../src/View';
+import {
+    fromJS,
+} from 'immutable';
 
 describe('Domain', () => {
     it('exists', () => {
@@ -14,7 +17,7 @@ describe('Domain', () => {
     });
 
     it('can be created from Data type', () => {
-        const d = new Data({ a: 1 });
+        const d = new Data(fromJS({ a: 1 }));
 
         // this should be really tested here
         // so it is just informative
@@ -25,7 +28,7 @@ describe('Domain', () => {
     });
 
     it('can be created from a View type', () => {
-        const d = new Data({ a: 1 });
+        const d = new Data(fromJS({ a: 1 }));
 
         const v = new View(d, data => data);
         expect(d.read().get('a')).toBe(1);
@@ -36,7 +39,7 @@ describe('Domain', () => {
 
     it('acquire queueable methods', () => {
         let testVar = '';
-        const d = new Data({ a: 1 });
+        const d = new Data(fromJS({ a: 1 }));
         const dmn = new Domain(d, {
             testMethod1: () => {
                 testVar += '1';
@@ -57,7 +60,7 @@ describe('Domain', () => {
 
     it('allow subscriptions', () => {
         let testVar = 0;
-        const d = new Data({ a: 1 });
+        const d = new Data(fromJS({ a: 1 }));
         const dmn = new Domain(d);
 
         expect(testVar).toBe(0);
@@ -75,7 +78,7 @@ describe('Domain', () => {
 
     it('can be destroyed mid-digest', () => {
         let testVar = '';
-        const d = new Data({ a: 1 });
+        const d = new Data(fromJS({ a: 1 }));
         const dmn = new Domain(d, {
             testMethod1: () => {
                 testVar += '1';
