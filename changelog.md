@@ -3,6 +3,7 @@
 ### 1.6
 
 - feat: `Scan` and `*.scan` added
+- fix: `Data` no longer magically transforms initial data provided in constructor to Immutable.js data structure
 
 ### 1.5.2
  
