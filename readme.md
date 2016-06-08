@@ -24,6 +24,7 @@ If you are using React to create presentation layer of your app you should check
 
 # Read more
 * [Reactive logic with immview](https://medium.com/@arturkulig/reactive-logic-with-immview-cf60ff06b7dc) - an introduction to reasoning behind immview
+* [Introduction to Immutable.js (Auth0 Blog)](https://auth0.com/blog/2016/03/23/intro-to-immutable-js/)
 * [Documentation](./docs.md)
 * [Simple usage](./usage_simple.md)
 * [Changelog](./changelog.md)
