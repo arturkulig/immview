@@ -92,7 +92,7 @@ Domain.prototype = {
     throttle(timeout) {
         return this.stream.throttle(timeout);
     },
-    
+
     scan(initialValue, stepsToRemember) {
         return this.stream.scan(initialValue, stepsToRemember);
     },

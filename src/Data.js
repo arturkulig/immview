@@ -12,19 +12,18 @@ export default function Data(initialData) {
     this.digest(fromJS(initialData));
 }
 
-Data.prototype = {
-    ...Reactor.prototype,
-    /**
-     * Dispatch a change instruction to the Data
-     * @param {Iterable|function(data: Iterable):Iterable} change
-     */
-    write(change) {
-        dispatchDataWrite(() => {
-            if (typeof change === 'function') {
-                this.digest(change(this.read()));
-            } else {
-                this.digest(change);
-            }
-        });
-    },
+Data.prototype = Object.create(Reactor.prototype);
+
+/**
+ * Dispatch a change instruction to the Data
+ * @param {Iterable|function(data: Iterable):Iterable} change
+ */
+Data.prototype.write = function (change) {
+    dispatchDataWrite(() => {
+        if (typeof change === 'function') {
+            this.digest(change(this.read()));
+        } else {
+            this.digest(change);
+        }
+    });
 };

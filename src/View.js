@@ -3,73 +3,71 @@ import {
 } from 'immutable';
 import Reactor from './Reactor.js';
 
-const identity = data => data;
+const errorPrefix = 'Immview::View: ';
 
 export default function View(source, process = identity) {
     Reactor.call(this);
 
     if (source && typeof source === 'object') {
         if (source.subscribe) {
-            this.connectToSource(source, process);
+            this.unsubs = connectToSource(this, source, process);
         } else {
-            this.connectToMultipleSources(source, process);
+            this.unsubs = connectToMultipleSources(this, source, process);
         }
+        return;
     }
+    throw new Error(`${errorPrefix}No sources to plug in`);
 }
 
-View.prototype = {
-    ...Reactor.prototype,
+View.prototype = Object.create(Reactor.prototype);
 
-    /**
-     * @private
-     * @param {Reactor} source
-     */
-    connectToSource(source, process) {
-        this.linkTo(source);
-        this.digest(process(source.read()));
-        this.unsubs = [
-            source.appendReactor(data => this.consume(data, process)),
-        ];
-    },
+View.prototype.destroy = function () {
+    Reactor.prototype.destroy.call(this);
 
-    /**
-     * @private
-     * @param {Object.<Reactor>} sources
-     */
-    connectToMultipleSources(sources, process) {
-        // initialize as a map{string:Iterable}
-        let mergedStructure = Map();
+    if (this.unsubs) {
+        this.unsubs.forEach(func => func());
+    }
 
-        const sourcesNames = Object.keys(sources);
-
-        // prefill mergedStructure before launching subscriptions
-        sourcesNames.forEach(sourceName => {
-            const source = sources[sourceName];
-            this.linkTo(source);
-            const sourceData = source.read();
-            mergedStructure = mergedStructure.set(sourceName, sourceData);
-        });
-
-        // subscribe to all data changes in parent views
-        this.unsubs = sourcesNames.map(
-            sourceName => sources[sourceName].appendReactor(
-                data => {
-                    mergedStructure = mergedStructure.set(sourceName, data);
-                    this.consume(mergedStructure, process);
-                }
-            )
-        );
-
-        this.digest(process(mergedStructure));
-    },
-
-    destroy() {
-        Reactor.prototype.destroy.call(this);
-
-        if (this.unsubs) {
-            this.unsubs.forEach(func => func());
-        }
-
-        this.unsubs = null;
-    },
+    this.unsubs = null;
 };
+
+function identity(data) {
+    return data;
+}
+
+function connectToSource(aView, source, process) {
+    aView.linkTo(source);
+    aView.digest(process(source.read()));
+    return [
+        source.appendReactor(data => aView.consume(data, process)),
+    ];
+}
+
+function connectToMultipleSources(aView, sources, process) {
+    // initialize as a map{string:Iterable}
+    let mergedStructure = Map();
+
+    const sourcesNames = Object.keys(sources);
+
+    // prefill mergedStructure before launching subscriptions
+    sourcesNames.forEach(sourceName => {
+        const source = sources[sourceName];
+        aView.linkTo(source);
+        const sourceData = source.read();
+        mergedStructure = mergedStructure.set(sourceName, sourceData);
+    });
+
+    // subscribe to all data changes in parent views
+    const unsubs = sourcesNames.map(
+        sourceName => sources[sourceName].appendReactor(
+            data => {
+                mergedStructure = mergedStructure.set(sourceName, data);
+                aView.consume(mergedStructure, process);
+            }
+        )
+    );
+
+    aView.digest(process(mergedStructure));
+
+    return unsubs;
+}

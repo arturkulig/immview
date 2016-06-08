@@ -24,17 +24,15 @@ export default function Debounce(source, timeout = 0) {
     });
 }
 
-Debounce.prototype = {
-    ...Reactor.prototype,
+Debounce.prototype = Object.create(Reactor.prototype);
 
-    destroy() {
-        if (this.timeoutID) {
-            clearTimeout(this.timeoutID);
-            this.timeoutID = null;
-        }
-        if (this.subscription) {
-            this.subscription();
-        }
-        Reactor.prototype.destroy.call(this);
-    },
+Debounce.prototype.destroy = function () {
+    if (this.timeoutID) {
+        clearTimeout(this.timeoutID);
+        this.timeoutID = null;
+    }
+    if (this.subscription) {
+        this.subscription();
+    }
+    Reactor.prototype.destroy.call(this);
 };

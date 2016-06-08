@@ -24,17 +24,15 @@ export default function Throttle(source, timeout = 0) {
     });
 }
 
-Throttle.prototype = {
-    ...Reactor.prototype,
+Throttle.prototype = Object.create(Reactor.prototype);
 
-    destroy() {
-        if (this.timeoutID) {
-            clearTimeout(this.timeoutID);
-            this.timeoutID = null;
-        }
-        if (this.subscription) {
-            this.subscription();
-        }
-        Reactor.prototype.destroy.call(this);
-    },
+Throttle.prototype.destroy = function () {
+    if (this.timeoutID) {
+        clearTimeout(this.timeoutID);
+        this.timeoutID = null;
+    }
+    if (this.subscription) {
+        this.subscription();
+    }
+    Reactor.prototype.destroy.call(this);
 };

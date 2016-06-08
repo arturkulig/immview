@@ -24,17 +24,15 @@ export default function Scan(source, initialValue = null, stepsToRemember = 2) {
     );
 }
 
-Scan.prototype = {
-    ...Reactor.prototype,
+Scan.prototype = Object.create(Reactor.prototype);
 
-    destroy() {
-        Reactor.prototype.destroy.apply(this);
+Scan.prototype.destroy = function () {
+    Reactor.prototype.destroy.apply(this);
 
-        if (this.unsubscribe) {
-            this.unsubscribe();
-            this.unsubscribe = null;
-        }
-    },
+    if (this.unsubscribe) {
+        this.unsubscribe();
+        this.unsubscribe = null;
+    }
 };
 
 function premadeHistory(initialValue, stepsToRemember) {
@@ -49,5 +47,9 @@ function premadeHistory(initialValue, stepsToRemember) {
 }
 
 function pushToHistory(history, stepsToRemember, newValue) {
-    return history.asMutable().takeLast(stepsToRemember - 1).push(newValue).asImmutable();
+    return history
+        .asMutable()
+        .takeLast(stepsToRemember - 1)
+        .push(newValue)
+        .asImmutable();
 }

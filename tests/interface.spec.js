@@ -12,11 +12,13 @@ function fulfillsReactorInterface(instance) {
     expect(typeof instance.subscribe).toBe('function');
     expect(typeof instance.appendReactor).toBe('function');
     expect(typeof instance.map).toBe('function');
+    expect(typeof instance.debounce).toBe('function');
+    expect(typeof instance.throttle).toBe('function');
     expect(typeof instance.scan).toBe('function');
 }
 
 describe('Immview', () => {
-    describe('has public interface', () => {
+    describe('keeps public interface in', () => {
         it('Data', () => {
             expect(Data).toBeDefined();
             const d = new Data();
@@ -25,12 +27,16 @@ describe('Immview', () => {
         });
         it('View', () => {
             expect(View).toBeDefined();
-            const v = new View();
+            const d = new Data();
+            const v = new View(d);
+            const v2 = new View({d});
             fulfillsReactorInterface(v);
+            fulfillsReactorInterface(v2);
         });
         it('Debounce', () => {
             expect(Debounce).toBeDefined();
-            const v = new View();
+            const d = new Data();
+            const v = new View(d);
             const instance = new Debounce(v);
             fulfillsReactorInterface(instance);
         });
