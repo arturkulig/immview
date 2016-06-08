@@ -92,6 +92,10 @@ Domain.prototype = {
     throttle(timeout) {
         return this.stream.throttle(timeout);
     },
+    
+    scan(initialValue, stepsToRemember) {
+        return this.stream.scan(initialValue, stepsToRemember);
+    },
 
     /**
      * Register a listener to changes on data stream.

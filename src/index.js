@@ -3,6 +3,7 @@ import Data from './Data.js';
 import View from './View.js';
 import Debounce from './Debounce.js';
 import Throttle from './Throttle.js';
+import Scan from './Scan.js';
 import Dispatcher from './Dispatcher';
 
 const { dispatch } = Dispatcher;
@@ -13,6 +14,7 @@ export {
     Domain,
     Debounce,
     Throttle,
+    Scan,
     Dispatcher,
     dispatch,
 };

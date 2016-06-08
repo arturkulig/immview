@@ -10,3 +10,4 @@ import './streamscheduler.spec.js';
 import './branchingStreamPerformantRender';
 import './switchedTicker.spec';
 import './classExtending';
+import './scan.spec';

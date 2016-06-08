@@ -1,4 +1,4 @@
-import { Data, View, Domain } from '../src';
+import { Data, View, Domain, dispatch } from '../src';
 
 describe('branching and merged streams', () => {
     it('are causing only single rerender of child stream', () => {
@@ -26,7 +26,7 @@ describe('branching and merged streams', () => {
         );
 
         let hits = 0;
-        let output;
+        let output = 0;
 
         end.subscribe(v => {
             output = v;
@@ -37,5 +37,25 @@ describe('branching and merged streams', () => {
         start.write(2);
         expect(hits).toBe(2);
         expect(output).toBe(20002222);
+    });
+
+    it('is reacting once to two dispatched write jobs affecting single child node', () => {
+        const parent1 = new Data(1);
+        const parent2 = new Data(2);
+        let hits = [];
+        new View(
+            { parent1, parent2 },
+            data => hits.push([
+                data.get('parent1'),
+                data.get('parent2'),
+            ])
+        );
+        dispatch(() => {
+            parent1.write(11);
+            parent2.write(22);
+        });
+
+        // 1 - initial, 2 - rerender, 3+ - unnecessary
+        expect(hits.length).toBe(2);
     });
 });

@@ -134,4 +134,9 @@ Reactor.prototype = {
         const Throttle = require('./Throttle.js').default;
         return new Throttle(this, timeout);
     },
+
+    scan(initialValue, stepsToRemember) {
+        const Scan = require('./Scan.js').default;
+        return new Scan(this, initialValue, stepsToRemember);
+    },
 };

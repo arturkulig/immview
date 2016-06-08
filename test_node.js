@@ -64,6 +64,7 @@ function startWebpack() {
             }
         })
         .catch(function(err) {
+            console.error('ERROR!', err);
             process.exitCode = 1;
         })
         .then(function() {

@@ -9,7 +9,7 @@ describe('classes', () => {
                 );
             }
         }
-        
+
         expect(new NonStandardView().read()).toBe('a');
     });
 });
