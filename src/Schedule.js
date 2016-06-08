@@ -1,6 +1,6 @@
 import {
     getOrder,
-} from './graphSort.js';
+} from './Graph.js';
 
 export const sortStreamGraph = getOrder;
 
@@ -15,12 +15,12 @@ export function createSchedule(graph) {
         );
 }
 
-export function scheduleJob(contextNode, nodeNewJob, schedule) {
+export function scheduleJob(node, nodeNewJob, currentDigestSchedule) {
     const newSchedule = [];
-    for (let i = 0; i < schedule.length; i++) {
-        const entry = schedule[i];
+    for (let i = 0; i < currentDigestSchedule.length; i++) {
+        const entry = currentDigestSchedule[i];
         const currentNode = entry[0];
-        if (currentNode === contextNode) {
+        if (currentNode === node) {
             newSchedule.push([currentNode, nodeNewJob]);
         } else {
             newSchedule.push(entry);
@@ -37,9 +37,9 @@ export function scheduleLength(schedule) {
     return length;
 }
 
-export function findJob(queue, contextNode) {
+export function findJob(queue, node) {
     for (let i = 0; i < queue.length; i++) {
-        if (queue[i][0] === contextNode) {
+        if (queue[i][0] === node) {
             return queue[i][1];
         }
     }

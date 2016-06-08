@@ -4,7 +4,7 @@ import {
     getGraphNodes,
     getNodeChildren,
     visit,
-} from '../src/graphSort.js';
+} from '../src/Graph.js';
 
 describe('graphsort', () => {
     it('can get nodes', () => {

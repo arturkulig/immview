@@ -3,53 +3,7 @@ import {
     is,
 } from 'immutable';
 
-import {
-    scheduleLength,
-    scheduleJob,
-    runScheduledPriorityJob,
-    createSchedule,
-    copyQueueOntoSchedule,
-} from './StreamSchedule';
-
-import {
-    dispatchDataWrite,
-    dispatchDataConsume,
-} from './Dispatcher';
-
-function hasValue(v) {
-    return (
-        v !== undefined &&
-        v !== null
-    );
-}
-
-function shouldStructureBeReplaced(structure, candidate) {
-    return (
-        hasValue(candidate) && (
-            !hasValue(structure) ||
-            !is(candidate, structure)
-        )
-    );
-};
-
-let digestEdges = [];
-let digestSchedule = [];
-
-function restoreNodeJobs(edges, currentSchedule) {
-    const digestJobMap = createSchedule(edges);
-    return copyQueueOntoSchedule(currentSchedule, digestJobMap);
-}
-
-function doNextJob() {
-    if (scheduleLength(digestSchedule) > 0) {
-        digestSchedule = runScheduledPriorityJob(digestSchedule);
-        dispatchDataWrite(doNextJob);
-    }
-}
-
-function identity(v) {
-    return v;
-}
+import Digest from './Digest';
 
 export default function Reactor() {
     /**
@@ -64,23 +18,18 @@ Reactor.prototype = {
     },
 
     linkTo(sourceNode) {
-        digestEdges.push([
+        Digest.link(
             sourceNode && (sourceNode.stream ? sourceNode.stream : sourceNode),
-            this,
-        ]);
-        digestSchedule = restoreNodeJobs(digestEdges, digestSchedule);
+            this
+        );
     },
 
     unlink() {
-        digestEdges = digestEdges.filter(link => link[0] !== this && link[1] !== this);
-        digestSchedule = restoreNodeJobs(digestEdges, digestSchedule);
+        Digest.unlink(this);
     },
 
     consume(data, chew = identity) {
-        dispatchDataConsume(() => {
-            digestSchedule = scheduleJob(this, () => this.digest(chew(data)), digestSchedule);
-            dispatchDataWrite(doNextJob);
-        });
+        Digest.queue(this, () => this.digest(chew(data)));
     },
 
     digest(data) {
@@ -140,3 +89,23 @@ Reactor.prototype = {
         return new Scan(this, initialValue, stepsToRemember);
     },
 };
+
+function hasValue(v) {
+    return (
+        v !== undefined &&
+        v !== null
+    );
+}
+
+function shouldStructureBeReplaced(structure, candidate) {
+    return (
+        hasValue(candidate) && (
+            !hasValue(structure) ||
+            !is(candidate, structure)
+        )
+    );
+};
+
+function identity(v) {
+    return v;
+}

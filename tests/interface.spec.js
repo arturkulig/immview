@@ -29,7 +29,7 @@ describe('Immview', () => {
             expect(View).toBeDefined();
             const d = new Data();
             const v = new View(d);
-            const v2 = new View({d});
+            const v2 = new View({ d });
             fulfillsReactorInterface(v);
             fulfillsReactorInterface(v2);
         });
