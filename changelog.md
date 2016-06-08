@@ -1,5 +1,9 @@
 ##Changelog
 
+### 1.6
+
+- feat: `Scan` and `*.scan` added
+
 ### 1.5.2
  
 - fix: writing during single tick, to the same Data twice or more, causing to reject all but last change
@@ -12,8 +16,8 @@
 
 - feat: `Data` writes are prioritized over Domain actions
 - feat: streams are sorted so nodes are waiting with their updates for their dependencies are resolved
-- feat: `Debounce` and *.debounce() added
-- feat: `Throttle` and *.throttle() added
+- feat: `Debounce` and `*.debounce()` added
+- feat: `Throttle` and `*.throttle()` added
 - feat: `Dispatcher` is exposed now
 - feat: `dispatch` function is directly exposed by package for convenience
 - feat: guaranteed to work in node
