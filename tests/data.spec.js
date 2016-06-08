@@ -16,21 +16,29 @@ describe('Data', () => {
     it('can be created with a number', () => {
         const dataFromNumber = new Data(2);
         expect(dataFromNumber.read()).toBe(2);
+        dataFromNumber.write(3);
+        expect(dataFromNumber.read()).toEqual(3);
     });
 
     it('can be created with a string', () => {
         const dataFromString = new Data(' 2 ');
         expect(dataFromString.read()).toBe(' 2 ');
+        dataFromString.write(' 3 ');
+        expect(dataFromString.read()).toEqual(' 3 ');
     });
 
     it('can be created with an object', () => {
         const dataFromObject = new Data({ test: 1 });
         expect(dataFromObject.read()).toEqual({ test: 1 });
+        dataFromObject.write({ test: 2 });
+        expect(dataFromObject.read()).toEqual({ test: 2 });
     });
 
     it('can be created with an array', () => {
         const dataFromObject = new Data([2, 3, 4]);
         expect(dataFromObject.read()).toEqual([2, 3, 4]);
+        dataFromObject.write([2, 3, 4, 5]);
+        expect(dataFromObject.read()).toEqual([2, 3, 4, 5]);
     });
 
     it('can be read from', () => {
