@@ -93,8 +93,8 @@ Domain.prototype = {
         return this.stream.throttle(timeout);
     },
 
-    scan(initialValue, stepsToRemember) {
-        return this.stream.scan(initialValue, stepsToRemember);
+    scan(valuesToRemember, initialValue) {
+        return this.stream.scan(valuesToRemember, initialValue);
     },
 
     /**

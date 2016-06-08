@@ -4,21 +4,21 @@ import {
 
 import Reactor from './Reactor.js';
 
-export default function Scan(source, initialValue = null, stepsToRemember = 2) {
+export default function Scan(source, valuesToRemember = 2, initialValue = null) {
     Reactor.apply(this);
 
     this.linkTo(source);
 
     let history = pushToHistory(
-        premadeHistory(initialValue, stepsToRemember),
-        stepsToRemember,
+        premadeHistory(initialValue, valuesToRemember),
+        valuesToRemember,
         source.read()
     );
     this.digest(history);
 
     this.unsubscribe = source.appendReactor(
         sourceData => {
-            history = pushToHistory(history, stepsToRemember, sourceData);
+            history = pushToHistory(history, valuesToRemember, sourceData);
             this.consume(history);
         }
     );
@@ -35,21 +35,21 @@ Scan.prototype.destroy = function () {
     }
 };
 
-function premadeHistory(initialValue, stepsToRemember) {
+function premadeHistory(initialValue, valuesToRemember) {
     if (initialValue === null) {
         return List();
     }
     const steps = [];
-    for (let i = 0; i < stepsToRemember; i++) {
+    for (let i = 0; i < valuesToRemember; i++) {
         steps.push(initialValue);
     }
     return List(steps);
 }
 
-function pushToHistory(history, stepsToRemember, newValue) {
+function pushToHistory(history, valuesToRemember, newValue) {
     return history
         .asMutable()
-        .takeLast(stepsToRemember - 1)
+        .takeLast(valuesToRemember - 1)
         .push(newValue)
         .asImmutable();
 }

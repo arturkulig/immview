@@ -84,9 +84,9 @@ Reactor.prototype = {
         return new Throttle(this, timeout);
     },
 
-    scan(initialValue, stepsToRemember) {
+    scan(valuesToRemember, initialValue) {
         const Scan = require('./Scan.js').default;
-        return new Scan(this, initialValue, stepsToRemember);
+        return new Scan(this, valuesToRemember, initialValue);
     },
 };
 
