@@ -27,25 +27,25 @@ const EyesDomain = new Domain(
 EyesDomain.roll();
 ```
 
-### read (since 1.2)
+### ::read (since 1.2)
 
 bypassed to state stream given in constructor (see `Data` or `View`)
 
 > Although **Domain** can be created using **Data**, Domain won't be having **write** method available to discourage writing directly from dependent instances.
 
-### subscribe (since 1.2)
+### ::subscribe (since 1.2)
 bypassed to state stream given in constructor (see `Data`)
 
-### map (since 1.4)
+### ::map (since 1.4)
 bypassed to state stream given in constructor (see `Data`)
 
-### debounce (since 1.5)
+### ::debounce (since 1.5)
 bypassed to state stream given in constructor (see `Data`)
 
-### throttle (since 1.5)
+### ::throttle (since 1.5)
 bypassed to state stream given in constructor (see `Data`)
 
-### scan (since 1.6)
+### ::scan (since 1.6)
 bypassed to state stream given in constructor (see `Data`)
 
 ## Data
@@ -59,8 +59,8 @@ new Data( 2 )
 
 An **initialData** object can be object any native immutable (bool, string, number) or Immutable.js data structure.
 
-###read
-####() => Immutable
+### ::read
+#### () => Immutable
 
 Method used to retrieve current structure holden by the Data.
 
@@ -70,9 +70,9 @@ const source = new Data(fromJS({a: 1}));
 source.read().get('a'); // = 1
 ```
 
-### write
-####(change: Immutable ) => void
-####(change: (currentStructure) => Immutable) => void
+### ::write
+#### (change: Immutable ) => void
+#### (change: (currentStructure) => Immutable) => void
 
 Method used to store new Immutable data structure.
 
@@ -89,24 +89,24 @@ source.write(fromJS({a: 2}));
 source.write(data => data.set('b', 3));
 ```
 
-### subscribe
-####( reaction: (data: Immutable) => void ) => () => void
+### ::subscribe
+#### ( reaction: (data: Immutable) => void ) => () => void
 Registers a function called every time when the Data changes value that it holds. Returns a function to unregister the subscription.
 
-### map
-####( processor: (data: Immutable) => Immutable ) => View (since 1.4)
+### ::map
+#### ( processor: (data: Immutable) => Immutable ) => View (since 1.4)
 Creates new **View** with the current instance as a data source and **processor** as transformer function. **Processor** function will receive Immutable data structure and should be returned Immutable data structure too.
 
-### debounce
-####( timeout: number ) => Debounce (since 1.5)
+### ::debounce
+#### ( timeout: number ) => Debounce (since 1.5)
 Creates a new stream of values being pushed with a provided delay since last update.
 
-### throttle
-####( timeout: number ) => Throttle (since 1.5)
+### ::throttle
+#### ( timeout: number ) => Throttle (since 1.5)
 Creates a new stream of values being push with a provided delay since first update.
 
-### scan
-####( valuesToRemember: number, initialValue: any ) => Scan (since 1.6)
+### ::scan
+#### ( valuesToRemember: number, initialValue: any ) => Scan (since 1.6)
 Creates  a new stream of `List` of values that were pushed from a source stream recently. List has a max length of `stepsToRemember` argument. Additionally for first `stepsToRemember - 1` runs if `initialValue` is provided, `List` of values is always `stepsToRemember` long and filled with `initialValue` for not yet existing steps.
 
 ## View
@@ -141,22 +141,22 @@ new View (
 Constructor of **View** object takes any source (a stream or a **Domain**) as first argument and optionally function transforming this data as a second argument.
 A processor function will receive an Immutable data structure and its result must be any Immutable.js data structure. Returning Null or undefined will result in no subscription being fired.
 
-### read
+### ::read
 Same as `Data` function of the same name.
 
-### subscribe
+### ::subscribe
 Same as `Data` function of the same name.
 
-### map (since 1.4)
+### ::map (since 1.4)
 Same as `Data` function of the same name.
 
-### debounce (since 1.5)
+### ::debounce (since 1.5)
 Same as `Data` function of the same name.
 
-### throttle (since 1.5)
+### ::throttle (since 1.5)
 Same as `Data` function of the same name.
 
-### scan (since 1.6)
+### ::scan (since 1.6)
 Same as `Data` function of the same name.
 
 ## Debounce (since 1.5)
@@ -196,27 +196,43 @@ Creates  a new stream of `List` of values that were pushed from a source stream 
 Shares interface with a **View**.
 
 ## Dispatcher
+### module
 
-### Dispatcher.logger (since 1.5)
+### .logger (since 1.5)
 
 Replace to change for logging errors in queue runner
-(default: console)
+```javascript
+// default
+Dispatcher.logger = console;
+```
 
-### Dispatcher.tick (since 1.5)
+### .tick (since 1.5)
 
 Replace to change how next function is being called.
-default:
-```
-func => func()
+```javascript
+// default
+Dispatcher.tick = func => func();
 ```
 
-### Dispatcher.dispatch( action: function, context: any, args: Array<any> ) (since 1.5)
+### .dispatch( action: function, context: any, args: Array<any> ) (since 1.5)
 
 Call to place action on a queue. Can be imported directly from package too.
-```
-import { dispatch } from 'immview';
+```javascript
+// example
+
+Dispatcher.dispatch( console.log, console, ['oi!'] );
+// 'oi!'
 ```
 
-### Dispatcher.rejectContext( context: any ) (since 1.5)
+### .rejectContext( context: any ) (since 1.5)
 
 Call to remove actions with provided context from queue.
+```javascript
+// example
+Dispatcher.dispatch( () => {
+  console.log('ay!');
+  Dispatcher.dispatch( console.log, console, ['oi!'] );
+  Dispatcher.rejectContext( console );
+} );
+// 'ay!'
+```
