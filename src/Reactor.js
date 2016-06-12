@@ -1,15 +1,19 @@
 import {
-    Set,
     is,
 } from 'immutable';
 
-import Digest from './Digest';
+import * as Digest from './Digest';
 
+/**
+ * Reactor is an base class for all immview observables
+ * @constructor
+ */
 export default function Reactor() {
     /**
      * @private
+     * @type {Function[]}
      */
-    this.reactors = Set();
+    this._reactors = [];
 }
 
 Reactor.prototype = {
@@ -17,6 +21,9 @@ Reactor.prototype = {
         return this.structure;
     },
 
+    /**
+     * @param {Reactor|Domain} sourceNode
+     */
     linkTo(sourceNode) {
         Digest.link(
             sourceNode && (sourceNode.stream ? sourceNode.stream : sourceNode),
@@ -28,10 +35,18 @@ Reactor.prototype = {
         Digest.unlink(this);
     },
 
+    /**
+     * @param {*|null|undefined} data
+     * @optional
+     * @param {function()|null} chew
+     */
     consume(data, chew = identity) {
         Digest.queue(this, () => this.digest(chew(data)));
     },
 
+    /**
+     * @param {*|null|undefined} data
+     */
     digest(data) {
         if (shouldStructureBeReplaced(this.structure, data)) {
             this.structure = data;
@@ -44,9 +59,11 @@ Reactor.prototype = {
      * @returns {function()}
      */
     appendReactor(reaction) {
-        this.reactors = this.reactors.add(reaction);
+        if (this._reactors.indexOf(reaction) < 0) {
+            this._reactors.push(reaction);
+        }
         return () => {
-            this.reactors = this.reactors.delete(reaction);
+            this._reactors = this._reactors.filter(registeredReaction => registeredReaction !== reaction);
         };
     },
 
@@ -60,13 +77,13 @@ Reactor.prototype = {
     },
 
     flush() {
-        this.reactors.forEach(reaction => reaction(this.read()));
+        this._reactors.forEach(reaction => reaction(this.read()));
     },
 
     destroy() {
         this.unlink();
         this.structure = null;
-        this.reactors = Set();
+        this._reactors = [];
     },
 
     map(processor) {
