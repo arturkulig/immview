@@ -13,32 +13,48 @@ describe('Data', () => {
         expect(!!testDataObject.subscribe).toBe(true);
     });
 
-    it('can be created with a number', () => {
-        const dataFromNumber = new Data(2);
-        expect(dataFromNumber.read()).toBe(2);
-        dataFromNumber.write(3);
-        expect(dataFromNumber.read()).toEqual(3);
+    describe('can be created with a boolean value', () => {
+        const boolDataTest = (startWith) => {
+            const dataForBool = new Data(startWith);
+            expect(dataForBool.read()).toBe(startWith);
+            dataForBool.write(v => !v);
+            expect(dataForBool.read()).toBe(!startWith);
+        };
+        it('T', boolDataTest.bind(null, true));
+        it('F', boolDataTest.bind(null, false));
+    });
+
+    describe('can be created with a number', () => {
+        const numberDataTest = (startWith) => {
+            const dataForNumber = new Data(startWith);
+            expect(dataForNumber.read()).toBe(startWith);
+            dataForNumber.write(startWith + 1);
+            expect(dataForNumber.read()).toBe(startWith + 1);
+        };
+        it('2', numberDataTest.bind(null, 2));
+        it('0', numberDataTest.bind(null, 0));
+        it('-1', numberDataTest.bind(null, -1));
     });
 
     it('can be created with a string', () => {
-        const dataFromString = new Data(' 2 ');
-        expect(dataFromString.read()).toBe(' 2 ');
-        dataFromString.write(' 3 ');
-        expect(dataFromString.read()).toEqual(' 3 ');
+        const dataForString = new Data(' 2 ');
+        expect(dataForString.read()).toBe(' 2 ');
+        dataForString.write(' 3 ');
+        expect(dataForString.read()).toEqual(' 3 ');
     });
 
     it('can be created with an object', () => {
-        const dataFromObject = new Data({ test: 1 });
-        expect(dataFromObject.read()).toEqual({ test: 1 });
-        dataFromObject.write({ test: 2 });
-        expect(dataFromObject.read()).toEqual({ test: 2 });
+        const dataForObject = new Data({ test: 1 });
+        expect(dataForObject.read()).toEqual({ test: 1 });
+        dataForObject.write({ test: 2 });
+        expect(dataForObject.read()).toEqual({ test: 2 });
     });
 
     it('can be created with an array', () => {
-        const dataFromObject = new Data([2, 3, 4]);
-        expect(dataFromObject.read()).toEqual([2, 3, 4]);
-        dataFromObject.write([2, 3, 4, 5]);
-        expect(dataFromObject.read()).toEqual([2, 3, 4, 5]);
+        const dataForObject = new Data([2, 3, 4]);
+        expect(dataForObject.read()).toEqual([2, 3, 4]);
+        dataForObject.write([2, 3, 4, 5]);
+        expect(dataForObject.read()).toEqual([2, 3, 4, 5]);
     });
 
     it('can be read from', () => {
