@@ -23,7 +23,7 @@ Reactor.prototype = {
 
     /**
      * Registers new connection between new observables
-     * @private
+     * @protected
      * @param {Reactor|Domain} sourceNode
      */
     _linkTo(sourceNode) {
@@ -35,7 +35,7 @@ Reactor.prototype = {
 
     /**
      * Unregisters connections between observables
-     * @private
+     * @protected
      */
     _unlink() {
         Digest.unlink(this);
@@ -45,6 +45,7 @@ Reactor.prototype = {
      * Defers a digestion with a function
      * that can be relaced
      * without any data loss
+     * @protected
      * @param {*|null|undefined} data
      * @optional
      * @param {function()|null} chew
