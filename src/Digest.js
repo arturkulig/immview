@@ -1,10 +1,4 @@
-import {
-    scheduleLength,
-    scheduleJob,
-    runScheduledPriorityJob,
-    createSchedule,
-    copyQueueOntoSchedule,
-} from './Schedule';
+import * as Schedule from './Schedule';
 
 import {
     dispatchDataWrite,
@@ -15,18 +9,18 @@ let digestEdges = [];
 
 let digestSchedule = [];
 
-const Digest = {
-    link,
-    unlink,
-    queue,
-};
+export function link(source, target) {
+    setGraph(getGraph().concat([[source, target]]));
+}
 
-export default Digest;
+export function unlink(item) {
+    setGraph(getGraph().filter(([source, target]) => source !== item && target !== item));
+}
 
-function queue(node, job) {
+export function queue(node, job) {
     dispatchDataConsume(
         () => {
-            setSchedule(scheduleJob(node, job, getSchedule()));
+            setSchedule(Schedule.scheduleJob(node, job, getSchedule()));
             processQueue();
         }
     );
@@ -34,14 +28,6 @@ function queue(node, job) {
 
 function processQueue() {
     dispatchDataWrite(executeNextJob);
-}
-
-function link(source, target) {
-    setGraph(getGraph().concat([[source, target]]));
-}
-
-function unlink(item) {
-    setGraph(getGraph().filter(([source, target]) => source !== item && target !== item));
 }
 
 function getGraph() {
@@ -53,14 +39,14 @@ function setGraph(edges) {
     setSchedule(restoreNodesJobs(digestEdges, getSchedule()));
 }
 
-function restoreNodesJobs(edges, currentSchedule) {
-    const digestJobMap = createSchedule(edges);
-    return copyQueueOntoSchedule(currentSchedule, digestJobMap);
+function restoreNodesJobs(newEdges, currentSchedule) {
+    const digestJobMap = Schedule.createSchedule(newEdges);
+    return Schedule.copyQueueOntoSchedule(currentSchedule, digestJobMap);
 }
 
 function executeNextJob() {
-    if (scheduleLength(getSchedule()) > 0) {
-        setSchedule(runScheduledPriorityJob(getSchedule()));
+    if (Schedule.scheduleLength(getSchedule()) > 0) {
+        setSchedule(Schedule.runScheduledPriorityJob(getSchedule()));
         dispatchDataWrite(executeNextJob);
     }
 }

@@ -9,16 +9,16 @@ export default function Throttle(source, timeout = 0) {
         throw new Error(`${errorPrefix}incorrect source`);
     }
 
-    this.linkTo(source);
+    this._linkTo(source);
     this.timeoutID = null;
     this.timeoutedData = null;
-    this.digest(source.read());
+    this._digest(source.read());
     this.subscription = source.appendReactor(data => {
         this.timeoutedData = data;
         if (!this.timeoutID) {
             this.timeoutID = setTimeout(() => {
                 this.timeoutID = null;
-                this.consume(this.timeoutedData);
+                this._consume(this.timeoutedData);
             }, timeout);
         }
     });

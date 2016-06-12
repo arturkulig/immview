@@ -1,11 +1,7 @@
-import {
-    getOrder,
-} from './Graph.js';
-
-export const sortStreamGraph = getOrder;
+import * as Graph from './Graph.js';
 
 export function createSchedule(graph) {
-    return sortStreamGraph(graph)
+    return Graph.getOrder(graph)
         .reduce(
             (jobMap, node) => {
                 jobMap.unshift([node, null]);

@@ -7,19 +7,19 @@ import Reactor from './Reactor.js';
 export default function Scan(source, valuesToRemember = 2, initialValue = null) {
     Reactor.apply(this);
 
-    this.linkTo(source);
+    this._linkTo(source);
 
     let history = pushToHistory(
         premadeHistory(initialValue, valuesToRemember),
         valuesToRemember,
         source.read()
     );
-    this.digest(history);
+    this._digest(history);
 
     this.unsubscribe = source.appendReactor(
         sourceData => {
             history = pushToHistory(history, valuesToRemember, sourceData);
-            this.consume(history);
+            this._consume(history);
         }
     );
 }

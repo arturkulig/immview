@@ -4,8 +4,8 @@ import Reactor from './Reactor.js';
 export default function Data(initialData) {
     Reactor.call(this);
 
-    this.linkTo(null);
-    this.digest(initialData);
+    this._linkTo(null);
+    this._digest(initialData);
 }
 
 Data.prototype = Object.create(Reactor.prototype);
@@ -17,9 +17,9 @@ Data.prototype = Object.create(Reactor.prototype);
 Data.prototype.write = function (change) {
     dispatchDataWrite(() => {
         if (typeof change === 'function') {
-            this.digest(change(this.read()));
+            this._digest(change(this.read()));
         } else {
-            this.digest(change);
+            this._digest(change);
         }
     });
 };

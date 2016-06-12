@@ -21,7 +21,7 @@ export default function View(source, process = identity) {
 
 View.prototype = Object.create(Reactor.prototype);
 
-View.prototype.destroy = function () {
+View.prototype.destroy = function destroyView() {
     Reactor.prototype.destroy.call(this);
 
     if (this.unsubs) {
@@ -36,10 +36,10 @@ function identity(data) {
 }
 
 function connectToSource(aView, source, process) {
-    aView.linkTo(source);
-    aView.digest(process(source.read()));
+    aView._linkTo(source);
+    aView._digest(process(source.read()));
     return [
-        source.appendReactor(data => aView.consume(data, process)),
+        source.appendReactor(data => aView._consume(data, process)),
     ];
 }
 
@@ -52,7 +52,7 @@ function connectToMultipleSources(aView, sources, process) {
     // prefill mergedStructure before launching subscriptions
     sourcesNames.forEach(sourceName => {
         const source = sources[sourceName];
-        aView.linkTo(source);
+        aView._linkTo(source);
         const sourceData = source.read();
         mergedStructure = mergedStructure.set(sourceName, sourceData);
     });
@@ -62,12 +62,12 @@ function connectToMultipleSources(aView, sources, process) {
         sourceName => sources[sourceName].appendReactor(
             data => {
                 mergedStructure = mergedStructure.set(sourceName, data);
-                aView.consume(mergedStructure, process);
+                aView._consume(mergedStructure, process);
             }
         )
     );
 
-    aView.digest(process(mergedStructure));
+    aView._digest(process(mergedStructure));
 
     return unsubs;
 }

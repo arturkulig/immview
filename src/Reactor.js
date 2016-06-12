@@ -22,39 +22,59 @@ Reactor.prototype = {
     },
 
     /**
+     * Registers new connection between new observables
+     * @private
      * @param {Reactor|Domain} sourceNode
      */
-    linkTo(sourceNode) {
+    _linkTo(sourceNode) {
         Digest.link(
             sourceNode && (sourceNode.stream ? sourceNode.stream : sourceNode),
             this
         );
     },
 
-    unlink() {
+    /**
+     * Unregisters connections between observables
+     * @private
+     */
+    _unlink() {
         Digest.unlink(this);
     },
 
     /**
+     * Defers a digestion with a function
+     * that can be relaced
+     * without any data loss
      * @param {*|null|undefined} data
      * @optional
      * @param {function()|null} chew
      */
-    consume(data, chew = identity) {
-        Digest.queue(this, () => this.digest(chew(data)));
+    _consume(data, chew = identity) {
+        Digest.queue(this, () => this._digest(chew(data)));
     },
 
     /**
+     * Replace current state and push data further
      * @param {*|null|undefined} data
      */
-    digest(data) {
+    _digest(data) {
         if (shouldStructureBeReplaced(this.structure, data)) {
             this.structure = data;
-            this.flush();
+            this._flush(data);
         }
     },
 
     /**
+     * Pushes data to all listeners
+     * @param data
+     * @private
+     */
+    _flush(data) {
+        this._reactors.forEach(reaction => reaction(data));
+    },
+
+    /**
+     * Registers a function that is going to be fed with new data pushing by this observable
      * @param {function} reaction
      * @returns {function()}
      */
@@ -63,11 +83,15 @@ Reactor.prototype = {
             this._reactors.push(reaction);
         }
         return () => {
-            this._reactors = this._reactors.filter(registeredReaction => registeredReaction !== reaction);
+            this._reactors = this._reactors.filter(
+                registeredReaction => registeredReaction !== reaction
+            );
         };
     },
 
     /**
+     * Registers a function that is going to be fed with new data pushing by this observable.
+     * Will launch provided function immediately.
      * @param {function} reaction
      * @returns {function()}
      */
@@ -76,12 +100,8 @@ Reactor.prototype = {
         return this.appendReactor(reaction);
     },
 
-    flush() {
-        this._reactors.forEach(reaction => reaction(this.read()));
-    },
-
     destroy() {
-        this.unlink();
+        this._unlink();
         this.structure = null;
         this._reactors = [];
     },
@@ -107,13 +127,6 @@ Reactor.prototype = {
     },
 };
 
-function hasValue(v) {
-    return (
-        v !== undefined &&
-        v !== null
-    );
-}
-
 function shouldStructureBeReplaced(structure, candidate) {
     return (
         hasValue(candidate) && (
@@ -122,6 +135,13 @@ function shouldStructureBeReplaced(structure, candidate) {
         )
     );
 };
+
+function hasValue(v) {
+    return (
+        v !== undefined &&
+        v !== null
+    );
+}
 
 function identity(v) {
     return v;

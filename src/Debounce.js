@@ -9,17 +9,17 @@ export default function Debounce(source, timeout = 0) {
         throw new Error(`${errorPrefix}incorrect source`);
     }
 
-    this.linkTo(source);
+    this._linkTo(source);
 
     this.timeoutID = null;
-    this.digest(source.read());
+    this._digest(source.read());
     this.subscription = source.appendReactor(data => {
         if (this.timeoutID) {
             clearTimeout(this.timeoutID);
         }
         this.timeoutID = setTimeout(() => {
             this.timeoutID = null;
-            this.consume(data);
+            this._consume(data);
         }, timeout);
     });
 }

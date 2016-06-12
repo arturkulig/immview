@@ -1,4 +1,25 @@
-export function getGraphNodes(edges) {
+/**
+ * Returns nodes order from last node to root element(s)
+ * @param edges
+ * @returns {Array}
+ */
+export function getOrder(edges) {
+    const result = getAllNodes(edges).reduce(
+        (currentResult, node) => {
+            if (isIn(currentResult.visited, node)) {
+                return currentResult;
+            }
+            return getOrderStartingFromNode(edges, node, currentResult);
+        },
+        {
+            visited: [],
+            stack: [],
+        }
+    );
+    return result.stack;
+}
+
+export function getAllNodes(edges) {
     return edges.reduce(
         (result, edge) => {
             if (result.indexOf(edge[0]) < 0) {
@@ -13,33 +34,32 @@ export function getGraphNodes(edges) {
     );
 }
 
-export function getOrder(edges) {
-    let visited = [];
-    let stack = [];
-    getGraphNodes(edges).forEach(node => {
-        if (!visited || visited.indexOf(node) < 0) {
-            const result = visit(edges, node, stack, visited);
-            visited = result.visited;
-            stack = result.stack;
+export function getOrderStartingFromNode(edges, node, visitedNodesResult) {
+    const childNodesResult = getNodeChildren(edges, node).reduce(
+        (currentResult, childNode) => {
+            if (isIn(currentResult.visited, childNode)) {
+                return currentResult;
+            }
+            return getOrderStartingFromNode(
+                edges,
+                childNode,
+                currentResult
+            );
+        },
+        {
+            visited: visitedNodesResult.visited.concat([node]),
+            stack: visitedNodesResult.stack,
         }
-    });
-    return stack;
+    );
+    const givenNodeResult = {
+        visited: childNodesResult.visited,
+        stack: childNodesResult.stack.concat([node]),
+    };
+    return givenNodeResult;
 }
 
-export function visit(edges, node, stack, visited) {
-    let tmpVisited = visited.concat([node]);
-    let tmpStack = stack;
-    getNodeChildren(edges, node).forEach(childNode => {
-        if (!tmpVisited || tmpVisited.indexOf(childNode) < 0) {
-            const result = visit(edges, childNode, tmpStack, tmpVisited);
-            tmpVisited = result.visited;
-            tmpStack = result.stack;
-        }
-    });
-    return {
-        visited: tmpVisited,
-        stack: tmpStack.concat([node]),
-    };
+function isIn(list, element) {
+    return list.indexOf(element) >= 0;
 }
 
 export function getNodeChildren(edges, node) {

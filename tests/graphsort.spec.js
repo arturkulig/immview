@@ -1,21 +1,23 @@
 import {
     addEdge,
     getOrder,
-    getGraphNodes,
+    getAllNodes,
     getNodeChildren,
-    visit,
+    getOrderStartingFromNode,
 } from '../src/Graph.js';
 
 describe('graphsort', () => {
     it('can get nodes', () => {
-        expect(getGraphNodes([
+        expect(getAllNodes([
             ['a', 'c'],
         ])).toEqual(['a', 'c']);
-        expect(getGraphNodes([
+        
+        expect(getAllNodes([
             ['a', 'b'],
             ['a', 'c'],
         ])).toEqual(['a', 'b', 'c']);
-        expect(getGraphNodes([
+        
+        expect(getAllNodes([
             ['a', 'b'],
             ['a', 'c'],
             ['e', 'f'],
@@ -41,7 +43,7 @@ describe('graphsort', () => {
             ['d', 'c'],
             ['e', 'a'],
         ];
-        const result = visit(edges, 'a', [], []);
+        const result = getOrderStartingFromNode(edges, 'a', { visited: [], stack: [] });
         expect(result.stack).toEqual(['b', 'f', 'c', 'd', 'a']);
     });
 
