@@ -11,12 +11,12 @@ describe('graphsort', () => {
         expect(getAllNodes([
             ['a', 'c'],
         ])).toEqual(['a', 'c']);
-        
+
         expect(getAllNodes([
             ['a', 'b'],
             ['a', 'c'],
         ])).toEqual(['a', 'b', 'c']);
-        
+
         expect(getAllNodes([
             ['a', 'b'],
             ['a', 'c'],

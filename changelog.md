@@ -3,7 +3,10 @@
 ### 1.6
 
 - feat: `Scan` and `*.scan` added
-- fix: `Data` no longer magically transforms initial data provided in constructor to Immutable.js data structure
+
+#### On the road to have Immutable.js as option
+- fix: `Data` no longer *magically* transforms initial data provided in constructor to Immutable.js data structure
+- fix: `View` is merging different streams using plain objects instead of Immutable.js map
 
 ### 1.5.2
  

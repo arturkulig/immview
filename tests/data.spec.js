@@ -1,12 +1,15 @@
 import Data from '../src/Data';
-import * as I from 'immutable';
+import {
+    Map,
+    fromJS,
+} from 'immutable';
 
 describe('Data', () => {
 
     let testDataObject;
 
     beforeEach(() => {
-        testDataObject = new Data(I.Map({ a: 1, b: I.Map({ c: 2 }) }));
+        testDataObject = new Data(Map({ a: 1, b: Map({ c: 2 }) }));
     });
 
     it('can be created', () => {
@@ -96,7 +99,7 @@ describe('Data', () => {
 
         let reactions = 0;
 
-        const getDataMap = () => I.fromJS({ a: 1, b: { c: 2 } });
+        const getDataMap = () => fromJS({ a: 1, b: { c: 2 } });
 
         const d = new Data(getDataMap());
 
@@ -141,9 +144,16 @@ describe('Data', () => {
     it('writes can still be queued up and all performed', () => {
         const a = new Data(0);
         const b = new Data(0);
+        expect(a.read()).toBe(0);
+        expect(b.read()).toBe(0);
         a.write(i => {
+            // they are inside so they are actually queued
             b.write(i => i + 1);
             b.write(i => i + 1);
+
+            // as they are queued, updates are not yet performed
+            expect(a.read()).toBe(0);
+            expect(b.read()).toBe(0);
             return i + 1;
         });
         expect(a.read()).toBe(1);

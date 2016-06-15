@@ -1,7 +1,3 @@
-import {
-    List,
-} from 'immutable';
-
 import Reactor from './Reactor.js';
 
 export default function Scan(source, valuesToRemember = 2, initialValue = null) {
@@ -26,6 +22,10 @@ export default function Scan(source, valuesToRemember = 2, initialValue = null) 
 
 Scan.prototype = Object.create(Reactor.prototype);
 
+Scan.prototype.read = function () {
+    return [].concat(Reactor.prototype.read.apply(this));
+};
+
 Scan.prototype.destroy = function () {
     Reactor.prototype.destroy.apply(this);
 
@@ -37,19 +37,17 @@ Scan.prototype.destroy = function () {
 
 function premadeHistory(initialValue, valuesToRemember) {
     if (initialValue === null) {
-        return List();
+        return [];
     }
     const steps = [];
     for (let i = 0; i < valuesToRemember; i++) {
         steps.push(initialValue);
     }
-    return List(steps);
+    return steps;
 }
 
 function pushToHistory(history, valuesToRemember, newValue) {
-    return history
-        .asMutable()
-        .takeLast(valuesToRemember - 1)
-        .push(newValue)
-        .asImmutable();
+    const newHistory = history.slice(-1 * valuesToRemember + 1);
+    newHistory.push(newValue);
+    return newHistory;
 }

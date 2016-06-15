@@ -1,6 +1,4 @@
-import {
-    Map,
-} from 'immutable';
+import ViewMergeMap from './ViewMergeMap';
 import Reactor from './Reactor.js';
 
 const errorPrefix = 'Immview::View: ';
@@ -45,7 +43,7 @@ function connectToSource(aView, source, process) {
 
 function connectToMultipleSources(aView, sources, process) {
     // initialize as a map{string:Iterable}
-    let mergedStructure = Map();
+    let mergedStructure = new ViewMergeMap();
 
     const sourcesNames = Object.keys(sources);
 
@@ -62,12 +60,12 @@ function connectToMultipleSources(aView, sources, process) {
         sourceName => sources[sourceName].appendReactor(
             data => {
                 mergedStructure = mergedStructure.set(sourceName, data);
-                aView._consume(mergedStructure, process);
+                aView._consume(mergedStructure.clone(), process);
             }
         )
     );
 
-    aView._digest(process(mergedStructure));
+    aView._digest(process(mergedStructure.clone()));
 
     return unsubs;
 }

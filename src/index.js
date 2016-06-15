@@ -4,9 +4,10 @@ import View from './View.js';
 import Debounce from './Debounce.js';
 import Throttle from './Throttle.js';
 import Scan from './Scan.js';
-import Dispatcher from './Dispatcher';
-
-const { dispatch } = Dispatcher;
+import {
+    Dispatcher,
+    dispatch,
+} from './Dispatcher';
 
 export {
     Data,
