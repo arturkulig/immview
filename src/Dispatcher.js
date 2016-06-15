@@ -7,26 +7,27 @@ const PRIORITY_DOMAIN = 1;
 const PRIORITY_DATA_WRITE = 2;
 const PRIORITY_DATA_CONSUMING = 3;
 
-function findMaxPriority() {
-    let maxPriority = -1;
-    let firstOfPriority = null;
-    for (let i = 0; i < queue.length; i++) {
-        const jobPriority = queue[i].priority;
-        if (jobPriority > maxPriority) {
-            firstOfPriority = queue[i];
-            maxPriority = jobPriority;
-        }
-    }
-    return firstOfPriority;
-}
+const Dispatcher = {
+    dispatch: dispatchExternal,
 
-function shiftFromQueue() {
-    const toRun = findMaxPriority();
-    queue.splice(
-        queue.indexOf(toRun),
-        1
-    );
-    return toRun;
+    tick(func) {
+        func();
+    },
+
+    rejectContext,
+
+    logger: console,
+};
+
+export {
+    Dispatcher as default,
+    Dispatcher,
+    dispatch,
+    dispatchDomainAction,
+    dispatchDataWrite,
+    dispatchDataConsume,
+    dispatchExternal,
+    rejectContext,
 };
 
 /**
@@ -42,7 +43,29 @@ function runFirstQueuedItem() {
         } = task;
         action && action.apply(context, args);
     }
-};
+}
+
+function shiftFromQueue() {
+    const toRun = findMaxPriority();
+    queue.splice(
+        queue.indexOf(toRun),
+        1
+    );
+    return toRun;
+}
+
+function findMaxPriority() {
+    let maxPriority = -1;
+    let firstOfPriority = null;
+    for (let i = 0; i < queue.length; i++) {
+        const jobPriority = queue[i].priority;
+        if (jobPriority > maxPriority) {
+            firstOfPriority = queue[i];
+            maxPriority = jobPriority;
+        }
+    }
+    return firstOfPriority;
+}
 
 /**
  * Append new action onto end of the queue
@@ -58,6 +81,34 @@ function appendToQueue(action, context = null, args = [], priority = PRIORITY_EX
         context,
         args,
     });
+}
+
+function dispatchDomainAction(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DOMAIN);
+}
+
+function dispatchDataWrite(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DATA_WRITE);
+}
+
+function dispatchDataConsume(action, context, args) {
+    dispatch(action, context, args, PRIORITY_DATA_CONSUMING);
+}
+
+function dispatchExternal(action, context, args) {
+    dispatch(action, context, args, PRIORITY_EXT);
+}
+
+/**
+ * Place provided function on a queue and run it as soon as possible
+ * @param {function} action
+ * @param {*} [context]
+ * @param {Array.<*>} [args]
+ * @param {number} [priority=0] priority for dispatched action. 0, 1, 2 are acceptable
+ */
+function dispatch(action, context, args, priority) {
+    appendToQueue(action, context, args, priority);
+    startQueue();
 }
 
 /**
@@ -95,53 +146,10 @@ function logError(e) {
     }
 }
 
-export function dispatch(action, context, args, priority) {
-    appendToQueue(action, context, args, priority);
-    startQueue();
-}
-
-export function dispatchDomainAction(action, context, args) {
-    dispatch(action, context, args, PRIORITY_DOMAIN);
-}
-
-export function dispatchDataWrite(action, context, args) {
-    dispatch(action, context, args, PRIORITY_DATA_WRITE);
-}
-
-export function dispatchDataConsume(action, context, args) {
-    dispatch(action, context, args, PRIORITY_DATA_CONSUMING);
-}
-
-export function dispatchExternal(action, context, args) {
-    dispatch(action, context, args, PRIORITY_EXT);
-}
-
 /**
  * Removes all queued actions tied with a context
  * @param context
  */
-export function rejectContext(context) {
+function rejectContext(context) {
     queue = queue.filter(item => item.context !== context);
 }
-
-export const Dispatcher = {
-
-    /**
-     * Place provided function on a queue and run it as soon as possible
-     * @param {function} action
-     * @param {*} [context]
-     * @param {Array.<*>} [args]
-     * @param {number} [priority=0] priority for dispatched action. 0, 1, 2 are acceptable
-     */
-    dispatch: dispatchExternal,
-
-    tick(func) {
-        func();
-    },
-
-    rejectContext,
-
-    logger: console,
-};
-
-export default Dispatcher;
