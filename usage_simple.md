@@ -61,7 +61,14 @@ const ToDoDomain = new Domain(
 That's really all! You can now call an actions on that **Domain** like:
 
 ```javascript
+ToDoDomain.subscribe(v => console.log(v.toJS()));
+// []
+
 ToDoDomain.add('Eat a pizza');
+// [{ label: "Eat a pizza" }]
+
+ToDoDomain.check(0);
+// [{ label: "Eat a pizza", done: true }]
 ```
 
 Please, be aware that all action calls and writes on **Data** instances are going to be dispatched to a execution queue that will run them in call order one after another with prioritization of **Data** writes.
