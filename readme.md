@@ -1,4 +1,4 @@
-# immview 1.5
+# immview 1.6
 
 Immview is a library to create **Domains** - *non-visual components* - similar to flux stores, exposing their **state** through *observables* pushing immutable data structures and having their own, specific to them **actions**. It can be used in place of any flux implementation, redux.
 
