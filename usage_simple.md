@@ -1,6 +1,7 @@
 # Simple usage example
 
 In order to create a complete **Domain** we have to create state stream and actions.
+This example requires you to know and understand [Immutable.js](https://facebook.github.io/immutable-js/) already.
 
 ## State
 
@@ -71,4 +72,6 @@ ToDoDomain.check(0);
 // [{ label: "Eat a pizza", done: true }]
 ```
 
-Please, be aware that all action calls and writes on **Data** instances are going to be dispatched to a execution queue that will run them in call order one after another with prioritization of **Data** writes.
+> Please, be aware that all action calls and writes on **Data** instances are going to be dispatched to a execution queue that will run them in call order one after another with prioritization of **Data** writes. This won't be even noticable in this example as calls in it are not nested in a way that would reveal it.
+
+Domain is now ready to be used to connect it a react component using [immview-react-connect](https://github.com/arturkulig/immview-react-connect).
