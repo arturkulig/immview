@@ -37,7 +37,7 @@ describe('Domain', () => {
         expect(dmn2.read().get('a')).toBe(1);
     });
 
-    it('acquire queueable methods', () => {
+    it('acquire queueable actions', () => {
         let testVar = '';
         const d = new Data(fromJS({ a: 1 }));
         const dmn = new Domain(d, {
@@ -56,6 +56,19 @@ describe('Domain', () => {
 
         // would be 121 if they were not queueable
         expect(testVar).toBe('211');
+    });
+
+    it('enables to tell which action has what length', () => {
+        const d = new Data(0);
+        const dmn = new Domain(d, { doNothing: v => v });
+
+        // now, that doNothing on dmn is a new function
+        // it doesn't inform about real action functions argument amount
+        // and this information cannot be overridden
+        expect(dmn.doNothing.length).toBe(0);
+
+        // that's why it is being stored on separate property
+        expect(dmn.doNothing.originalLength).toBe(1);
     });
 
     it('allow subscriptions', () => {

@@ -48,6 +48,9 @@ bypassed to state stream given in constructor (see `Data`)
 ### Domain::scan (since 1.6)
 bypassed to state stream given in constructor (see `Data`)
 
+### Domain::[ACTION_NAME].originalLength (since 1.6)
+Amount of arguments indicated by original action function
+
 ## Data
 ### class
 #### ( initialData: Immutable )

@@ -14,39 +14,14 @@ const errorPrefix = 'Immview::Domain: ';
  * @param {Object.<function>} actions
  */
 export default function Domain(stream, actions) {
-    if (stream.subscribe) {
-        this.stream = stream;
-    } else {
+    if (!stream.subscribe) {
         throw new Error(`${errorPrefix} stream source required`);
     }
-    this._claimActions(actions);
+    this.stream = stream;
+    assignActions(this, actions);
 }
 
 Domain.prototype = {
-    /**
-     * @private
-     */
-    _claimActions(actions) {
-        /**
-         * @private
-         */
-        this._actionNames = actions ? Object.keys(actions) : [];
-
-        this._actionNames.forEach((actionName) => {
-            if (this[actionName]) {
-                throw new Error(`${errorPrefix}${actionName} is reserved for Domain interface`);
-            }
-
-            if (typeof actions[actionName] !== 'function') {
-                throw new Error(`${errorPrefix}${actionName} action is not a function`);
-            }
-
-            this[actionName] = (...args) => {
-                dispatchDomainAction(actions[actionName], this, args, 1);
-            };
-        });
-    },
-
     /**
      * Retrieve last value on stream attached to the Domain
      * @returns {Iterable}
@@ -136,3 +111,32 @@ Domain.prototype = {
         this._actionNames = null;
     },
 };
+
+function assignActions(ctx, actions) {
+    if (!actions) {
+        ctx.actions = () => [];
+        return;
+    }
+    const actionNames = Object.keys(actions);
+
+    actionNames.forEach((actionName) => {
+        const action = actions[actionName];
+
+        if (ctx[actionName] !== undefined) {
+            throw new Error(`${errorPrefix}${actionName} is reserved for Domain interface`);
+        }
+
+        if (typeof action !== 'function') {
+            throw new Error(`${errorPrefix}${actionName} action is not a function`);
+        }
+
+        ctx[actionName] = (...args) => {
+            dispatchDomainAction(action, ctx, args);
+        };
+
+        ctx[actionName].originalLength = action.length || action.originalLength;
+    });
+
+    ctx._actionNames = actionNames; //legacy TODO remove
+    ctx.actions = () => actionNames;
+}

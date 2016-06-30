@@ -3,6 +3,7 @@
 ### 1.6
 
 - feat: `Scan` and `*.scan` added
+- feat: Actions mounted on domain have additional property originalLength to indicate arguments amount of original action function
 
 #### On the road to have Immutable.js as option
 - fix: `Data` no longer *magically* transforms initial data provided in constructor to Immutable.js data structure
