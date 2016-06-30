@@ -1,6 +1,6 @@
 {
   "name": "immview",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "",
   "main": "dist/immview.js",
   "jsnext:main": "src/index.js",
