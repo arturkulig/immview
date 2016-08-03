@@ -104,7 +104,7 @@ function dispatchExternal(action, context, args) {
  * @param {function} action
  * @param {*} [context]
  * @param {Array.<*>} [args]
- * @param {number} [priority=0] priority for dispatched action. 0, 1, 2 are acceptable
+ * @param {number} [priority=0] priority for dispatched action.
  */
 function dispatch(action, context, args, priority) {
     appendToQueue(action, context, args, priority);

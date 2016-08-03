@@ -1,4 +1,5 @@
 import Data from '../src/Data';
+import { dispatch } from '../src/Dispatcher';
 import {
     Map,
     fromJS,
@@ -158,5 +159,30 @@ describe('Data', () => {
         });
         expect(a.read()).toBe(1);
         expect(b.read()).toBe(2);
+    });
+
+    describe('can be destroyed', () => {
+        it('and ignores writes', done => {
+            const a = new Data(0);
+            dispatch(() => {
+                a.destroy();
+                a.write(1);
+            });
+            dispatch(() => {
+                expect(a.read()).toBe(null);
+            });
+            dispatch(() => setTimeout(done, 0));
+        });
+        it('and rejects pending writes', done => {
+            const a = new Data(0);
+            dispatch(() => {
+                a.write(1);
+                a.destroy();
+            });
+            dispatch(() => {
+                expect(a.read()).toBe(null);
+            });
+            dispatch(() => setTimeout(done, 0));
+        });
     });
 });

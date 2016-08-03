@@ -16,10 +16,13 @@ Data.prototype = Object.create(Reactor.prototype);
  */
 Data.prototype.write = function (change) {
     dispatchDataWrite(() => {
+        if (this.closed) {
+            return;
+        }
         if (typeof change === 'function') {
             this._digest(change(this.read()));
         } else {
             this._digest(change);
         }
-    });
+    }, this);
 };

@@ -3,6 +3,7 @@ import {
 } from 'immutable';
 
 import * as Digest from './Digest';
+import * as Dispatcher from './Dispatcher';
 
 /**
  * Reactor is an base class for all immview observables
@@ -14,6 +15,11 @@ export default function Reactor() {
      * @type {Function[]}
      */
     this._reactors = [];
+    /**
+     * @public
+     * @type {boolean}
+     */
+    this.closed = false;
 }
 
 Reactor.prototype = {
@@ -102,9 +108,13 @@ Reactor.prototype = {
     },
 
     destroy() {
+        Dispatcher.rejectContext(this);
         this._unlink();
         this.structure = null;
         this._reactors = [];
+        Object.defineProperty
+            ? Object.defineProperty(this, 'closed', { value: true, writable: false })
+            : this.closed = true;
     },
 
     map(processor) {
@@ -135,7 +145,7 @@ function shouldStructureBeReplaced(structure, candidate) {
             !is(candidate, structure)
         )
     );
-};
+}
 
 function hasValue(v) {
     return (
