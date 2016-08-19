@@ -2,6 +2,10 @@ import { Data, View, Domain, dispatch } from '../src';
 
 describe('branching and merged streams', () => {
     it('are causing only single rerender of child stream', () => {
+        let processHits = 0;
+        let outputHits = 0;
+        let output = 0;
+
         const start = new Data(1);
         const branch1 = new View(start, d => d * 10);
         const branch2a = new View(start, d => d * 100);
@@ -10,7 +14,9 @@ describe('branching and merged streams', () => {
         const branch2b = new Domain(new View({
             branch2a,
             branch3a,
-        }, data => data.get('branch2a') + data.get('branch3a')));
+        }, data => {
+            return data.get('branch2a') + data.get('branch3a');
+        }));
         const branch3b = new View(branch3aDomain, d => d * 10000);
         const constantStream = new Data(2);
         const end = new View({
@@ -18,24 +24,27 @@ describe('branching and merged streams', () => {
             branch2b,
             branch3b,
             constantStream,
-        }, data =>
-            data.get('branch1') +
-            data.get('branch2b') +
-            data.get('branch3b') +
-            data.get('constantStream')
-        );
+        }, data => {
+            processHits++;
 
-        let hits = 0;
-        let output = 0;
+            return data.get('branch1') +
+                data.get('branch2b') +
+                data.get('branch3b') +
+                data.get('constantStream');
+        });
 
         end.subscribe(v => {
             output = v;
-            hits++;
+            outputHits++;
         });
-        expect(hits).toBe(1);
+
+        expect(processHits).toBe(1);
+        expect(outputHits).toBe(1);
 
         start.write(2);
-        expect(hits).toBe(2);
+
+        expect(processHits).toBe(2);
+        expect(outputHits).toBe(2);
         expect(output).toBe(20002222);
     });
 
@@ -44,10 +53,10 @@ describe('branching and merged streams', () => {
         const parent2 = new Data(2);
         let hits = [];
         new View(
-            { parent1, parent2 },
-            data => hits.push([
-                data.get('parent1'),
-                data.get('parent2'),
+            ({ parent1, parent2 }),
+            ({ parent1, parent2 }) => hits.push([
+                parent1,
+                parent2,
             ])
         );
         dispatch(() => {

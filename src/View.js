@@ -34,10 +34,9 @@ function identity(data) {
 }
 
 function connectToSource(aView, source, process) {
-    aView._linkTo(source);
     aView._digest(process(source.read()));
     return [
-        source.appendReactor(data => aView._consume(data, process)),
+        source.addSubscription(data => aView._consume(data, process)),
     ];
 }
 
@@ -50,14 +49,13 @@ function connectToMultipleSources(aView, sources, process) {
     // prefill mergedStructure before launching subscriptions
     sourcesNames.forEach(sourceName => {
         const source = sources[sourceName];
-        aView._linkTo(source);
         const sourceData = source.read();
         mergedStructure = mergedStructure.set(sourceName, sourceData);
     });
 
     // subscribe to all data changes in parent views
     const unsubs = sourcesNames.map(
-        sourceName => sources[sourceName].appendReactor(
+        sourceName => sources[sourceName].addSubscription(
             data => {
                 mergedStructure = mergedStructure.set(sourceName, data);
                 aView._consume(mergedStructure.clone(), process);

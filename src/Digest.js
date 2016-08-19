@@ -1,60 +1,41 @@
-import * as Schedule from './Schedule';
-
 import {
     dispatchDataWrite,
     dispatchDataConsume,
 } from './Dispatcher';
 
-let digestEdges = [];
+const schedule = [];
 
-let digestSchedule = [];
-
-export function link(source, target) {
-    setGraph(getGraph().concat([[source, target]]));
-}
-
-export function unlink(item) {
-    setGraph(getGraph().filter(([source, target]) => source !== item && target !== item));
-}
-
-export function queue(node, job) {
+export function queue(observable, data, process) {
     dispatchDataConsume(
         () => {
-            setSchedule(Schedule.scheduleJob(node, job, getSchedule()));
+            scheduleObservableConsumption(observable, data, process);
             processQueue();
         }
     );
+}
+
+function scheduleObservableConsumption(observable, data, process) {
+    for (let i = 0; i < schedule.length; i++) {
+        if (schedule[i].observable._id === observable._id) {
+            schedule[i].data = data;
+            return;
+        }
+        if (schedule[i].observable._id > observable._id) {
+            schedule.splice(i, 0, { observable, data, process });
+            return;
+        }
+    }
+    schedule.splice(schedule.length, 0, { observable, data, process });
 }
 
 function processQueue() {
     dispatchDataWrite(executeNextJob);
 }
 
-function getGraph() {
-    return digestEdges;
-}
-
-function setGraph(edges) {
-    digestEdges = edges;
-    setSchedule(restoreNodesJobs(digestEdges, getSchedule()));
-}
-
-function restoreNodesJobs(newEdges, currentSchedule) {
-    const digestJobMap = Schedule.createSchedule(newEdges);
-    return Schedule.copyQueueOntoSchedule(currentSchedule, digestJobMap);
-}
-
 function executeNextJob() {
-    if (Schedule.scheduleLength(getSchedule()) > 0) {
-        setSchedule(Schedule.runScheduledPriorityJob(getSchedule()));
-        dispatchDataWrite(executeNextJob);
+    if (schedule.length) {
+        const [{ observable, data, process }] = schedule.splice(0, 1);
+        observable._digest(process(data));
+        processQueue();
     }
-}
-
-function getSchedule() {
-    return digestSchedule;
-}
-
-function setSchedule(schedule) {
-    digestSchedule = schedule;
 }

@@ -2,14 +2,14 @@ import {
     dispatchDomainAction,
     rejectContext,
 } from './Dispatcher.js';
-
+import Observable from './Reactor';
 const noop = () => null;
 
 const errorPrefix = 'Immview::Domain: ';
 
 /**
  * Create a domain holding a view
- * @param {Reactor} stream
+ * @param {Observable} stream
  * @optional
  * @param {Object.<function>} actions
  */
@@ -17,6 +17,9 @@ export default function Domain(stream, actions) {
     if (!stream.subscribe) {
         throw new Error(`${errorPrefix} stream source required`);
     }
+    /**
+     * @type {Observable}
+     */
     this.stream = stream;
     assignActions(this, actions);
 }
@@ -87,8 +90,8 @@ Domain.prototype = {
      * @param reaction
      * @returns {function()} unsubscribe
      */
-    appendReactor(reaction) {
-        return this.stream.appendReactor(reaction);
+    addSubscription(reaction) {
+        return this.stream.addSubscription(reaction);
     },
 
     /**

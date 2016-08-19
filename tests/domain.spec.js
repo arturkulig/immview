@@ -10,7 +10,7 @@ describe('Domain', () => {
         expect(typeof Domain).toBeTruthy();
     });
 
-    it('cannot be created from non-Reactor type', () => {
+    it('cannot be created from non-Observable type', () => {
         expect(() => {
             new Domain({});
         }).toThrow();

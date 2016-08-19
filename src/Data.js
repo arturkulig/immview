@@ -4,7 +4,6 @@ import Reactor from './Reactor.js';
 export default function Data(initialData) {
     Reactor.call(this);
 
-    this._linkTo(null);
     this._digest(initialData);
 }
 

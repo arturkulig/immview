@@ -1,5 +1,9 @@
 ##Changelog
 
+### 1.6.2
+
+- fix: Simpler and faster solution for eliminating unnecessary rerenders of merging views
+
 ### 1.6.1
 
 - fix: `Data` ignores write instructions raised after the node being destroyed

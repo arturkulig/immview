@@ -6,45 +6,32 @@ import * as Digest from './Digest';
 import * as Dispatcher from './Dispatcher';
 
 /**
- * Reactor is an base class for all immview observables
+ * Observable is an base class for all immview observables
  * @constructor
  */
-export default function Reactor() {
+export default function Observable() {
     /**
+     * @type {number}
      * @private
-     * @type {Function[]}
      */
-    this._reactors = [];
+    this._id = Observable.lastInstanceId++;
     /**
-     * @public
+     * @type {Function[]}
+     * @private
+     */
+    this._subscriptions = [];
+    /**
      * @type {boolean}
+     * @public
      */
     this.closed = false;
 }
 
-Reactor.prototype = {
+Observable.lastInstanceId = 0;
+
+Observable.prototype = {
     read() {
         return this.structure;
-    },
-
-    /**
-     * Registers new connection between new observables
-     * @protected
-     * @param {Reactor|Domain} sourceNode
-     */
-    _linkTo(sourceNode) {
-        Digest.link(
-            sourceNode && (sourceNode.stream ? sourceNode.stream : sourceNode),
-            this
-        );
-    },
-
-    /**
-     * Unregisters connections between observables
-     * @protected
-     */
-    _unlink() {
-        Digest.unlink(this);
     },
 
     /**
@@ -54,10 +41,10 @@ Reactor.prototype = {
      * @protected
      * @param {*|null|undefined} data
      * @optional
-     * @param {function()|null} chew
+     * @param {function()|null} process
      */
-    _consume(data, chew = identity) {
-        Digest.queue(this, () => this._digest(chew(data)));
+    _consume(data, process = identity) {
+        Digest.queue(this, data, process);
     },
 
     /**
@@ -77,7 +64,7 @@ Reactor.prototype = {
      * @private
      */
     _flush(data) {
-        this._reactors.forEach(reaction => reaction(data));
+        this._subscriptions.forEach(reaction => reaction(data));
     },
 
     /**
@@ -85,12 +72,12 @@ Reactor.prototype = {
      * @param {function} reaction
      * @returns {function()}
      */
-    appendReactor(reaction) {
-        if (this._reactors.indexOf(reaction) < 0) {
-            this._reactors.push(reaction);
+    addSubscription(reaction) {
+        if (this._subscriptions.indexOf(reaction) < 0) {
+            this._subscriptions.push(reaction);
         }
         return () => {
-            this._reactors = this._reactors.filter(
+            this._subscriptions = this._subscriptions.filter(
                 registeredReaction => registeredReaction !== reaction
             );
         };
@@ -104,14 +91,13 @@ Reactor.prototype = {
      */
     subscribe(reaction) {
         reaction(this.read());
-        return this.appendReactor(reaction);
+        return this.addSubscription(reaction);
     },
 
     destroy() {
         Dispatcher.rejectContext(this);
-        this._unlink();
         this.structure = null;
-        this._reactors = [];
+        this._subscriptions = [];
         Object.defineProperty
             ? Object.defineProperty(this, 'closed', { value: true, writable: false })
             : this.closed = true;

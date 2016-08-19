@@ -3,8 +3,6 @@ import Reactor from './Reactor.js';
 export default function Scan(source, valuesToRemember = 2, initialValue = null) {
     Reactor.apply(this);
 
-    this._linkTo(source);
-
     let history = pushToHistory(
         premadeHistory(initialValue, valuesToRemember),
         valuesToRemember,
@@ -12,7 +10,7 @@ export default function Scan(source, valuesToRemember = 2, initialValue = null) 
     );
     this._digest(history);
 
-    this.unsubscribe = source.appendReactor(
+    this.unsubscribe = source.addSubscription(
         sourceData => {
             history = pushToHistory(history, valuesToRemember, sourceData);
             this._consume(history);

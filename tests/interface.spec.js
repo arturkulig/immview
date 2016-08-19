@@ -10,7 +10,7 @@ import {
 function fulfillsReactorInterface(instance) {
     expect(typeof instance.read).toBe('function');
     expect(typeof instance.subscribe).toBe('function');
-    expect(typeof instance.appendReactor).toBe('function');
+    expect(typeof instance.addSubscription).toBe('function');
     expect(typeof instance.map).toBe('function');
     expect(typeof instance.debounce).toBe('function');
     expect(typeof instance.throttle).toBe('function');
