@@ -1,3 +1,4 @@
+//@flow
 /*
 Reason to have this class is to support existing code
 that expects that product of merging different streams with View
@@ -6,7 +7,7 @@ is a Immutable.js Map therefore has at least basic interface of Immutable.js
 Should not be officially documented removed in few next versions
  */
 
-export default function ViewMergeMap(initialObject) {
+export default function ViewMergeMap(initialObject?: Object) {
     for (let prop in initialObject) {
         if (Object.prototype.hasOwnProperty.call(initialObject, prop)) {
             this[prop] = initialObject[prop];

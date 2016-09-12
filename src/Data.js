@@ -1,10 +1,11 @@
+//@flow
 import { dispatchDataWrite } from './Dispatcher';
-import Reactor from './Reactor.js';
+import Reactor from './Observable';
 
-export default function Data(initialData) {
+export default function Data(initialData: any) {
     Reactor.call(this);
 
-    this._digest(initialData);
+    this.digest(initialData);
 }
 
 Data.prototype = Object.create(Reactor.prototype);
@@ -19,9 +20,9 @@ Data.prototype.write = function (change) {
             return;
         }
         if (typeof change === 'function') {
-            this._digest(change(this.read()));
+            this.digest(change(this.read()));
         } else {
-            this._digest(change);
+            this.digest(change);
         }
     }, this);
 };

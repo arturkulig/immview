@@ -1,10 +1,15 @@
+//@flow
 import ViewMergeMap from './ViewMergeMap';
-import Reactor from './Reactor.js';
+import Observable from './Observable';
+import env from './env';
 
 const errorPrefix = 'Immview::View: ';
 
-export default function View(source, process = identity) {
-    Reactor.call(this);
+export default function View(
+    source: Observable,
+    process: (subject: any) => any = identity
+) {
+    Observable.call(this);
 
     if (source && typeof source === 'object') {
         if (source.subscribe) {
@@ -17,10 +22,10 @@ export default function View(source, process = identity) {
     throw new Error(`${errorPrefix}No sources to plug in`);
 }
 
-View.prototype = Object.create(Reactor.prototype);
+View.prototype = Object.create(Observable.prototype);
 
 View.prototype.destroy = function destroyView() {
-    Reactor.prototype.destroy.call(this);
+    Observable.prototype.destroy.call(this);
 
     if (this.unsubs) {
         this.unsubs.forEach(func => func());
@@ -34,13 +39,21 @@ function identity(data) {
 }
 
 function connectToSource(aView, source, process) {
-    aView._digest(process(source.read()));
+    aView.digest(process(source.read()));
     return [
-        source.addSubscription(data => aView._consume(data, process)),
+        source.addSubscription(data => aView.consume(data, process)),
     ];
 }
 
 function connectToMultipleSources(aView, sources, process) {
+    if (env !== 'production') {
+        console.warn([
+            errorPrefix,
+            'View usage for merging streams is deprecated since 1.7.',
+            'Consider changing to Merge type of node.',
+        ].join(' '));
+    }
+
     // initialize as a map{string:Iterable}
     let mergedStructure = new ViewMergeMap();
 
@@ -58,12 +71,12 @@ function connectToMultipleSources(aView, sources, process) {
         sourceName => sources[sourceName].addSubscription(
             data => {
                 mergedStructure = mergedStructure.set(sourceName, data);
-                aView._consume(mergedStructure.clone(), process);
+                aView.consume(mergedStructure.clone(), process);
             }
         )
     );
 
-    aView._digest(process(mergedStructure.clone()));
+    aView.digest(process(mergedStructure.clone()));
 
     return unsubs;
 }

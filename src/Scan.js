@@ -1,37 +1,45 @@
-import Reactor from './Reactor.js';
+//@flow
+import Observable from './Observable';
 
-export default function Scan(source, valuesToRemember = 2, initialValue = null) {
-    Reactor.apply(this);
+export default function Scan(
+    source: Observable,
+    valuesToRemember: number = 2,
+    initialValue: any = null
+) {
+    Observable.apply(this);
 
     let history = pushToHistory(
         premadeHistory(initialValue, valuesToRemember),
         valuesToRemember,
         source.read()
     );
-    this._digest(history);
+    this.digest(history);
 
     this.unsubscribe = source.addSubscription(
         sourceData => {
             history = pushToHistory(history, valuesToRemember, sourceData);
-            this._consume(history);
+            this.consume(history);
         }
     );
 }
 
-Scan.prototype = Object.create(Reactor.prototype);
+Scan.prototype = Object.assign(
+    {},
+    Observable.prototype,
+    {
+        read() {
+            return [].concat(Observable.prototype.read.apply(this));
+        },
+        destroy() {
+            Observable.prototype.destroy.apply(this);
 
-Scan.prototype.read = function () {
-    return [].concat(Reactor.prototype.read.apply(this));
-};
-
-Scan.prototype.destroy = function () {
-    Reactor.prototype.destroy.apply(this);
-
-    if (this.unsubscribe) {
-        this.unsubscribe();
-        this.unsubscribe = null;
+            if (this.unsubscribe) {
+                this.unsubscribe();
+                this.unsubscribe = null;
+            }
+        },
     }
-};
+);
 
 function premadeHistory(initialValue, valuesToRemember) {
     if (initialValue === null) {
@@ -48,4 +56,5 @@ function pushToHistory(history, valuesToRemember, newValue) {
     const newHistory = history.slice(-1 * valuesToRemember + 1);
     newHistory.push(newValue);
     return newHistory;
+
 }

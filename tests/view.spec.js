@@ -133,4 +133,13 @@ describe('View', function () {
                 done();
             });
     });
+
+    it('value given for processing is frozen', () => {
+        expect(() => {
+            new Data({ a: 1 }).map(v => {
+                v.a = 2;
+                return v;
+            }).subscribe(v => console.log('WRONG', v));
+        }).toThrow();
+    });
 });

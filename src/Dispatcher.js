@@ -1,5 +1,12 @@
+//@flow
+
 let isRunning = false;
-let queue = [];
+let queue: {
+    action: () => any,
+    context: any,
+    args: any[],
+    priority: number
+}[] = [];
 const errorPrefix = 'Immview::Dispatcher: ';
 
 const PRIORITY_EXT = 0;
@@ -10,7 +17,7 @@ const PRIORITY_DATA_CONSUMING = 3;
 const Dispatcher = {
     dispatch: dispatchExternal,
 
-    tick(func) {
+    tick(func: () => any) {
         func();
     },
 
@@ -30,7 +37,7 @@ export {
     rejectContext,
 };
 
-/**
+/*
  * Execute first action of current queue
  */
 function runFirstQueuedItem() {
@@ -47,10 +54,12 @@ function runFirstQueuedItem() {
 
 function shiftFromQueue() {
     const toRun = findMaxPriority();
-    queue.splice(
-        queue.indexOf(toRun),
-        1
-    );
+    if (toRun) {
+        queue.splice(
+            queue.indexOf(toRun),
+            1
+        );
+    }
     return toRun;
 }
 
@@ -67,14 +76,15 @@ function findMaxPriority() {
     return firstOfPriority;
 }
 
-/**
+/*
  * Append new action onto end of the queue
- * @param {Function} action
- * @param {*} context
- * @param {Array.<*>} args
- * @param {number} priority (higher number - sooner execution)
  */
-function appendToQueue(action, context = null, args = [], priority = PRIORITY_EXT) {
+function appendToQueue(
+    action: () => any,
+    context?:any = null,
+    args?: any[] = [],
+    priority?: number = PRIORITY_EXT
+) {
     queue.push({
         priority,
         action,
@@ -83,35 +93,31 @@ function appendToQueue(action, context = null, args = [], priority = PRIORITY_EX
     });
 }
 
-function dispatchDomainAction(action, context, args) {
+function dispatchDomainAction(action: () => any, context?: any, args?: any[]) {
     dispatch(action, context, args, PRIORITY_DOMAIN);
 }
 
-function dispatchDataWrite(action, context, args) {
+function dispatchDataWrite(action: () => any, context?: any, args?: any[]) {
     dispatch(action, context, args, PRIORITY_DATA_WRITE);
 }
 
-function dispatchDataConsume(action, context, args) {
+function dispatchDataConsume(action: () => any, context?: any, args?: any[]) {
     dispatch(action, context, args, PRIORITY_DATA_CONSUMING);
 }
 
-function dispatchExternal(action, context, args) {
+function dispatchExternal(action: () => any, context?: any, args?: any[]) {
     dispatch(action, context, args, PRIORITY_EXT);
 }
 
-/**
+/*
  * Place provided function on a queue and run it as soon as possible
- * @param {function} action
- * @param {*} [context]
- * @param {Array.<*>} [args]
- * @param {number} [priority=0] priority for dispatched action.
  */
-function dispatch(action, context, args, priority) {
+function dispatch(action: () => any, context?: any, args?: any[], priority: number) {
     appendToQueue(action, context, args, priority);
     startQueue();
 }
 
-/**
+/*
  * Starts executing the queue
  */
 function startQueue() {
@@ -146,10 +152,9 @@ function logError(e) {
     }
 }
 
-/**
+/*
  * Removes all queued actions tied with a context
- * @param context
  */
-function rejectContext(context) {
+function rejectContext(context: any) {
     queue = queue.filter(item => item.context !== context);
 }

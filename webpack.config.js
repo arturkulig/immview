@@ -1,3 +1,4 @@
+// jscs:disable
 var path = require('path');
 var webpack = require('webpack');
 
@@ -16,16 +17,23 @@ var config = {
         loaders: [
             {
                 test: /\.js$/,
+                exclude: /node_modules\/immutable\/dist\/immutable\.js/,
                 loader: 'babel',
                 query: {
                     presets: ['es2015'],
-                    plugins: ['transform-object-rest-spread'],
+                    plugins: ['transform-object-rest-spread', 'transform-flow-strip-types'],
                 },
             },
         ],
     },
     devtool: 'source-map',
-    plugins: [],
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env':{
+                'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+            }
+        })
+    ]
 };
 
 if (process.env.NODE_ENV === 'production') {

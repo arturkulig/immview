@@ -1,9 +1,10 @@
-import Reactor from './Reactor.js';
+//@flow
+import Observable from './Observable';
 
 const errorPrefix = 'Immview::Throttle: ';
 
-export default function Throttle(source, timeout = 0) {
-    Reactor.call(this);
+export default function Throttle(source: Observable, timeout: number = 0) {
+    Observable.call(this);
 
     if (!(source && source.subscribe)) {
         throw new Error(`${errorPrefix}incorrect source`);
@@ -11,27 +12,31 @@ export default function Throttle(source, timeout = 0) {
 
     this.timeoutID = null;
     this.timeoutedData = null;
-    this._digest(source.read());
+    this.digest(source.read());
     this.subscription = source.addSubscription(data => {
         this.timeoutedData = data;
         if (!this.timeoutID) {
             this.timeoutID = setTimeout(() => {
                 this.timeoutID = null;
-                this._consume(this.timeoutedData);
+                this.consume(this.timeoutedData);
             }, timeout);
         }
     });
 }
 
-Throttle.prototype = Object.create(Reactor.prototype);
-
-Throttle.prototype.destroy = function () {
-    if (this.timeoutID) {
-        clearTimeout(this.timeoutID);
-        this.timeoutID = null;
+Throttle.prototype = Object.assign(
+    {},
+    Observable.prototype,
+    {
+        destroy() {
+            if (this.timeoutID) {
+                clearTimeout(this.timeoutID);
+                this.timeoutID = null;
+            }
+            if (this.subscription) {
+                this.subscription();
+            }
+            Observable.prototype.destroy.call(this);
+        },
     }
-    if (this.subscription) {
-        this.subscription();
-    }
-    Reactor.prototype.destroy.call(this);
-};
+);

@@ -1,11 +1,17 @@
+//@flow
 import {
     dispatchDataWrite,
     dispatchDataConsume,
 } from './Dispatcher';
+import type Observable from './Observable';
 
-const schedule = [];
+const schedule: {
+    observable: Observable,
+    data: any,
+    process: (subject: any) => any
+}[] = [];
 
-export function queue(observable, data, process) {
+export function queue(observable: Observable, data: any, process: (subject: any) => any) {
     dispatchDataConsume(
         () => {
             scheduleObservableConsumption(observable, data, process);
@@ -35,7 +41,7 @@ function processQueue() {
 function executeNextJob() {
     if (schedule.length) {
         const [{ observable, data, process }] = schedule.splice(0, 1);
-        observable._digest(process(data));
+        observable.digest(process(data));
         processQueue();
     }
 }

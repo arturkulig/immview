@@ -1,9 +1,11 @@
+//@flow
 import Domain from './Domain.js';
 import Data from './Data.js';
 import View from './View.js';
 import Debounce from './Debounce.js';
 import Throttle from './Throttle.js';
 import Scan from './Scan.js';
+import Merge from './Merge.js';
 import {
     Dispatcher,
     dispatch,
@@ -16,6 +18,7 @@ export {
     Debounce,
     Throttle,
     Scan,
+    Merge,
     Dispatcher,
     dispatch,
 };

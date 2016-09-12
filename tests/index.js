@@ -1,5 +1,6 @@
 import './data.spec';
 import './view.spec';
+import './merge.spec';
 import './dispatcher.spec.js';
 import './domain.spec';
 import './debounce.spec';
@@ -9,3 +10,4 @@ import './branchingStreamPerformantRender';
 import './switchedTicker.spec';
 import './classExtending';
 import './scan.spec';
+import './immutabilize.spec.js';

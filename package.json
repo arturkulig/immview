@@ -14,16 +14,19 @@
     "preversion": "npm run test && npm run build",
     "fix:src": "$(npm bin)/jscs --fix src/*.js",
     "fix:tests": "$(npm bin)/jscs --fix tests/*.js",
-    "fix": "npm run fix:src; npm run fix:tests;"
+    "fix": "npm run fix:src; npm run fix:tests;",
+    "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },
   "author": "Artur Kulig",
   "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.2.1",
     "babel-loader": "^6.2.0",
+    "babel-plugin-transform-flow-strip-types": "^6.14.0",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-polyfill": "^6.2.0",
     "babel-preset-es2015": "^6.1.18",
+    "flow-bin": "^0.32.0",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.3.4",
     "jscs": "^2.10.1",
@@ -41,7 +44,7 @@
     "webpack": "^1.12.6",
     "webpack-dev-server": "^1.12.1"
   },
-  "dependencies": {
-    "immutable": "^3.7.5"
+  "engines": {
+    "node": ">=6"
   }
 }

@@ -100,20 +100,18 @@ describe('Data', () => {
 
         let reactions = 0;
 
-        const getDataMap = () => fromJS({ a: 1, b: { c: 2 } });
-
-        const d = new Data(getDataMap());
+        const d = new Data(fromJS({ a: 1, b: { c: 2 } }));
 
         d.subscribe(() => {
             reactions++;
         });
 
         expect(reactions).toBe(1); // subscription -> fake reaction
-        d.write(getDataMap().set('d', 3)); // change -> reaction
+        d.write(map => map.set('d', 3)); // change -> reaction
         expect(reactions).toBe(2);
-        d.write(getDataMap().set('d', 3)); // no change -> no reaction
+        d.write(map => map); // no change -> no reaction
         expect(reactions).toBe(2);
-        d.write(getDataMap().set('d', 4)); // change -> reaction
+        d.write(map => map.set('d', 4)); // change -> reaction
         expect(reactions).toBe(3);
     });
 
@@ -176,7 +174,9 @@ describe('Data', () => {
         it('and rejects pending writes', done => {
             const a = new Data(0);
             dispatch(() => {
-                a.write(1);
+                a.write(() => {
+                    throw new Error('should not happen');
+                });
                 a.destroy();
             });
             dispatch(() => {

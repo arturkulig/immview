@@ -1,0 +1,25 @@
+declare class Observable<T> {
+    read(): T;
+    subscribe((contents: T) => void): void;
+
+    map<U>((contents: T) => U): Observable<U>;
+    debounce(timeout: number): Observable<T>;
+    throttle(timeout: number): Observable<T>;
+    scan(valuesToRemember: number, initialValue: T): Observable<T[]>;
+
+    destroy(): void;
+}
+
+declare class Domain<T, U> extends Observable<T> mixins U {
+    static <T, U> (source: Observable<T>, actions: {[id:string]: () => any}): Domain<T, U>,
+}
+
+declare class View<T> extends Observable<T> {
+    static (source: {[id:string]:Observable}): View<{[id:string]:any}>
+    static <T, U> (source: {[id:string]:Observable}, process: (contents: {[id:string]:mixed}) => U): View<U>
+    static <T, U> (source: Observable<T>, process: (contents: T) => U): View<U>
+}
+
+declare class Merge extends Observable<{[id:string]:any}> {
+    static <{[id:string]:Observable}> (source: {[id:string]:Observable}): Merge
+}
