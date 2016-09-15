@@ -23,19 +23,16 @@ export default function Debounce(source: Observable, timeout: number = 0) {
     });
 }
 
-Debounce.prototype = Object.assign(
-    {},
-    Observable.prototype,
-    {
-        destroy() {
-            if (this.timeoutID) {
-                clearTimeout(this.timeoutID);
-                this.timeoutID = null;
-            }
-            if (this.subscription) {
-                this.subscription();
-            }
-            Observable.prototype.destroy.call(this);
-        },
-    }
-);
+Debounce.prototype = {
+    ...Observable.prototype,
+    destroy() {
+        if (this.timeoutID) {
+            clearTimeout(this.timeoutID);
+            this.timeoutID = null;
+        }
+        if (this.subscription) {
+            this.subscription();
+        }
+        Observable.prototype.destroy.call(this);
+    },
+};

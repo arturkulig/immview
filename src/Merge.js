@@ -39,18 +39,15 @@ export default function Merge(sources: { [id: string]: Observable }) {
     this.digest(Object.assign({}, mergedStructure));
 }
 
-Merge.prototype = Object.assign(
-    {},
-    Observable.prototype,
-    {
-        destroy() {
-            Observable.prototype.destroy.call(this);
+Merge.prototype = {
+    ...Observable.prototype,
+    destroy() {
+        Observable.prototype.destroy.call(this);
 
-            if (this.unsubs) {
-                this.unsubs.forEach(func => func());
-            }
+        if (this.unsubs) {
+            this.unsubs.forEach(func => func());
+        }
 
-            this.unsubs = null;
-        },
-    }
-);
+        this.unsubs = null;
+    },
+};

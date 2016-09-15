@@ -1,8 +1,8 @@
 declare class Observable<T> {
     read(): T;
-    subscribe((contents: T) => void): void;
+    subscribe(processor: (contents: T) => void): void;
 
-    map<U>((contents: T) => U): Observable<U>;
+    map<U>(processor: (contents: T) => U): Observable<U>;
     debounce(timeout: number): Observable<T>;
     throttle(timeout: number): Observable<T>;
     scan(valuesToRemember: number, initialValue: T): Observable<T[]>;

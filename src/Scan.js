@@ -23,23 +23,20 @@ export default function Scan(
     );
 }
 
-Scan.prototype = Object.assign(
-    {},
-    Observable.prototype,
-    {
-        read() {
-            return [].concat(Observable.prototype.read.apply(this));
-        },
-        destroy() {
-            Observable.prototype.destroy.apply(this);
+Scan.prototype = {
+    ...Observable.prototype,
+    read(): mixed {
+        return [].concat(Observable.prototype.read.apply(this));
+    },
+    destroy() {
+        Observable.prototype.destroy.apply(this);
 
-            if (this.unsubscribe) {
-                this.unsubscribe();
-                this.unsubscribe = null;
-            }
-        },
-    }
-);
+        if (this.unsubscribe) {
+            this.unsubscribe();
+            this.unsubscribe = null;
+        }
+    },
+};
 
 function premadeHistory(initialValue, valuesToRemember) {
     if (initialValue === null) {

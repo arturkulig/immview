@@ -24,19 +24,16 @@ export default function Throttle(source: Observable, timeout: number = 0) {
     });
 }
 
-Throttle.prototype = Object.assign(
-    {},
-    Observable.prototype,
-    {
-        destroy() {
-            if (this.timeoutID) {
-                clearTimeout(this.timeoutID);
-                this.timeoutID = null;
-            }
-            if (this.subscription) {
-                this.subscription();
-            }
-            Observable.prototype.destroy.call(this);
-        },
-    }
-);
+Throttle.prototype = {
+    ...Observable.prototype,
+    destroy() {
+        if (this.timeoutID) {
+            clearTimeout(this.timeoutID);
+            this.timeoutID = null;
+        }
+        if (this.subscription) {
+            this.subscription();
+        }
+        Observable.prototype.destroy.call(this);
+    },
+};
