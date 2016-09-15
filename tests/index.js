@@ -1,3 +1,4 @@
+import './switchedTicker.spec';
 import './data.spec';
 import './view.spec';
 import './merge.spec';
@@ -7,7 +8,6 @@ import './debounce.spec';
 import './throttle.spec';
 import './interface.spec';
 import './branchingStreamPerformantRender';
-import './switchedTicker.spec';
 import './classExtending';
 import './scan.spec';
 import './immutabilize.spec.js';

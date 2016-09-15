@@ -1,17 +1,19 @@
 //@flow
-import Domain from './Domain.js';
-import Data from './Data.js';
-import View from './View.js';
-import Debounce from './Debounce.js';
-import Throttle from './Throttle.js';
-import Scan from './Scan.js';
-import Merge from './Merge.js';
+import Observable from './Observable';
+import Domain from './Domain';
+import Data from './Data';
+import View from './View';
+import Debounce from './Debounce';
+import Throttle from './Throttle';
+import Scan from './Scan';
+import Merge from './Merge';
 import {
     Dispatcher,
     dispatch,
 } from './Dispatcher';
 
 export {
+    Observable,
     Data,
     View,
     Domain,

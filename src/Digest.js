@@ -15,18 +15,18 @@ export function queue(observable: Observable, data: any, process: (subject: any)
     dispatchDataConsume(
         () => {
             scheduleObservableConsumption(observable, data, process);
-            processQueue();
+            dispatchQueueExecution();
         }
     );
 }
 
 function scheduleObservableConsumption(observable, data, process) {
     for (let i = 0; i < schedule.length; i++) {
-        if (schedule[i].observable._id === observable._id) {
+        if (schedule[i].observable.priority === observable.priority) {
             schedule[i].data = data;
             return;
         }
-        if (schedule[i].observable._id > observable._id) {
+        if (schedule[i].observable.priority > observable.priority) {
             schedule.splice(i, 0, { observable, data, process });
             return;
         }
@@ -34,14 +34,14 @@ function scheduleObservableConsumption(observable, data, process) {
     schedule.splice(schedule.length, 0, { observable, data, process });
 }
 
-function processQueue() {
-    dispatchDataWrite(executeNextJob);
+function dispatchQueueExecution() {
+    dispatchDataWrite(executeQueue);
 }
 
-function executeNextJob() {
+function executeQueue() {
     if (schedule.length) {
         const [{ observable, data, process }] = schedule.splice(0, 1);
         observable.digest(process(data));
-        processQueue();
+        dispatchQueueExecution();
     }
 }

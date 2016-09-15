@@ -4,16 +4,19 @@ import {
     View,
 } from '../src';
 
+const standardTicker = Dispatcher.tick;
+
 describe('switching dispatcher ticker', () => {
-    const standardTicker = Dispatcher.tick;
+
     beforeEach(() => {
+        jasmine.clock().install();
         Dispatcher.tick = f => setTimeout(() => {
             setTimeout(f, 10);
         });
-        jasmine.clock().install();
     });
 
     afterEach(() => {
+        jasmine.clock().tick(40);
         jasmine.clock().uninstall();
         Dispatcher.tick = standardTicker;
     });
@@ -21,15 +24,17 @@ describe('switching dispatcher ticker', () => {
     it('works', () => {
         const A = new Data('a');
         const B = new View(A, str => str + '!');
+
         expect(A.read()).toBe('a');
         expect(B.read()).toBe('a!');
 
         A.write('b');
+
         expect(A.read()).toBe('a');
         expect(B.read()).toBe('a!');
 
-        jasmine.clock().tick(20);
-        jasmine.clock().tick(20);
+        jasmine.clock().tick(40);
+
         expect(A.read()).toBe('b');
         expect(B.read()).toBe('b!');
     });

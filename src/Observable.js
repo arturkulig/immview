@@ -1,6 +1,6 @@
 //@flow
 import * as Digest from './Digest';
-import * as Dispatcher from './Dispatcher';
+import * as DispatcherModule from './Dispatcher';
 import immutabilize from './Immutabilize';
 import env from './env';
 const fortify = env === 'production'
@@ -11,23 +11,29 @@ const fortify = env === 'production'
  * Observable is an base class for all immview observables
  */
 export default function Observable() {
-    this._id = Observable.lastInstanceId++;
-    this._subscriptions = [];
+    this.structure = null;
+    this.priority = Observable.nextPriority++;
+    this.subscriptions = [
+        data => {
+            this.structure = data;
+        },
+    ];
     this.closed = false;
 }
 
-Observable.lastInstanceId = 0;
+Observable.nextPriority = 0;
 
 Observable.prototype = {
-    _id: 0,
-    _subscriptions: [],
+    structure: null,
+    priority: 0,
+    subscriptions: [],
     closed: false,
 
-    read() {
+    read(): mixed {
         return this.structure;
     },
 
-    shouldObservableUpdate(candidate) {
+    shouldObservableUpdate(candidate: mixed): boolean {
         return hasValue(candidate) && this.read() != candidate;
     },
 
@@ -36,7 +42,7 @@ Observable.prototype = {
      * that can be replaced
      * without any data loss
      */
-    consume(data: any, process: (subject: any) => any = identity) {
+    consume(data: mixed, process: (subject: any) => any = identity) {
         Digest.queue(this, data, process);
     },
 
@@ -45,27 +51,21 @@ Observable.prototype = {
      */
     digest(data: any) {
         if (this.shouldObservableUpdate(data)) {
-            this.structure = fortify(data);
-            this.flush();
+            for (let i = 0; this.subscriptions && i < this.subscriptions.length; i++) {
+                this.subscriptions[i](fortify(data));
+            }
         }
-    },
-
-    /*
-     * Pushes data to all listeners
-     */
-    flush() {
-        this._subscriptions.forEach(reaction => reaction(this.read()));
     },
 
     /*
      * Registers a function that is going to be fed with new data pushing by this observable
      */
     addSubscription(reaction: (structure: any) => any) {
-        if (this._subscriptions.indexOf(reaction) < 0) {
-            this._subscriptions.push(reaction);
+        if (this.subscriptions.indexOf(reaction) < 0) {
+            this.subscriptions.push(reaction);
         }
         return () => {
-            this._subscriptions = this._subscriptions.filter(
+            this.subscriptions = this.subscriptions.filter(
                 registeredReaction => registeredReaction !== reaction
             );
         };
@@ -81,9 +81,9 @@ Observable.prototype = {
     },
 
     destroy() {
-        Dispatcher.rejectContext(this);
+        DispatcherModule.rejectContext(this);
         this.structure = null;
-        this._subscriptions = [];
+        this.subscriptions = [];
         Object.defineProperty
             ? Object.defineProperty(this, 'closed', { value: true, writable: false })
             : this.closed = true;
@@ -107,6 +107,21 @@ Observable.prototype = {
     scan(valuesToRemember, initialValue) {
         const Scan = require('./Scan').default;
         return new Scan(this, valuesToRemember, initialValue);
+    },
+
+    info(name = '') {
+        try {
+            const content = JSON.stringify(this.read()).substr(0, 32);
+            DispatcherModule
+                .Dispatcher
+                .logger
+                .log(`#${this.priority} ${name} ${content}`);
+        } catch (e) {
+            DispatcherModule
+                .Dispatcher
+                .logger
+                .log(`#${this.priority} ${name}`, this.read());
+        }
     },
 };
 

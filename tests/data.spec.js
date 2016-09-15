@@ -149,6 +149,7 @@ describe('Data', () => {
             // they are inside so they are actually queued
             b.write(i => i + 1);
             b.write(i => i + 1);
+            b.write(i => i + 1);
 
             // as they are queued, updates are not yet performed
             expect(a.read()).toBe(0);
@@ -156,7 +157,7 @@ describe('Data', () => {
             return i + 1;
         });
         expect(a.read()).toBe(1);
-        expect(b.read()).toBe(2);
+        expect(b.read()).toBe(3);
     });
 
     describe('can be destroyed', () => {
@@ -175,6 +176,7 @@ describe('Data', () => {
             const a = new Data(0);
             dispatch(() => {
                 a.write(() => {
+                    expect(true).toBe(false);
                     throw new Error('should not happen');
                 });
                 a.destroy();

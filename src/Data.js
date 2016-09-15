@@ -1,28 +1,35 @@
 //@flow
-import { dispatchDataWrite } from './Dispatcher';
-import Reactor from './Observable';
+import Observable from './Observable';
 
 export default function Data(initialData: any) {
-    Reactor.call(this);
-
+    Observable.call(this);
     this.digest(initialData);
+
+    this.pendingChanges = [];
 }
 
-Data.prototype = Object.create(Reactor.prototype);
-
-/**
- * Dispatch a change instruction to the Data
- * @param {Iterable|function(data: Iterable):Iterable} change
- */
-Data.prototype.write = function (change) {
-    dispatchDataWrite(() => {
-        if (this.closed) {
-            return;
-        }
+Data.prototype = {
+    ...Observable.prototype,
+    write(change) {
+        if (this.closed) return;
         if (typeof change === 'function') {
-            this.digest(change(this.read()));
+            this.pendingChanges.push(change);
+            this.consume(this, executePendingChanges);
         } else {
-            this.digest(change);
+            this.consume(change);
         }
-    }, this);
+    },
+    destroy() {
+        Observable.prototype.destroy.call(this);
+        this.pendingChanges = null;
+    },
 };
+
+function executePendingChanges(observable: Data) {
+    const changed = observable.pendingChanges.reduce(
+        (result, change) => change(result),
+        observable.read()
+    );
+    observable.pendingChanges = [];
+    return changed;
+}
