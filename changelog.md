@@ -5,7 +5,7 @@
 - feat: Merging multiple source can and should be done with `Merge` and this functionality in `View` is now deprecated.
 - feat: Immview no longer depends on `Immutable.js`
 - feat: All objects that are provided within `View` processor and all subscriptions are now frozen. Functionality requires `Proxy`, but library doesn't rely on that as in many environments it is not present. It is cheaper than cloning, yet secures immutability of data provided to processing functions too.
-- feat: All stream classes contain `shouldObservableUpdate` method responsible for decision if candidate value should replace old one and thus trigger subscriptions. Method can be overriden in subclass.
+- feat: `Observable` class got `shouldObservableUpdate` method responsible for decision if candidate value should replace old one and thus trigger subscriptions. Method can be overriden in subclass.
 
 ## 1.6.2
 

@@ -1,4 +1,4 @@
-# immview 1.7
+# <img src="https://raw.githubusercontent.com/arturkulig/immview/master/immview.png" />
 
 Immview is a library to create **Domains** - *non-visual components* - similar to flux stores, exposing their **state** through *observables* pushing data and having specific to them **actions**. It can be used instead of any flux implementation or redux.
 
