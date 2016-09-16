@@ -61,7 +61,7 @@ module.exports = function(config) {
 
         autoWatch: true,
 
-        browsers: process.env.TRAVIS ? ['PhantomJS'] : ['Chrome'],
+        browsers: process.env.TRAVIS ? ['PhantomJS'] : ['Chrome', 'Firefox'],
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits

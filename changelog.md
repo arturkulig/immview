@@ -3,7 +3,7 @@
 ## 1.7
 
 - feat: Merging multiple source can and should be done with `Merge` and this functionality in `View` is now deprecated.
-- feat: Immview no longer depends on `Immutable.js`
+- feat: Immview no longer depends on `Immutable.js` and doesn't have `Immutable.js` oriented optimizations.
 - feat: All objects that are provided within `View` processor and all subscriptions are now frozen. Functionality requires `Proxy`, but library doesn't rely on that as in many environments it is not present. It is cheaper than cloning, yet secures immutability of data provided to processing functions too.
 - feat: `Observable` class got `shouldObservableUpdate` method responsible for decision if candidate value should replace old one and thus trigger subscriptions. Method can be overriden in subclass.
 - feat: Any `Observable` can pass a `Promise` and it will result in asynchronous subscriptions triggering with `Promise` result. `Promise` rejection is not being handled. This, ofcourse, will work with `async`/`await` or `Promise`-returning processing functions in `View`.
