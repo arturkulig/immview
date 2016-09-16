@@ -42,17 +42,28 @@ Observable.prototype = {
      * that can be replaced
      * without any data loss
      */
-    consume(data: mixed, process: (subject: any) => any = identity) {
-        Digest.queue(this, data, process);
+    consume(candidate: mixed, process: (subject: any) => any = identity) {
+        Digest.queue(this, candidate, process);
     },
 
     /*
      * Replace current state and push data further
      */
-    digest(data: any) {
-        if (this.shouldObservableUpdate(data)) {
+    digest(candidate: any) {
+        if (this.digestCandidate || candidate instanceof Promise) {
+            this.digestCandidate =
+                (this.digestCandidate || Promise.resolve())
+                    .then(() => candidate)
+                    .then(data => this.flush(data));
+        } else {
+            this.flush(candidate);
+        }
+    },
+
+    flush(candidate: any) {
+        if (this.shouldObservableUpdate(candidate)) {
             for (let i = 0; this.subscriptions && i < this.subscriptions.length; i++) {
-                this.subscriptions[i](fortify(data));
+                this.subscriptions[i](fortify(candidate));
             }
         }
     },

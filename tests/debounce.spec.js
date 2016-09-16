@@ -23,7 +23,7 @@ describe('Debounce', () => {
         source.write('j');
         expect(debounced.read()).toBe('i');
 
-        jasmine.clock().tick(11);
+        jasmine.clock().tick(20);
         expect(debounced.read()).toBe('j');
     });
 

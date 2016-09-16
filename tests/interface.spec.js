@@ -2,6 +2,8 @@ import {
     Data,
     View,
     Debounce,
+    Throttle,
+    Scan,
     Domain,
     Dispatcher,
     dispatch,
@@ -38,6 +40,20 @@ describe('Immview', () => {
             const d = new Data();
             const v = new View(d);
             const instance = new Debounce(v);
+            fulfillsReactorInterface(instance);
+        });
+        it('Throttle', () => {
+            expect(Throttle).toBeDefined();
+            const d = new Data();
+            const v = new View(d);
+            const instance = new Throttle(v);
+            fulfillsReactorInterface(instance);
+        });
+        it('Scan', () => {
+            expect(Scan).toBeDefined();
+            const d = new Data();
+            const v = new View(d);
+            const instance = new Scan(v);
             fulfillsReactorInterface(instance);
         });
         it('Domain', () => {

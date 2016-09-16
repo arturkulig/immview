@@ -167,7 +167,9 @@ transformation.read() === 2 // true
 Constructor of **View** object takes any source (a stream or a **Domain**) as first argument and optionally function transforming this data as a second argument.
 A processor function will receive a value and has to return next one that will be state of current node.
 
-*Returning **null** or undefined will result in no subscription being fired.*
+Returning a `Promise` will result in subscriptions being fired upon that `Promise` resolution.
+
+Returning **null** or **undefined** will result in no subscription being fired.
 
 ### View::read
 Same as `Data` function of the same name.
