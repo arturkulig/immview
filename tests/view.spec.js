@@ -134,6 +134,8 @@ describe('View', function () {
             });
     });
 
+    typeof window !== 'undefined' &&
+    window.Proxy &&
     it('value given for processing is frozen', () => {
         expect(() => {
             new Data({ a: 1 }).map(v => {
