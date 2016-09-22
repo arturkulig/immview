@@ -35,49 +35,32 @@ Domain.prototype = {
     // to modify domain data
     // outside of the domain scope
 
-    /*
-     * Create a new stream from a stream attached to the Domain
-     */
-    map(nextProcessor) {
-        return this.stream.map(nextProcessor);
+    map(...args) {
+        return this.stream.map.apply(this.stream, args);
     },
 
-    /*
-     * Create a new stream that will not trigger its subscriptions
-     * until given amount of miliseconds will pass from last call
-     */
-    debounce(timeout: number) {
-        return this.stream.debounce(timeout);
+    debounce(...args) {
+        return this.stream.debounce.apply(this.stream, args);
     },
 
-    /*
-     * Create a new stream
-     * that will not trigger its subscriptions immediately,
-     * but defers updates for a number of miliseconds
-     * provided with timeout argument
-     * after first call
-     */
-    throttle(timeout: number) {
-        return this.stream.throttle(timeout);
+    throttle(...args) {
+        return this.stream.throttle.apply(this.stream, args);
     },
 
-    scan(valuesToRemember, initialValue) {
-        return this.stream.scan(valuesToRemember, initialValue);
+    scan(...args) {
+        return this.stream.scan.apply(this.stream, args);
     },
 
-    /*
-     * Register a listener to changes on data stream.
-     * Calls provided method upon registration.
-     */
-    subscribe(reaction) {
-        return this.stream.subscribe(reaction);
+    reduce(...args) {
+        return this.stream.reduce.apply(this.stream, args);
     },
 
-    /*
-     * Register a listener to changes on data stream.
-     */
-    addSubscription(reaction) {
-        return this.stream.addSubscription(reaction);
+    subscribe(...args) {
+        return this.stream.subscribe.apply(this.stream, args);
+    },
+
+    addSubscription(...args) {
+        return this.stream.addSubscription.apply(this.stream, args);
     },
 
     /*

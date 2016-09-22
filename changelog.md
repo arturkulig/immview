@@ -2,7 +2,8 @@
 
 ## 1.7
 
-- feat: Merging multiple source can and should be done with `Merge` and this functionality in `View` is now deprecated.
+- feat: New node `Merge`. Merging multiple source can and should be done with `Merge` and this functionality in `View` is now deprecated.
+- feat: New node `Reduce`. Provide it with observable source and function that takes current state and source stream state. 
 - feat: Immview no longer depends on `Immutable.js` and doesn't have `Immutable.js` oriented optimizations.
 - feat: All objects that are provided within `View` processor and all subscriptions are now frozen. Functionality requires `Proxy`, but library doesn't rely on that as in many environments it is not present. It is cheaper than cloning, yet secures immutability of data provided to processing functions too.
 - feat: `Observable` class got `shouldObservableUpdate` method responsible for decision if candidate value should replace old one and thus trigger subscriptions. Method can be overriden in subclass.

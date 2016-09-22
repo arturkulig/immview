@@ -1,13 +1,13 @@
 //@flow
 import Observable from './Observable.js';
 
-const errorPrefix = 'Immview::Merge: ';
+const errorPrefix = 'Immview::Merge:';
 
 export default function Merge(sources: { [id: string]: Observable }) {
     Observable.call(this);
 
     if (!sources || typeof sources !== 'object') {
-        throw new Error(`${errorPrefix}No sources to plug in`);
+        throw new Error(`${errorPrefix} No sources to plug in`);
     }
 
     const sourcesNames = Object.keys(sources);
@@ -39,15 +39,14 @@ export default function Merge(sources: { [id: string]: Observable }) {
     this.digest(Object.assign({}, mergedStructure));
 }
 
-Merge.prototype = {
-    ...Observable.prototype,
-    destroy() {
-        Observable.prototype.destroy.call(this);
+Merge.prototype = Object.create(Observable.prototype);
 
-        if (this.unsubs) {
-            this.unsubs.forEach(func => func());
-        }
+Merge.prototype.destroy = function () {
+    Observable.prototype.destroy.call(this);
 
-        this.unsubs = null;
-    },
+    if (this.unsubs) {
+        this.unsubs.forEach(func => func());
+    }
+
+    this.unsubs = null;
 };

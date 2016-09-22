@@ -120,6 +120,11 @@ Observable.prototype = {
         return new Scan(this, valuesToRemember, initialValue);
     },
 
+    reduce(reducer) {
+        const Reduce = require('./Reduce').default;
+        return new Reduce(this, reducer);
+    },
+
     info(name = '') {
         try {
             const content = JSON.stringify(this.read()).substr(0, 32);

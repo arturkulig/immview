@@ -8,21 +8,20 @@ export default function Data(initialData: any) {
     this.pendingChanges = [];
 }
 
-Data.prototype = {
-    ...Observable.prototype,
-    write(change) {
-        if (this.closed) return;
-        if (typeof change === 'function') {
-            this.pendingChanges.push(change);
-            this.consume(this, executePendingChanges);
-        } else {
-            this.consume(change);
-        }
-    },
-    destroy() {
-        Observable.prototype.destroy.call(this);
-        this.pendingChanges = null;
-    },
+Data.prototype = Object.create(Observable.prototype);
+
+Data.prototype.write = function (change) {
+    if (this.closed) return;
+    if (typeof change === 'function') {
+        this.pendingChanges.push(change);
+        this.consume(this, executePendingChanges);
+    } else {
+        this.consume(change);
+    }
+};
+Data.prototype.destroy = function () {
+    Observable.prototype.destroy.call(this);
+    this.pendingChanges = null;
 };
 
 function executePendingChanges(observable: Data) {

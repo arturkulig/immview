@@ -23,16 +23,15 @@ export default function Debounce(source: Observable, timeout: number = 0) {
     });
 }
 
-Debounce.prototype = {
-    ...Observable.prototype,
-    destroy() {
-        if (this.timeoutID) {
-            clearTimeout(this.timeoutID);
-            this.timeoutID = null;
-        }
-        if (this.subscription) {
-            this.subscription();
-        }
-        Observable.prototype.destroy.call(this);
-    },
+Debounce.prototype = Object.create(Observable.prototype);
+
+Debounce.prototype.destroy = function () {
+    if (this.timeoutID) {
+        clearTimeout(this.timeoutID);
+        this.timeoutID = null;
+    }
+    if (this.subscription) {
+        this.subscription();
+    }
+    Observable.prototype.destroy.call(this);
 };

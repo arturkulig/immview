@@ -7,6 +7,7 @@ import Debounce from './Debounce';
 import Throttle from './Throttle';
 import Scan from './Scan';
 import Merge from './Merge';
+import Reduce from './Reduce';
 import {
     Dispatcher,
     dispatch,
@@ -21,6 +22,7 @@ export {
     Throttle,
     Scan,
     Merge,
+    Reduce,
     Dispatcher,
     dispatch,
 };

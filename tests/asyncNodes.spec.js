@@ -14,6 +14,7 @@ describe('Async nodes', () => {
             });
             testNode.write(Promise.resolve(1));
         });
+
         it('Data - func', done => {
             const testNode = new Data(0);
             testNode.subscribe(v => {
@@ -23,6 +24,7 @@ describe('Async nodes', () => {
             });
             testNode.write(() => Promise.resolve(1));
         });
+
         it('View', done => {
             const testDataNode = new Data(0);
             const testViewNode = new View(
@@ -43,6 +45,7 @@ describe('Async nodes', () => {
             testDataNode.write(1);
         });
     });
+
     it('arrange all values in or without Promise in order of process execution', done => {
         const testNode = new Data(0);
         const values = [];

@@ -2,7 +2,7 @@ import immutabilize from '../src/Immutabilize';
 
 if (typeof Proxy === 'function') {
     describe('immutabilize', () => {
-        it('bypasses non objects', () => {
+        it('bypasses already immutable structures', () => {
             [
                 0,
                 1,

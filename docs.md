@@ -268,6 +268,28 @@ Creates  a new stream of `Arrays` of values that were pushed from a source strea
 
 Shares interface with a **View**.
 
+## class `Reduce`
+(since 1.7)
+### extends `Observable`
+#### &lt;T, U&gt;(source: Observable&lt;T&gt;, (resultState: &lt;U&gt;, sourceState: T) =&gt; U)
+
+```javascript
+const source = new Data(0)
+const result = new Reduce(
+	source,
+	(resultState, sourceState) => resultState + sourceState
+)
+
+source.write(1)
+result.read() === 1
+
+source.write(2)
+result.read() === 3
+
+source.write(3)
+result.read() === 6
+```
+
 ## module `Dispatcher`
 
 ### Dispatcher.logger (since 1.5)

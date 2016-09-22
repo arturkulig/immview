@@ -22,17 +22,16 @@ export default function View(
     throw new Error(`${errorPrefix}No sources to plug in`);
 }
 
-View.prototype = {
-    ...Observable.prototype,
-    destroy() {
-        Observable.prototype.destroy.call(this);
+View.prototype = Object.create(Observable.prototype);
 
-        if (this.unsubs) {
-            this.unsubs.forEach(func => func());
-        }
+View.prototype.destroy = function () {
+    Observable.prototype.destroy.call(this);
 
-        this.unsubs = null;
-    },
+    if (this.unsubs) {
+        this.unsubs.forEach(func => func());
+    }
+
+    this.unsubs = null;
 };
 
 function identity(data) {

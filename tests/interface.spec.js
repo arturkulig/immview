@@ -17,6 +17,7 @@ function fulfillsReactorInterface(instance) {
     expect(typeof instance.debounce).toBe('function');
     expect(typeof instance.throttle).toBe('function');
     expect(typeof instance.scan).toBe('function');
+    expect(typeof instance.reduce).toBe('function');
 }
 
 describe('Immview', () => {
