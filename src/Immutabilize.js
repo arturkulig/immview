@@ -2,6 +2,8 @@
 
 import env from './env';
 
+const immutabilizeSecret = '__$immutabilized';
+
 const immutabilize = (
     typeof Proxy !== 'function'
 )
@@ -14,10 +16,14 @@ const immutabilize = (
         ) {
             return subject;
         }
+        if (subject[immutabilizeSecret]) {
+            return subject;
+        }
         return new Proxy(
             subject,
             {
-                get: (target, property) => immutabilize(target[property]),
+                get: (target, property) =>
+                    property === immutabilizeSecret ? true : immutabilize(target[property]),
                 set: (target, property, value, receiver) => {
                     if (env === 'production') {
                         return false;
@@ -25,14 +31,14 @@ const immutabilize = (
                     let [isStringified, stringified] = tryStringify(receiver);
                     if (isStringified) {
                         throw new Error([
-                            'Immview::immutabilizer: Object',
+                            'Immutabilizer: Object',
                             ellipse(stringified),
                             'has been frozen in order to contain side-effects.',
                             'You should not modify this object.',
                         ].join(' '));
                     }
                     throw new Error([
-                        'Immview::immutabilizer:',
+                        'Immutabilizer:',
                         'Unrepresentable object has been frozen in order to contain side-effects.',
                         'You should not modify this object.',
                     ].join(' '));

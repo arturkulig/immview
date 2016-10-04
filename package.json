@@ -4,6 +4,10 @@
   "description": "",
   "main": "dist/immview.js",
   "jsnext:main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arturkulig/immview"
+  },
   "scripts": {
     "test:once": "NODE_ENV=testing $(npm bin)/karma start --single-run",
     "test:node": "NODE_ENV=testing node test_node.js",
@@ -14,7 +18,7 @@
     "preversion": "npm run test && npm run build",
     "fix:src": "$(npm bin)/jscs --fix src/*.js",
     "fix:tests": "$(npm bin)/jscs --fix tests/*.js",
-    "fix": "npm run fix:src; npm run fix:tests;",
+    "fix": "npm run fix:src ; npm run fix:tests ;",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },
   "author": "Artur Kulig",
