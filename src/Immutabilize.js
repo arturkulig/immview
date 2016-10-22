@@ -4,7 +4,11 @@ import env from './env';
 
 const immutabilizeSecret = '__$immutabilized';
 
-const immutabilize = (
+export function isImmutabilized(subject) {
+    return !!subject[immutabilizeSecret];
+}
+
+export const immutabilize = (
     typeof Proxy !== 'function'
 )
     ? (subject: any) => subject
@@ -16,7 +20,7 @@ const immutabilize = (
         ) {
             return subject;
         }
-        if (subject[immutabilizeSecret]) {
+        if (isImmutabilized(subject)) {
             return subject;
         }
         return new Proxy(

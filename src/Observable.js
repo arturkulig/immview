@@ -1,7 +1,7 @@
 //@flow
 import * as Digest from './Digest';
 import * as DispatcherModule from './Dispatcher';
-import immutabilize from './Immutabilize';
+import {immutabilize, isImmutabilized} from './Immutabilize';
 import env from './env';
 const fortify = env === 'production'
     ? identity

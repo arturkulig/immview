@@ -60,7 +60,7 @@ if (typeof Proxy === 'function') {
                 } catch (e) {
                     return e;
                 }
-            })().message).toBe('Immview::immutabilizer: ' +
+            })().message).toBe('Immutabilizer: ' +
                 'Object [1,2,3,4,5,6,7,8,9,10,11,12,1...' +
                 ' has been frozen in order to contain side-effects. ' +
                 'You should not modify this object.');
@@ -72,7 +72,7 @@ if (typeof Proxy === 'function') {
                 } catch (e) {
                     return e;
                 }
-            })().message).toBe('Immview::immutabilizer: ' +
+            })().message).toBe('Immutabilizer: ' +
                 'Object [1,2,3] has been frozen in order' +
                 ' to contain side-effects. You should not' +
                 ' modify this object.');
