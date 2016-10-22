@@ -1,5 +1,9 @@
 #Changelog
 
+## 1.7.1
+- fix: object once immutabilized is not immutabilized again
+- fix: shouldObservableUpdate default implementation was holding back pushing further the same object, but in case it has not been immutabilized too. Now it refrains from pushing the same object if it has been immutabilized before.
+
 ## 1.7
 
 - feat: New node `Merge`. Merging multiple source can and should be done with `Merge` and this functionality in `View` is now deprecated.

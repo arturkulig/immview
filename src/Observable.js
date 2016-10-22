@@ -1,4 +1,3 @@
-//@flow
 import * as Digest from './Digest';
 import * as DispatcherModule from './Dispatcher';
 import {immutabilize, isImmutabilized} from './Immutabilize';
@@ -34,7 +33,9 @@ Observable.prototype = {
     },
 
     shouldObservableUpdate(candidate: mixed): boolean {
-        return hasValue(candidate) && this.read() != candidate;
+        if (!hasValue(candidate)) return false;
+	if (typeof candidate === 'object' && isImmutabilized(subject) && this.read() === candidate) return false;
+	return true;
     },
 
     /*
