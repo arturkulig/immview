@@ -1,10 +1,9 @@
-//@flow
 import Observable from './Observable';
 
 export default function Scan(
-    source: Observable,
-    valuesToRemember: number = 2,
-    initialValue: any = null
+    source,
+    valuesToRemember = 2,
+    initialValue = null
 ) {
     Observable.apply(this);
 
@@ -13,6 +12,7 @@ export default function Scan(
         valuesToRemember,
         source.read()
     );
+
     this.digest(history);
 
     this.unsubscribe = source.addSubscription(
@@ -25,9 +25,6 @@ export default function Scan(
 
 Scan.prototype = Object.create(Observable.prototype);
 
-Scan.prototype.read = function (): mixed {
-    return [].concat(Observable.prototype.read.apply(this));
-};
 Scan.prototype.destroy = function () {
     Observable.prototype.destroy.apply(this);
 
@@ -52,5 +49,5 @@ function pushToHistory(history, valuesToRemember, newValue) {
     const newHistory = history.slice(-1 * valuesToRemember + 1);
     newHistory.push(newValue);
     return newHistory;
-
 }
+

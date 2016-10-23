@@ -25,6 +25,9 @@ Data.prototype.destroy = function () {
 };
 
 function executePendingChanges(observable: Data) {
+    if (observable.closed) {
+        return observable.read();
+    }
     const changed = observable.pendingChanges.reduce(
         (result, change) => change(result),
         observable.read()

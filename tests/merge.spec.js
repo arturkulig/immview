@@ -56,9 +56,9 @@ describe('Merge', () => {
         });
 
         it('is reacting to new data', () => {
-            expect(aMerge.read()).toEqual({ source: 1 });
+            expect(aMerge.read().source).toEqual(1);
             aData.write(v => v + 1);
-            expect(aMerge.read()).toEqual({ source: 2 });
+            expect(aMerge.read().source).toEqual(2);
         });
 
         it('reacts only to actual changes', () => {

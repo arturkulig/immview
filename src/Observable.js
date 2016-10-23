@@ -32,7 +32,7 @@ Observable.prototype = {
     shouldObservableUpdate(candidate) {
         if (!hasValue(candidate)) return false;
         if (typeof candidate === 'object') {
-           return !isImmutabilized(candidate) || this.read() !== candidate;
+            return !isImmutabilized(candidate) || this.read() !== candidate;
         }
         return this.read() !== candidate;
     },

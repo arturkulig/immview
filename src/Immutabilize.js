@@ -1,5 +1,3 @@
-//@flow
-
 import env from './env';
 
 const immutabilizeSecret = '__$immutabilized';
@@ -11,8 +9,8 @@ export function isImmutabilized(subject) {
 export const immutabilize = (
     typeof Proxy !== 'function'
 )
-    ? (subject: any) => subject
-    : (subject: any) => {
+    ? (subject) => subject
+    : (subject) => {
         if (
             typeof subject !== 'object' ||
             subject === null ||
@@ -26,8 +24,17 @@ export const immutabilize = (
         return new Proxy(
             subject,
             {
-                get: (target, property) =>
-                    property === immutabilizeSecret ? true : immutabilize(target[property]),
+                get: (target, property) => {
+                    if (property === immutabilizeSecret) {
+                        return true;
+                    }
+                    if (property === 'toString') {
+                        return () => {
+                            return subject.toString();
+                        };
+                    }
+                    return immutabilize(target[property]);
+                },
                 set: (target, property, value, receiver) => {
                     if (env === 'production') {
                         return false;
@@ -51,7 +58,7 @@ export const immutabilize = (
         );
     };
 
-function tryStringify(subject: any): [boolean, string] {
+function tryStringify(subject) {
     try {
         return [true, JSON.stringify(subject)];
     } catch (e) {
@@ -59,7 +66,7 @@ function tryStringify(subject: any): [boolean, string] {
     }
 }
 
-function ellipse(subject = '', length = 32): string {
+function ellipse(subject = '', length = 32) {
     return subject.length > length
         ? `${subject.substr(0, 29).replace(/\r/g, '').replace(/\n/g, '')}...`
         : subject;

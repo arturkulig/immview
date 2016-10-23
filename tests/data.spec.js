@@ -49,16 +49,23 @@ describe('Data', () => {
 
     it('can be created with an object', () => {
         const dataForObject = new Data({ test: 1 });
-        expect(dataForObject.read()).toEqual({ test: 1 });
+        expect(dataForObject.read().test).toEqual(1);
         dataForObject.write({ test: 2 });
-        expect(dataForObject.read()).toEqual({ test: 2 });
+        expect(dataForObject.read().test).toEqual(2);
     });
 
     it('can be created with an array', () => {
         const dataForObject = new Data([2, 3, 4]);
-        expect(dataForObject.read()).toEqual([2, 3, 4]);
+        expect(dataForObject.read().length).toBe(3);
+        expect(dataForObject.read()[0]).toBe(2);
+        expect(dataForObject.read()[1]).toBe(3);
+        expect(dataForObject.read()[2]).toBe(4);
         dataForObject.write([2, 3, 4, 5]);
-        expect(dataForObject.read()).toEqual([2, 3, 4, 5]);
+        expect(dataForObject.read().length).toBe(4);
+        expect(dataForObject.read()[0]).toBe(2);
+        expect(dataForObject.read()[1]).toBe(3);
+        expect(dataForObject.read()[2]).toBe(4);
+        expect(dataForObject.read()[3]).toBe(5);
     });
 
     it('can be read from', () => {
