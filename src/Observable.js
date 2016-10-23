@@ -2,9 +2,6 @@ import * as Digest from './Digest';
 import * as DispatcherModule from './Dispatcher';
 import {immutabilize, isImmutabilized} from './Immutabilize';
 import env from './env';
-const fortify = env === 'production'
-    ? identity
-    : immutabilize;
 
 /*
  * Observable is an base class for all immview observables
@@ -28,14 +25,16 @@ Observable.prototype = {
     subscriptions: [],
     closed: false,
 
-    read(): mixed {
+    read() {
         return this.structure;
     },
 
-    shouldObservableUpdate(candidate: mixed): boolean {
+    shouldObservableUpdate(candidate) {
         if (!hasValue(candidate)) return false;
-	if (typeof candidate === 'object' && isImmutabilized(subject) && this.read() === candidate) return false;
-	return true;
+        if (typeof candidate === 'object') {
+           return !isImmutabilized(candidate) || this.read() !== candidate;
+        }
+        return this.read() !== candidate;
     },
 
     /*
@@ -43,14 +42,14 @@ Observable.prototype = {
      * that can be replaced
      * without any data loss
      */
-    consume(candidate: mixed, process: (subject: any) => any = identity) {
+    consume(candidate, process = identity) {
         Digest.queue(this, candidate, process);
     },
 
     /*
      * Replace current state and push data further
      */
-    digest(candidate: any) {
+    digest(candidate) {
         if (this.digestCandidate || candidate instanceof Promise) {
             this.digestCandidate =
                 (this.digestCandidate || Promise.resolve())
@@ -61,10 +60,10 @@ Observable.prototype = {
         }
     },
 
-    flush(candidate: any) {
+    flush(candidate) {
         if (this.shouldObservableUpdate(candidate)) {
             for (let i = 0; this.subscriptions && i < this.subscriptions.length; i++) {
-                this.subscriptions[i](fortify(candidate));
+                this.subscriptions[i](immutabilize(candidate));
             }
         }
     },
@@ -72,7 +71,7 @@ Observable.prototype = {
     /*
      * Registers a function that is going to be fed with new data pushing by this observable
      */
-    addSubscription(reaction: (structure: any) => any) {
+    addSubscription(reaction) {
         if (this.subscriptions.indexOf(reaction) < 0) {
             this.subscriptions.push(reaction);
         }
