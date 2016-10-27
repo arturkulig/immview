@@ -60,20 +60,5 @@ describe('Merge', () => {
             aData.write(v => v + 1);
             expect(aMerge.read().source).toEqual(2);
         });
-
-        it('reacts only to actual changes', () => {
-            expect(aMergeReactions).toBe(1);
-            aData.write(v => v + 1);
-            expect(aMergeReactions).toBe(2);
-            aData.write(v => v);
-            expect(aMergeReactions).toBe(2);
-            aData.write(v => v + 1);
-            expect(aMergeReactions).toBe(3);
-            aData.write(v => v);
-            expect(aMergeReactions).toBe(3);
-            aData.write(v => v + 1);
-            expect(aMergeReactions).toBe(4);
-            expect(aMerge.read().source).toBe(4);
-        });
     });
 });

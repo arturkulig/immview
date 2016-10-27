@@ -1,6 +1,5 @@
 import * as Digest from './Digest';
 import * as DispatcherModule from './Dispatcher';
-import {immutabilize, isImmutabilized} from './Immutabilize';
 import env from './env';
 
 /*
@@ -32,7 +31,7 @@ Observable.prototype = {
     shouldObservableUpdate(candidate) {
         if (!hasValue(candidate)) return false;
         if (typeof candidate === 'object') {
-            return !isImmutabilized(candidate) || this.read() !== candidate;
+            return true;
         }
         return this.read() !== candidate;
     },
@@ -63,7 +62,7 @@ Observable.prototype = {
     flush(candidate) {
         if (this.shouldObservableUpdate(candidate)) {
             for (let i = 0; this.subscriptions && i < this.subscriptions.length; i++) {
-                this.subscriptions[i](immutabilize(candidate));
+                this.subscriptions[i](candidate);
             }
         }
     },

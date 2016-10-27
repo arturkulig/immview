@@ -11,5 +11,4 @@ import './reduce.spec';
 import './interface.spec';
 import './branchingStreamPerformantRender';
 import './classExtending';
-import './immutabilize.spec';
 import './asyncNodes.spec';

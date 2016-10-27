@@ -66,21 +66,6 @@ describe('View', function () {
             expect(v.read().toJS()).toEqual({ a: 1, b: { c: 2 }, d: 3, e: 4 });
         });
 
-        it('reacts only to actual changes', function () {
-            expect(vReactions).toBe(1);
-            d.write(v => v.set('e', 4));
-            expect(vReactions).toBe(2);
-            d.write(v => v.set('e', 4));
-            expect(vReactions).toBe(2);
-            d.write(v => v.delete('e'));
-            expect(vReactions).toBe(3);
-            d.write(v => v.delete('e'));
-            expect(vReactions).toBe(3);
-            d.write(v => v.setIn(['e', 'f'], 6));
-            expect(vReactions).toBe(4);
-            expect(v.read().getIn(['e', 'f'])).toBe(6);
-        });
-
         describe('derives from multiple reactors', function () {
             it('w/o processor func', function () {
                 var d1 = new Data(Map({ a: 1 }));
@@ -132,16 +117,5 @@ describe('View', function () {
                 expect(data.get('c')).toBe(3);
                 done();
             });
-    });
-
-    typeof window !== 'undefined' &&
-    window.Proxy &&
-    it('value given for processing is frozen', () => {
-        expect(() => {
-            new Data({ a: 1 }).map(v => {
-                v.a = 2;
-                return v;
-            }).subscribe(v => console.log('WRONG', v));
-        }).toThrow();
     });
 });

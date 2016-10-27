@@ -1,5 +1,8 @@
 #Changelog
 
+## 1.7.2
+- fix: Proxy based immutability was getting in the way of native js functions due to shadowing of referential equality, so it has been disabled.
+
 ## 1.7.1
 - fix: object once immutabilized is not immutabilized again
 - fix: shouldObservableUpdate default implementation was holding back pushing further the same object, but in case it has not been immutabilized too. Now it refrains from pushing the same object if it has been immutabilized before.

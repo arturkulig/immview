@@ -103,25 +103,6 @@ describe('Data', () => {
         testDataObject.write(testDataObject.read().set('d', forthVal));
     });
 
-    it('triggers reaction only for actual change', () => {
-
-        let reactions = 0;
-
-        const d = new Data(fromJS({ a: 1, b: { c: 2 } }));
-
-        d.subscribe(() => {
-            reactions++;
-        });
-
-        expect(reactions).toBe(1); // subscription -> fake reaction
-        d.write(map => map.set('d', 3)); // change -> reaction
-        expect(reactions).toBe(2);
-        d.write(map => map); // no change -> no reaction
-        expect(reactions).toBe(2);
-        d.write(map => map.set('d', 4)); // change -> reaction
-        expect(reactions).toBe(3);
-    });
-
     it('can be unsubscribed from', () => {
         let reactions = 0;
         const unsub = testDataObject.subscribe(() => {
