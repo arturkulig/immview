@@ -1,4 +1,3 @@
-//@flow
 import {
     dispatchDomainAction,
     rejectContext,
@@ -8,23 +7,12 @@ const noop = () => null;
 
 const errorPrefix = 'Immview::Domain: ';
 
-/*
- * Create a domain holding a view
- */
-export default function Domain(stream: Observable, actions: { [id: string]: () => any}) {
-    if (!stream.subscribe) {
-        throw new Error(`${errorPrefix} stream source required`);
-    }
-    /*
-     */
+export default function Domain(stream, appendices) {
     this.stream = stream;
-    assignActions(this, actions);
+    appendToDomainInstance(this, appendices);
 }
 
 Domain.prototype = {
-    /*
-     * Retrieve last value on stream attached to the Domain
-     */
     read() {
         return this.stream.read();
     },
@@ -63,11 +51,6 @@ Domain.prototype = {
         return this.stream.addSubscription.apply(this.stream, args);
     },
 
-    /*
-     * Remove all subscriptions caused by the domain.
-     * Destroy stream attached to it.
-     * Cancel all currently dispatched actions.
-     */
     destroy() {
         // destroy and unmount a structure
         this.stream.destroy();
@@ -77,38 +60,37 @@ Domain.prototype = {
         rejectContext(this);
 
         // unmount all domain methods
-        this._actionNames.forEach((actionName) => {
+        this.actions().forEach((actionName) => {
             this[actionName] = noop;
         });
-        this._actionNames = null;
     },
 };
 
-function assignActions(ctx, actions) {
-    if (!actions) {
+function appendToDomainInstance(ctx, appendices) {
+    if (!appendices) {
         ctx.actions = () => [];
         return;
     }
-    const actionNames = Object.keys(actions);
 
-    actionNames.forEach((actionName) => {
-        const action = actions[actionName];
+    const actionNames = Object.keys(appendices).filter((appendixName) => {
+        const appendix = appendices[appendixName];
 
-        if (ctx[actionName] !== undefined) {
-            throw new Error(`${errorPrefix}${actionName} is reserved for Domain interface`);
+        if (ctx[appendixName] !== undefined) {
+            throw new Error(`${errorPrefix}${appendixName} is reserved for Domain interface`);
         }
 
-        if (typeof action !== 'function') {
-            throw new Error(`${errorPrefix}${actionName} action is not a function`);
+        if (typeof appendix !== 'function') {
+            ctx[appendixName] = appendix;
+            return false;
         }
 
-        ctx[actionName] = (...args) => {
-            dispatchDomainAction(action, ctx, args);
+        ctx[appendixName] = (...args) => {
+            dispatchDomainAction(appendix, ctx, args);
         };
 
-        ctx[actionName].originalLength = action.length || action.originalLength;
+        ctx[appendixName].originalLength = appendix.length || appendix.originalLength;
+        return true;
     });
 
-    ctx._actionNames = actionNames; //legacy TODO remove
     ctx.actions = () => actionNames;
 }

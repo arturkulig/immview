@@ -10,10 +10,13 @@ describe('Domain', () => {
         expect(typeof Domain).toBeTruthy();
     });
 
-    it('cannot be created from non-Observable type', () => {
-        expect(() => {
-            new Domain({});
-        }).toThrow();
+    it('can be appended with actions and constants', () => {
+        const dmn = new Domain(new Data(), {
+            doSth() {},
+            A_CONSTANT: 2,
+        });
+        expect(typeof dmn.doSth).toBe('function');
+        expect(dmn.A_CONSTANT).toBe(2);
     });
 
     it('can be created from Data type', () => {

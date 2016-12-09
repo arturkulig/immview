@@ -1,5 +1,8 @@
 #Changelog
 
+## 1.7.3
+- feat: Domains may be now decorated with function (that become actions) and other fields.
+
 ## 1.7.2
 - fix: Proxy based immutability was getting in the way of native js functions due to shadowing of referential equality, so it has been disabled.
 

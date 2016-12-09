@@ -49,11 +49,11 @@ Creates  a new stream of `List` of values that were pushed from a source stream 
 ## class `Domain`
 #### extends `Observable`
 #### ( source: Observable )
-#### ( source: Observable , { [name: string]: () => void } )
+#### ( source: Observable , { [name: string]: any } )
 
 First argument of constructor is a data source. It can be any observable element listed below. That will be a *state* stream of the newly created **Domain**. Only single data source can be tied to a **Domain**, and because of that any **Domain** can be used as data source.
 
-Second argument is an object aggregating functions used to create commands that will be exposed as part of the **Domain** interface. These functions will be wrapped with an internal Dispatcher calls. **Domain** *actions* won't be returning anything and will be executed in call order, **one after another** even if *actions* calls are done from another *action* call.
+Second argument is an object aggregating functions used to create actions and other values that will be exposed as part of the **Domain** interface. Provided functions will be wrapped with an internal Dispatcher calls. **Domain** *actions* won't be ever returning anything and will be executed in call order, **one after another** even if *actions* calls are done from another *action* call.
 
 ```javascript
 // example usage
@@ -67,11 +67,13 @@ const EyesDomain = new Domain(
 	{
 		roll() {
 			MusclesDomain.doStuff()
-		}
+		},
+        EXTRAOCULAR_MUSCLES: 6
 	}
 )
 
 EyesDomain.roll()
+EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
 
 ### Domain::read (since 1.2)
