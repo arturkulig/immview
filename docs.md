@@ -97,6 +97,15 @@ bypassed to state stream given in constructor (see `Data.throttle`)
 ### Domain::scan (since 1.6)
 bypassed to state stream given in constructor (see `Data.scan`)
 
+### Domain::destroy (since 1.7)
+Destroys inner stream, deactivates all actions mounted onto the domain. Recommended for easing GC after i.e. server side render of application, although it is recommended to try to keep domains between renders, to reuse them.
+
+### Domain::actions (since 1.7)
+Returns array of actions passed in constructor.
+
+### Domain::stream (since 1.7)
+field that holds observable that has been passed into the domain. Handy for testing on mocked domains. *NOT INTENDED FOR REGULAR USAGE*
+
 ### Domain::[ACTION_NAME]
 function that existed on a set of functions provided as actions in constructor. It is not exactly the same function as it is wrapped, so it is run in **Dispatcher** queue.
 
