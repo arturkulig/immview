@@ -1,9 +1,8 @@
-// jscs:disable
 var path = require('path');
 var webpack = require('webpack');
 
 var config = {
-    entry: path.resolve(__dirname, 'src/index.js'),
+    entry: path.resolve(__dirname, 'src/index.ts'),
     output: {
         path: __dirname + '/dist',
         filename: 'immview.js',
@@ -16,13 +15,8 @@ var config = {
     module: {
         loaders: [
             {
-                test: /\.js$/,
-                exclude: /node_modules\/immutable\/dist\/immutable\.js/,
-                loader: 'babel',
-                query: {
-                    presets: ['es2015'],
-                    plugins: ['transform-object-rest-spread', 'transform-flow-strip-types'],
-                },
+                test: /\.ts$/,
+                loader: 'ts-loader'
             },
         ],
     },
