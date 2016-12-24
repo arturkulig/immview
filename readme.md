@@ -26,7 +26,7 @@ If you are using React to create presentation layer of your app you should check
 * [Changelog](./changelog.md)
 
 # 2.0 Roadmap
-- [ ] Dispatcher
+- [X] Dispatcher
 - [ ] Observable base
 - [ ] Data
 - [ ] Merge
