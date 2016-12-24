@@ -1,5 +1,17 @@
 # <img src="https://raw.githubusercontent.com/arturkulig/immview/master/immview.png" />
 
+# 2.0 Roadmap
+- [ ] Dispatcher
+- [ ] Observable base
+- [ ] Data
+- [ ] Merge
+- [ ] Observable.map
+- [ ] Observable.buffer
+- [ ] Observable.reduce
+- [ ] Observable.scan
+- [ ] Domain
+- [ ] external: immview-react-connect 2.0
+
 Immview is a library to create **Domains** - *non-visual components* - similar to flux stores, exposing their **state** through *observables* pushing data and having specific to them **actions**. It can be used instead of any flux implementation or redux.
 
 State of a **Domain** can be either an *original* data source (**Data**) or a *derivative* data source (**View/Merge/Debounce/Throttle/Scan**). **Views** etc. can be **only** a derivative of other stream (or combination of sources) and eventually use pure transforming function. By connecting these nodes, derivative data source subscribes to all changes of it's source (or sources) and recomputes it's content upon these changes.
