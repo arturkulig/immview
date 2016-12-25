@@ -7,7 +7,6 @@
 - feat: `Observable`s are first class citizens of the library, not implementation detail and are compliant to TC39 Observable proposal
 - feat: `View`, `Scan`, `Debounce`, `Throttle` classes are gone - creating derivative streams is done with `.map` etc. functions only.
 - feat: `Buffer` class is introduced. Observables next stream values pressure held back by internal dispatcher will no longer be automatically resolved to only pushing last value.
-- feat: `Domain`s actions will no longer be dispatched through a `Dispatcher` as it is easier to manage delayed execution due to `Promise`s coming from `Dispatcher`
 
 ---
 

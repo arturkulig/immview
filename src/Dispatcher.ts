@@ -59,6 +59,10 @@ export class Dispatcher {
         return this.jobs.splice(maxPriorityJobIdx, 1)[0]
     }
 
+    /*
+     * Function can be replaced with a custom implementation
+     * for integrating different scheduling strategy
+     */
     next(job, next) {
         job()
         next()
