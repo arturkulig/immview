@@ -142,7 +142,7 @@ describe('Observable (digest)', () => {
         complete()
         expect(subscription.closed).toBe(true)
 
-        next(3)
+        next(3).catch(() => { /* do not leave promises rejections hanging */ })
         expect(values).toEqual([1, 2])
     })
 })
