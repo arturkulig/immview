@@ -9,8 +9,8 @@ var config = {
         library: 'immview',
         libraryTarget: 'umd',
     },
-    externals: {
-        immutable: 'immutable',
+    resolve: {
+        extensions: ['.ts', '.js', '']
     },
     module: {
         loaders: [
