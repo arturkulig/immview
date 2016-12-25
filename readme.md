@@ -25,14 +25,20 @@ If you are using React to create presentation layer of your app you should check
 * [Simple usage](./usage_simple.md)
 * [Changelog](./changelog.md)
 
+# Compatibility
+
+Not compatible with IE8 unless:
+- Array.prototype.filter is polyfilled
+
 # 2.0 Roadmap
 - [X] Dispatcher
-- [ ] Observable base
+- [X] BaseObservable
 - [ ] Data
 - [ ] Merge
 - [ ] Observable.map
-- [ ] Observable.buffer
 - [ ] Observable.reduce
 - [ ] Observable.scan
+- [ ] Observable.buffer
+- [ ] Observable.flatMap
 - [ ] Domain
 - [ ] external: immview-react-connect 2.0

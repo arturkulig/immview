@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "target": "ES5",
         "types": ["node", "jasmine"],
         "module": "commonjs",
         "lib": [
