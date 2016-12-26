@@ -13,7 +13,7 @@ describe('Observable (digest)', () => {
             observer.next(5)
         }).subscribe(value => {
             expect(value).toBe(5)
-            done()
+            setTimeout(done)
         }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
     })
 
@@ -22,7 +22,7 @@ describe('Observable (digest)', () => {
             observer.error(new Error('666'))
         }).subscribe(null, err => {
             expect(err.message).toBe('666')
-            done()
+            setTimeout(done)
         })
     })
 
@@ -30,30 +30,28 @@ describe('Observable (digest)', () => {
         const obs = new BaseObservable(observer => {
             observer.complete()
         })
-        expect({ observableClosed: obs.closed }).toEqual({ observableClosed: true })
         const sub = obs.subscribe(
             impossibru(done, 'Value sub trigger'),
             impossibru(done, 'Error sub trigger'),
-            impossibru(done, 'Completion sub trigger'),
         )
+        expect({ observableClosed: obs.closed }).toEqual({ observableClosed: true })
         expect({ subscriptionClosed: sub.closed }).toEqual({ subscriptionClosed: true })
-        setTimeout(() => {
-            done()
-        }, 100)
+        setTimeout(done)
     })
 
-    it('forgets error after a value being pushed', done => {
+    it('does not forget error after a value being pushed', done => {
+        let errorHandled = false
         new BaseObservable<number>(observer => {
             observer.error(new Error('666'))
             observer.next(5)
         }).subscribe(
             value => {
+                expect({errorHandled}).toEqual({errorHandled: true})
                 expect(value).toBe(5)
-                done()
+                setTimeout(done)
             },
             err => {
-                expect(true).toBe(false)
-                done()
+                errorHandled = true
             })
     })
 
@@ -65,7 +63,7 @@ describe('Observable (digest)', () => {
                 ['value', 5],
                 ['error', new Error('666')]
             ])
-            done()
+            setTimeout(done)
         }
         new BaseObservable(observer => {
             observer.next(5)
@@ -107,7 +105,7 @@ describe('Observable (digest)', () => {
     it('subscription gets closed on demand', () => {
         let next = null
         const values = []
-        
+
         const subscription = new BaseObservable(observer => {
             next = v => observer.next(v)
         }).subscribe(v => { values.push(v) })
@@ -138,11 +136,35 @@ describe('Observable (digest)', () => {
         expect(values).toEqual([1])
         next(2)
         expect(values).toEqual([1, 2])
-        
+
         complete()
         expect(subscription.closed).toBe(true)
 
-        next(3).catch(() => { /* do not leave promises rejections hanging */ })
+        next(3)
         expect(values).toEqual([1, 2])
+    })
+
+    it('can be create with static from', done => {
+        let result = []
+        BaseObservable.from([1, 2, 3]).subscribe(
+            value => {
+                result.push(value)
+                if (result.length === 3) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('can be create with static of', done => {
+        let result = []
+        BaseObservable.of(1, 2, 3).subscribe(
+            value => {
+                result.push(value)
+                if (result.length === 3) {
+                    setTimeout(done)
+                }
+            }
+        )
     })
 })

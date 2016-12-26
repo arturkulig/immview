@@ -2,11 +2,18 @@ import { Dispatcher } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { ObservableSubscription } from './ObservableSubscription'
 
-interface Observer<T> {
-    next(value: T): Promise<void>
-    error(reason: Error): Promise<void>
-    complete(): Promise<void>
+class SubscriptionObserver<T> {
+    constructor(
+        public next: (value: T) => void,
+        public error: (reason: Error) => void,
+        public complete: () => void,
+        private _closed: () => boolean
+    ) { }
+    public get closed(): boolean {
+        return this._closed()
+    }
 }
+
 type AnyObservable = BaseObservable<any>
 export enum MessageTypes { Next, Error, Complete }
 type NextMessage<T> = [MessageTypes.Next, T, () => void]
@@ -38,37 +45,36 @@ export class BaseObservable<T> {
     private errorSubscriptions: ErrorSub[]
     private completionSubscriptions: CompletionSub[]
 
-    constructor(subscriber: (observer: Observer<T>) => void | (() => void)) {
+    constructor(subscriber: (observer: SubscriptionObserver<T>) => void | (() => void)) {
         this.nextSubscriptions = []
         this.errorSubscriptions = []
         this.completionSubscriptions = []
         this.priority = BaseObservable.lastObservablePriority++
 
         Dispatcher.push(() => {
-            this.cancelSubscriber = subscriber({
-                next: (nextValue: T) => {
-                    if (this.closed) return Promise.reject(new Error('Observable closed'))
-                    return new Promise<void>(resolve => {
-                        BaseObservable.getQueue(this).push([MessageTypes.Next, nextValue, resolve])
-                        BaseObservable.dispatchDigestMessages()
-                    })
+            this.cancelSubscriber = subscriber(new SubscriptionObserver(
+                (nextValue: T) => {
+                    if (this.closed) return
+                    BaseObservable.getQueue(this).push([MessageTypes.Next, nextValue, noop])
+                    BaseObservable.dispatchDigestMessages()
                 },
-                error: (reason: Error) => {
-                    if (this.closed) return Promise.reject(new Error('Observable closed'))
-                    return new Promise<void>(resolve => {
-                        BaseObservable.getQueue(this).push([MessageTypes.Error, reason, resolve])
-                        BaseObservable.dispatchDigestMessages()
-                    })
+                (reason: Error) => {
+                    if (this.closed) return
+                    BaseObservable.getQueue(this).push([MessageTypes.Error, reason, noop])
+                    BaseObservable.dispatchDigestMessages()
                 },
-                complete: () => {
-                    if (this.closed) return Promise.reject(new Error('Observable closed'))
-                    return new Promise<void>(resolve => {
-                        BaseObservable.getQueue(this).push([MessageTypes.Complete, , resolve])
-                        BaseObservable.dispatchDigestMessages()
-                    })
+                () => {
+                    if (this.closed) return
+                    BaseObservable.getQueue(this).push([MessageTypes.Complete, , noop])
+                    BaseObservable.dispatchDigestMessages()
+                },
+                () => {
+                    return this.closed
                 }
-            }) || noop
-        })
+            )) || noop
+        }).catch(
+            err => console.error('BaseObservable constructor', err.stack || err.message)
+            )
         Dispatcher.run()
     }
 
@@ -106,6 +112,8 @@ export class BaseObservable<T> {
         }
         this.completionSubscriptions.push(disableSubscription)
 
+        BaseObservable.dispatchDigestMessages()
+
         return subscription
     }
 
@@ -117,7 +125,11 @@ export class BaseObservable<T> {
     }
 
     protected static dispatchDigestMessages() {
-        Dispatcher.push(BaseObservable.digestMessages, DispatcherPriorities.OBSERVABLE)
+        Dispatcher
+            .push(BaseObservable.digestMessages, DispatcherPriorities.OBSERVABLE)
+            .catch(err => {
+                console.error('BaseObservable.dispatchDigestMessages', err.stack || err.message)
+            })
         Dispatcher.run()
     }
 
@@ -132,7 +144,7 @@ export class BaseObservable<T> {
         node.lastMessage = message
 
         if (!node.closed) {
-            const [type, ,confirm] = message
+            const [type, , confirm] = message
             if (type === MessageTypes.Next) {
                 const [, value] = (message as NextMessage<any>)
                 node.nextSubscriptions.forEach(
@@ -166,6 +178,11 @@ export class BaseObservable<T> {
         let oldestNode: AnyObservable = null
         BaseObservable.awaitingMessages.forEach(
             (queue, node) => {
+                if (
+                    node.nextSubscriptions.length === 0 &&
+                    node.errorSubscriptions.length === 0 &&
+                    node.completionSubscriptions.length === 0
+                ) return
                 if (oldestNode === null || node.priority < oldestNode.priority) {
                     oldestNode = node
                 }
@@ -175,5 +192,24 @@ export class BaseObservable<T> {
             return [null, null]
         }
         return [oldestNode, BaseObservable.awaitingMessages.get(oldestNode)]
+    }
+
+    public static of<T>(...values: T[]): BaseObservable<T> {
+        return BaseObservable.from<T>(values)
+    }
+
+    public static from<T>(values: Iterable<T>): BaseObservable<T> {
+        return new BaseObservable<T>(({next, error}) => {
+            const iterator = values[Symbol.iterator]()
+            for (
+                let result: IteratorResult<T> = iterator.next();
+                result.done === false;
+                result = iterator.next()
+            ) {
+                result.value instanceof Error
+                    ? error(result.value)
+                    : next(result.value)
+            }
+        })
     }
 }
