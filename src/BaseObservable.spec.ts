@@ -7,7 +7,20 @@ const impossibru = function (done, msg): () => void {
     }
 }
 
-describe('Observable (digest)', () => {
+describe('BaseObservable', () => {
+    it('can be created with subscriber function', () => {
+        expect(() => {
+            new BaseObservable(() => {})
+        }).not.toThrow()
+    })
+    
+    it('can be created w/o subscriber function', () => {
+        expect(() => {
+            new BaseObservable(null)
+            new BaseObservable()
+        }).not.toThrow()
+    })
+    
     it('pushes values', done => {
         new BaseObservable<number>(observer => {
             observer.next(5)
@@ -29,6 +42,7 @@ describe('Observable (digest)', () => {
     it('does not push completion event after stream is closed', done => {
         const obs = new BaseObservable(observer => {
             observer.complete()
+            observer.next(0)
         })
         const sub = obs.subscribe(
             impossibru(done, 'Value sub trigger'),
