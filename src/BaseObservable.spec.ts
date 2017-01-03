@@ -21,12 +21,30 @@ describe('BaseObservable', () => {
         }).not.toThrow()
     })
     
-    it('pushes values', done => {
+    it('pushes plain values', done => {
         new BaseObservable<number>(observer => {
             observer.next(5)
         }).subscribe(value => {
             expect(value).toBe(5)
             setTimeout(done)
+        }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
+    })
+    
+    it('pushes values with functions', done => {
+        const firstValueTester = value => {
+            expect(value).toBe(2)
+            tester = secondValueTester
+        }
+        const secondValueTester = value => {
+            expect(value).toBe(5)
+            setTimeout(done)            
+        }
+        let tester = firstValueTester
+        new BaseObservable<number>(observer => {
+            observer.next(() => 2)
+            observer.next(i => i + 3)
+        }).subscribe(value => {
+            tester(value)
         }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
     })
 
