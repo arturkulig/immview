@@ -55,7 +55,7 @@ const ToDoDomainActions = {
 Finally, we are ready to actually create a **Domain** instance, as all parts necessary to do that are in place.
 
 ```javascript
-const ToDoDomain = new Domain(
+const ToDoDomain = Domain.new(
   ToDoDomainStream,
   ToDoDomainActions
 )

@@ -1,14 +1,13 @@
-// TODO replace with Observable
-import { BaseObservable } from './BaseObservable'
+import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { Dispatcher } from './DispatcherInstance'
 
 export class Domain<T> {
-    constructor(private stream: BaseObservable<T>) { }
+    constructor(private stream: Observable<T>) { }
 
     public static new
         <T, U extends { [id: string]: () => Promise<any> }>
-        (stream: BaseObservable<T>, actions: U): Domain<T> & U {
+        (stream: Observable<T>, actions: U): Domain<T> & U {
         const instance = new Domain(stream)
         Object.keys(actions).forEach(key => {
             if (!Object.prototype.hasOwnProperty.call(actions, key)) return
@@ -32,15 +31,3 @@ export class Domain<T> {
         return (instance as Domain<T> & U)
     }
 }
-
-Domain.new(
-    new BaseObservable(null),
-    {
-        oh() {
-            return Promise.resolve(5)
-        },
-        nope() {
-            return null
-        }
-    }
-)
