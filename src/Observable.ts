@@ -1,7 +1,11 @@
 import { BaseObservable } from './BaseObservable'
 
 export class Observable<T> extends BaseObservable<T> {
-    map<U>(functor: (value: T) => U): Observable<U> {
+    map<U>(action: (value: T) => U): Observable<U> {
+        throw new Error('not implemented')
+    }
+
+    flatMap<U>(action: (value: T) => Observable<U>): Observable<U> {
         throw new Error('not implemented')
     }
 
