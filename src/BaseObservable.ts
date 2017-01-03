@@ -2,9 +2,10 @@ import { Dispatcher } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { BaseObservableSubscription } from './BaseObservableSubscription'
 
+type writer<T> = (currentValue: T) => T
 class SubscriptionObserver<T> {
     constructor(
-        public next: (value: T) => void,
+        public next: (value: T | writer<T>) => void,
         public error: (reason: Error) => void,
         public complete: () => void,
         private _closed: () => boolean
@@ -56,7 +57,7 @@ export class BaseObservable<T> {
                 subscriber(new SubscriptionObserver(
                     (nextValue: T) => {
                         if (this.closed) return
-                        BaseObservable.getQueue(this).push([MessageTypes.Next, () => nextValue, noop])
+                        BaseObservable.getQueue(this).push([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
                         BaseObservable.dispatchDigestMessages()
                     },
                     (reason: Error) => {
@@ -137,7 +138,7 @@ export class BaseObservable<T> {
 
     private static digestMessages() {
         const [node, queue] = BaseObservable.findOldestAwaitingNode()
-        if (!node) { 
+        if (!node) {
             return
         }
 
@@ -152,10 +153,10 @@ export class BaseObservable<T> {
             if (type === MessageTypes.Next) {
                 const [, getValue] = (message as NextMessage<any>)
                 const nextValue = getValue(node.lastValue)
+                node.lastValue = nextValue
                 node.nextSubscriptions.forEach(
                     sub => sub(nextValue)
                 )
-                node.lastValue = nextValue
             } else if (type === MessageTypes.Error) {
                 const [, error] = (message as ErrorMessage)
                 node.errorSubscriptions.forEach(
