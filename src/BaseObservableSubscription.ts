@@ -1,4 +1,4 @@
-export class ObservableSubscription {
+export class BaseObservableSubscription {
     public get closed(): boolean {
         return !this._unsubscribe
     }
