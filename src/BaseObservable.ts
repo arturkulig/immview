@@ -1,6 +1,6 @@
 import { Dispatcher } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
-import { ObservableSubscription } from './ObservableSubscription'
+import { BaseObservableSubscription } from './BaseObservableSubscription'
 
 class SubscriptionObserver<T> {
     constructor(
@@ -14,9 +14,8 @@ class SubscriptionObserver<T> {
     }
 }
 
-type AnyObservable = BaseObservable<any>
 export enum MessageTypes { Next, Error, Complete }
-type NextMessage<T> = [MessageTypes.Next, T, () => void]
+type NextMessage<T> = [MessageTypes.Next, (currentState: T) => T, () => void]
 type ErrorMessage = [MessageTypes.Error, Error, () => void]
 type CompletionMessage = [MessageTypes.Complete, void, () => void]
 type Message<T> =
@@ -24,11 +23,11 @@ type Message<T> =
     ErrorMessage |
     CompletionMessage
 type MessagesQueue<T> = Message<T>[]
-type MessagesList = Map<AnyObservable, MessagesQueue<any>>
+type MessagesList = Map<BaseObservable<any>, MessagesQueue<any>>
 
-interface ValueSub<T> { (nextValue: T): any }
-interface ErrorSub { (err: Error): any }
-interface CompletionSub { (): any }
+interface ValueListener<T> { (nextValue: T): any }
+interface ErrorListener { (err: Error): any }
+interface CompletionListener { (): any }
 
 const noop = () => { }
 
@@ -41,37 +40,40 @@ export class BaseObservable<T> {
     closed = false
     priority: number
     private cancelSubscriber: () => void
-    private nextSubscriptions: ValueSub<T>[]
-    private errorSubscriptions: ErrorSub[]
-    private completionSubscriptions: CompletionSub[]
+    private nextSubscriptions: ValueListener<T>[]
+    private errorSubscriptions: ErrorListener[]
+    private completionSubscriptions: CompletionListener[]
 
-    constructor(subscriber: (observer: SubscriptionObserver<T>) => void | (() => void)) {
+    constructor(subscriber?: (observer: SubscriptionObserver<T>) => void | (() => void)) {
         this.nextSubscriptions = []
         this.errorSubscriptions = []
         this.completionSubscriptions = []
         this.priority = BaseObservable.lastObservablePriority++
 
         Dispatcher.push(() => {
-            this.cancelSubscriber = subscriber(new SubscriptionObserver(
-                (nextValue: T) => {
-                    if (this.closed) return
-                    BaseObservable.getQueue(this).push([MessageTypes.Next, nextValue, noop])
-                    BaseObservable.dispatchDigestMessages()
-                },
-                (reason: Error) => {
-                    if (this.closed) return
-                    BaseObservable.getQueue(this).push([MessageTypes.Error, reason, noop])
-                    BaseObservable.dispatchDigestMessages()
-                },
-                () => {
-                    if (this.closed) return
-                    BaseObservable.getQueue(this).push([MessageTypes.Complete, , noop])
-                    BaseObservable.dispatchDigestMessages()
-                },
-                () => {
-                    return this.closed
-                }
-            )) || noop
+            this.cancelSubscriber = (
+                subscriber &&
+                subscriber(new SubscriptionObserver(
+                    (nextValue: T) => {
+                        if (this.closed) return
+                        BaseObservable.getQueue(this).push([MessageTypes.Next, () => nextValue, noop])
+                        BaseObservable.dispatchDigestMessages()
+                    },
+                    (reason: Error) => {
+                        if (this.closed) return
+                        BaseObservable.getQueue(this).push([MessageTypes.Error, reason, noop])
+                        BaseObservable.dispatchDigestMessages()
+                    },
+                    () => {
+                        if (this.closed) return
+                        BaseObservable.getQueue(this).push([MessageTypes.Complete, , noop])
+                        BaseObservable.dispatchDigestMessages()
+                    },
+                    () => {
+                        return this.closed
+                    }
+                ))
+            ) || noop
         }).catch(
             err => console.error('BaseObservable constructor', err.stack || err.message)
             )
@@ -82,9 +84,9 @@ export class BaseObservable<T> {
         return this.lastValue
     }
 
-    subscribe(onNext?: ValueSub<T>, onError?: ErrorSub, onCompletion?: CompletionSub): ObservableSubscription {
+    subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): BaseObservableSubscription {
         if (this.closed) {
-            return new ObservableSubscription(null)
+            return new BaseObservableSubscription(null)
         }
 
         if (onNext) {
@@ -99,7 +101,7 @@ export class BaseObservable<T> {
             this.completionSubscriptions.push(onCompletion)
         }
 
-        const subscription = new ObservableSubscription(() => {
+        const subscription = new BaseObservableSubscription(() => {
             if (onNext) { this.nextSubscriptions = this.nextSubscriptions.filter(sub => sub !== onNext) }
             if (onError) { this.errorSubscriptions = this.errorSubscriptions.filter(sub => sub !== onError) }
             if (onCompletion) { this.completionSubscriptions = this.completionSubscriptions.filter(sub => sub !== onCompletion) }
@@ -135,7 +137,9 @@ export class BaseObservable<T> {
 
     private static digestMessages() {
         const [node, queue] = BaseObservable.findOldestAwaitingNode()
-        if (!node) { return }
+        if (!node) { 
+            return
+        }
 
         const message = queue.splice(0, 1)[0]
         if (queue.length === 0) {
@@ -146,11 +150,12 @@ export class BaseObservable<T> {
         if (!node.closed) {
             const [type, , confirm] = message
             if (type === MessageTypes.Next) {
-                const [, value] = (message as NextMessage<any>)
+                const [, getValue] = (message as NextMessage<any>)
+                const nextValue = getValue(node.lastValue)
                 node.nextSubscriptions.forEach(
-                    sub => sub(value)
+                    sub => sub(nextValue)
                 )
-                node.lastValue = value
+                node.lastValue = nextValue
             } else if (type === MessageTypes.Error) {
                 const [, error] = (message as ErrorMessage)
                 node.errorSubscriptions.forEach(
@@ -175,7 +180,7 @@ export class BaseObservable<T> {
             return [null, null]
         }
         const entries = BaseObservable.awaitingMessages.entries()
-        let oldestNode: AnyObservable = null
+        let oldestNode: BaseObservable<any> = null
         BaseObservable.awaitingMessages.forEach(
             (queue, node) => {
                 if (
