@@ -33,8 +33,8 @@ Not compatible with IE8 unless:
 # 2.0 Roadmap
 - [X] Dispatcher
 - [X] BaseObservable
-- [ ] Data
-- [ ] Merge
+- [X] Data
+- [X] Merge
 - [ ] Observable.map
 - [ ] Observable.reduce
 - [ ] Observable.scan
