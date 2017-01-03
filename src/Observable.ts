@@ -1,4 +1,6 @@
 import { BaseObservable } from './BaseObservable'
+import { DispatcherPriorities } from './DispatcherPriorities'
+import { Dispatcher } from './DispatcherInstance'
 
 export class Observable<T> extends BaseObservable<T> {
     map<U>(action: (value: T) => U): Observable<U> {
