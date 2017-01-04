@@ -1,22 +1,16 @@
-interface Job {
+interface Task {
     priority: number,
-    task: () => any,
-    resolve: (result: any) => void,
-    reject: (reason: any) => void
+    job: () => any,
 }
 
 export class Dispatcher {
     private isRunning = false
-    jobs: Job[] = []
+    tasks: Task[] = []
 
-    push(task: () => any, priority = 0) {
-        return new Promise((resolve, reject) => {
-            this.jobs.push({
-                priority,
-                task,
-                resolve,
-                reject
-            })
+    push(job: () => any, priority = 0) {
+        this.tasks.push({
+            priority,
+            job,
         })
     }
 
@@ -33,9 +27,9 @@ export class Dispatcher {
         this.next(
             () => {
                 try {
-                    job.resolve(job.task())
+                    job.job()
                 } catch (e) {
-                    job.reject(e)
+                    console.error(e.stack || e.message || e)
                 }
             },
             () => {
@@ -47,16 +41,16 @@ export class Dispatcher {
 
     private findNextJob() {
         let maxPriorityJobIdx: number = null
-        for (let i = 0; i < this.jobs.length; i++) {
+        for (let i = 0; i < this.tasks.length; i++) {
             if (
                 maxPriorityJobIdx === null ||
-                this.jobs[i].priority < this.jobs[maxPriorityJobIdx].priority
+                this.tasks[i].priority < this.tasks[maxPriorityJobIdx].priority
             ) {
                 maxPriorityJobIdx = i
             }
         }
         if (maxPriorityJobIdx === null) return null
-        return this.jobs.splice(maxPriorityJobIdx, 1)[0]
+        return this.tasks.splice(maxPriorityJobIdx, 1)[0]
     }
 
     /*

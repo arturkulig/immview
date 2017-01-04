@@ -23,8 +23,8 @@ type Message<T> =
     NextMessage<T> |
     ErrorMessage |
     CompletionMessage
-type MessagesQueue<T> = Message<T>[]
-type MessagesList = Map<BaseObservable<any>, MessagesQueue<any>>
+type MessagesListEntry<T> = [BaseObservable<T>, Message<T>]
+type MessagesList = MessagesListEntry<any>[]
 
 interface ValueListener<T> { (nextValue: T): any }
 interface ErrorListener { (err: Error): any }
@@ -33,7 +33,7 @@ interface CompletionListener { (): any }
 const noop = () => { }
 
 export class BaseObservable<T> {
-    static awaitingMessages: MessagesList = new Map()
+    static awaitingMessages: MessagesList = []
     static lastObservablePriority = 0
 
     protected lastValue: T
@@ -57,27 +57,22 @@ export class BaseObservable<T> {
                 subscriber(new SubscriptionObserver(
                     (nextValue: T) => {
                         if (this.closed) return
-                        BaseObservable.getQueue(this).push([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
-                        BaseObservable.dispatchDigestMessages()
+                        this.pushMessage([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
                     },
                     (reason: Error) => {
                         if (this.closed) return
-                        BaseObservable.getQueue(this).push([MessageTypes.Error, reason, noop])
-                        BaseObservable.dispatchDigestMessages()
+                        this.pushMessage([MessageTypes.Error, reason, noop])
                     },
                     () => {
                         if (this.closed) return
-                        BaseObservable.getQueue(this).push([MessageTypes.Complete, , noop])
-                        BaseObservable.dispatchDigestMessages()
+                        this.pushMessage([MessageTypes.Complete, , noop])
                     },
                     () => {
                         return this.closed
                     }
                 ))
             ) || noop
-        }).catch(
-            err => console.error('BaseObservable constructor', err.stack || err.message)
-            )
+        })
         Dispatcher.run()
     }
 
@@ -120,36 +115,44 @@ export class BaseObservable<T> {
         return subscription
     }
 
-    protected static getQueue<T>(subject: BaseObservable<T>): MessagesQueue<T> {
-        return BaseObservable.awaitingMessages.get(subject) || (
-            BaseObservable.awaitingMessages.set(subject, []),
-            BaseObservable.awaitingMessages.get(subject)
-        )
+    protected pushMessage(message: Message<any>) {
+        BaseObservable.awaitingMessages.push([this, message])
+        BaseObservable.dispatchDigestMessages()
     }
 
     protected static dispatchDigestMessages() {
-        Dispatcher
-            .push(BaseObservable.digestMessages, DispatcherPriorities.OBSERVABLE)
-            .catch(err => {
-                console.error('BaseObservable.dispatchDigestMessages', err.stack || err.message)
-            })
+        Dispatcher.push(BaseObservable.digestAwaitingMessages, DispatcherPriorities.OBSERVABLE)
         Dispatcher.run()
     }
 
-    private static digestMessages() {
-        const [node, queue] = BaseObservable.findOldestAwaitingNode()
+    private static digestAwaitingMessages() {
+        const [node, message] = BaseObservable.popMessage()
         if (!node) {
             return
         }
+        BaseObservable.digestNodeMessage(node, message)
+        BaseObservable.dispatchDigestMessages()
+    }
 
-        const message = queue.splice(0, 1)[0]
-        if (queue.length === 0) {
-            BaseObservable.awaitingMessages.delete(node)
+    private static popMessage(): [BaseObservable<any>, Message<any>] | [null, null] {
+        if (BaseObservable.awaitingMessages.length === 0) {
+            return [null, null]
         }
-        node.lastMessage = message
+        for (let i = 0; i < BaseObservable.awaitingMessages.length; i++) {
+            const [node = null, message] = BaseObservable.awaitingMessages[i]
+            if (message[0] === MessageTypes.Next && !node.nextSubscriptions.length) continue
+            if (message[0] === MessageTypes.Error && !node.errorSubscriptions.length) continue
+            if (message[0] === MessageTypes.Complete && !node.completionSubscriptions.length) continue
+            BaseObservable.awaitingMessages.splice(i, 1)
+            return [node, message]
+        }
+        return [null, null]
+    }
 
+    private static digestNodeMessage(node: BaseObservable<any>, message: Message<any>) {
         if (!node.closed) {
-            const [type, , confirm] = message
+            node.lastMessage = message
+            const [type, , doneCallback] = message
             if (type === MessageTypes.Next) {
                 const [, getValue] = (message as NextMessage<any>)
                 const nextValue = getValue(node.lastValue)
@@ -170,34 +173,8 @@ export class BaseObservable<T> {
                     sub => sub()
                 )
             }
-            confirm()
+            doneCallback()
         }
-
-        BaseObservable.dispatchDigestMessages()
-    }
-
-    private static findOldestAwaitingNode<T>(): [BaseObservable<T>, MessagesQueue<T>] | [null, null] {
-        if (BaseObservable.awaitingMessages.size === 0) {
-            return [null, null]
-        }
-        const entries = BaseObservable.awaitingMessages.entries()
-        let oldestNode: BaseObservable<any> = null
-        BaseObservable.awaitingMessages.forEach(
-            (queue, node) => {
-                if (
-                    node.nextSubscriptions.length === 0 &&
-                    node.errorSubscriptions.length === 0 &&
-                    node.completionSubscriptions.length === 0
-                ) return
-                if (oldestNode === null || node.priority < oldestNode.priority) {
-                    oldestNode = node
-                }
-            }
-        )
-        if (!oldestNode) {
-            return [null, null]
-        }
-        return [oldestNode, BaseObservable.awaitingMessages.get(oldestNode)]
     }
 
     public static of<T>(...values: T[]): BaseObservable<T> {

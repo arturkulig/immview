@@ -11,16 +11,15 @@ export class Data<T> extends Observable<T> {
         this.lastValue = defaultValue
     }
 
-    write(nextValue: T | writer<T>) {
-        return new Promise(resolve => {
-            Data.getQueue(this).push([
+    write(nextValue: T | writer<T>): Promise<void> {
+        return new Promise<void>(resolve => {
+            this.pushMessage([
                 MessageTypes.Next,
                 (typeof nextValue === 'function')
                     ? (nextValue as writer<T>)
                     : (() => (nextValue as T)),
                 resolve
             ])
-            Data.dispatchDigestMessages()
         })
     }
 }
