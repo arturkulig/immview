@@ -3,7 +3,7 @@ import { BaseObservable } from './BaseObservable'
 
 const impossibru = function (done, msg): () => void {
     return (): void => {
-        expect(`${msg} WILL NOT HAPPEN`).toBe(''); done()
+        expect(`${msg} WILL NOT HAPPEN`).toBe(''); setTimeout(done)
     }
 }
 
@@ -111,26 +111,31 @@ describe('BaseObservable', () => {
             })
     })
 
-    it('pushes older node messages first', () => {
+    it('pushes messages in request order', () => {
         const result = []
         const actions = []
         const o1 = new BaseObservable(observer => {
             actions[0] = () => { observer.next('o1.1') }
-            actions[2] = () => { observer.next('o1.2') }
+            actions[3] = () => { observer.next('o1.2') }
         })
         const o2 = new BaseObservable(observer => {
             actions[1] = () => { observer.next('o2.1') }
         })
+        const o3 = new BaseObservable(observer => {
+            actions[2] = () => { observer.next('o3.1') }
+        })
         o1.subscribe(value => result.push(value))
         o2.subscribe(value => result.push(value))
+        o3.subscribe(value => result.push(value))
         Dispatcher.push(() => {
             actions.forEach(action => action())
         })
         Dispatcher.run()
         expect(result).toEqual([
             'o1.1',
+            'o2.1',
+            'o3.1',
             'o1.2',
-            'o2.1'
         ])
     })
 

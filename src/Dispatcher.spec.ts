@@ -7,9 +7,9 @@ describe("Dispatcher", () => {
 
     it("can receive a job", () => {
         const dispatcher = new Dispatcher()
-        expect(dispatcher.jobs.length).toBe(0)
+        expect(dispatcher.tasks.length).toBe(0)
         dispatcher.push(() => null)
-        expect(dispatcher.jobs.length).toBe(1)
+        expect(dispatcher.tasks.length).toBe(1)
     })
 
     it("can perform a job", () => {
@@ -19,7 +19,7 @@ describe("Dispatcher", () => {
         expect(done).toBe(false)
         dispatcher.run()
         expect(done).toBe(true)
-        expect(dispatcher.jobs.length).toBe(0)        
+        expect(dispatcher.tasks.length).toBe(0)        
     })
 
     it("can perform many jobs", () => {
@@ -31,7 +31,7 @@ describe("Dispatcher", () => {
         }
         dispatcher.run()
         expect(counter).toBe(expectedCounter)
-        expect(dispatcher.jobs.length).toBe(0)        
+        expect(dispatcher.tasks.length).toBe(0)        
     })
 
     it("can prioritize jobs", () => {
@@ -42,17 +42,6 @@ describe("Dispatcher", () => {
         dispatcher.push(() => { result += 'b' }, 2)
         dispatcher.run()
         expect(result).toBe('abc')
-        expect(dispatcher.jobs.length).toBe(0)        
-    })
-
-    it("returns a promise of finished job", () => {
-        const dispatcher = new Dispatcher()
-        const done = dispatcher.push(() => 5)
-        dispatcher.run()
-        return done.then(
-            result => {
-                expect(result).toBe(5)
-            }
-        )
+        expect(dispatcher.tasks.length).toBe(0)        
     })
 })
