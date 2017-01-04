@@ -1,6 +1,6 @@
 export enum DispatcherPriorities {
     OBSERVABLE = 1,
-    BUFFER = 2,
-    DOMAIN = 3,
+    DOMAIN = 2,
+    BUFFER = 3,
     EXTERNAL = 4
 }

@@ -17,7 +17,7 @@ describe('Merge', () => {
             setTimeout(done)
         })
     })
-    it('listenes to changes', done => {
+    it('listens to changes', done => {
         let push = null
         const source = new Observable(observer => {
             push = observer.next

@@ -1,33 +1,39 @@
 import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
-import { Dispatcher } from './DispatcherInstance'
+import { dispatch } from './DispatcherInstance'
 
-export class Domain<T> {
-    constructor(private stream: Observable<T>) { }
+interface actions {
+    [id: string]: () => void
+}
 
-    public static new
-        <T, U extends { [id: string]: () => Promise<any> }>
-        (stream: Observable<T>, actions: U): Domain<T> & U {
-        const instance = new Domain(stream)
-        Object.keys(actions).forEach(key => {
-            if (!Object.prototype.hasOwnProperty.call(actions, key)) return
-            if (Object.prototype.hasOwnProperty.call(instance, key)) {
-                throw new Error(`Domain cannot receive action called ${key} as it is already used.`)
-            }
-            if (typeof actions[key] === 'function') {
-                const action = actions[key]
-                instance[key] = (...args) => {
-                    const done = Dispatcher.push(
-                        action.bind.apply(undefined, [instance, args]),
-                        DispatcherPriorities.DOMAIN
-                    )
-                    Dispatcher.run()
-                    return done
+export class Domain<T, U extends actions> {
+    constructor(
+        private stream: Observable<T>,
+        private actions?: U
+    ) { }
+
+    public dispatch(actionName: keyof U, ...args: any[]): Promise<void> {
+        return new Promise<void>(resolve => {
+            dispatch(() => {
+                try {
+                    this.actions[actionName].apply(this, args)
+                } catch (e) {
+                    console.error(e.stack || e.message || e)
                 }
-            } else {
-                instance[key] = actions[key]
-            }
+                resolve()
+            }, DispatcherPriorities.DOMAIN)
         })
-        return (instance as Domain<T> & U)
+    }
+
+    public read() {
+        return this.stream.read()
+    }
+
+    public subscribe(listener: (value: T) => void) {
+        return this.stream.subscribe()
+    }
+
+    public map<U>(processor: (value: T) => U) {
+        return this.stream.map<U>(processor)
     }
 }

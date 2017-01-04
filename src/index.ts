@@ -1,15 +1,18 @@
 import { Dispatcher } from './DispatcherInstance'
+import { DispatcherPriorities } from './DispatcherPriorities'
 import { Observable } from './Observable'
 import { Data } from './Data'
 import { Merge } from './Merge'
-import { Buffer } from './Buffer'
 import { Domain } from './Domain'
 
+const dispatchExt = (job: () => any) => {
+    Dispatcher.push(job, DispatcherPriorities.EXTERNAL)
+}
+
 export {
-    Dispatcher,
     Observable,
     Data,
     Merge,
-    Buffer,
-    Domain
+    Domain,
+    dispatchExt as dispatch
 }

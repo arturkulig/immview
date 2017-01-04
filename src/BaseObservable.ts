@@ -1,4 +1,4 @@
-import { Dispatcher } from './DispatcherInstance'
+import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { BaseObservableSubscription } from './BaseObservableSubscription'
 
@@ -51,7 +51,7 @@ export class BaseObservable<T> {
         this.completionSubscriptions = []
         this.priority = BaseObservable.lastObservablePriority++
 
-        Dispatcher.push(() => {
+        dispatch(() => {
             this.cancelSubscriber = (
                 subscriber &&
                 subscriber(new SubscriptionObserver(
@@ -72,8 +72,7 @@ export class BaseObservable<T> {
                     }
                 ))
             ) || noop
-        })
-        Dispatcher.run()
+        }, DispatcherPriorities.OBSERVABLE)
     }
 
     read(): T {
@@ -121,8 +120,7 @@ export class BaseObservable<T> {
     }
 
     protected static dispatchDigestMessages() {
-        Dispatcher.push(BaseObservable.digestAwaitingMessages, DispatcherPriorities.OBSERVABLE)
-        Dispatcher.run()
+        dispatch(BaseObservable.digestAwaitingMessages, DispatcherPriorities.OBSERVABLE)
     }
 
     private static digestAwaitingMessages() {
