@@ -8,6 +8,11 @@ const impossibru = function (done, msg): () => void {
 }
 
 describe('BaseObservable', () => {
+    it('can be created with nothing', () => {
+        expect(() => {
+            new BaseObservable()
+        }).not.toThrow()
+    })
     it('can be created with subscriber function', () => {
         expect(() => {
             new BaseObservable(() => {})

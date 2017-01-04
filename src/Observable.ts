@@ -23,7 +23,7 @@ export class Observable<T> extends BaseObservable<T> {
         throw new Error('not implemented')
     }
 
-    buffer(maxMessages: number = 0): Observable<T> {
+    buffer(maxLastMessages: number = 1): Observable<T> {
         throw new Error('not implemented')
     }
 }
