@@ -38,8 +38,8 @@ export class BaseObservable<T> {
 
     protected lastValue: T
     protected lastMessage: Message<T>
-    closed = false
-    priority: number
+    public closed = false
+    public priority: number
     private cancelSubscriber: () => void
     private nextSubscriptions: ValueListener<T>[]
     private errorSubscriptions: ErrorListener[]

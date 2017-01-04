@@ -4,6 +4,7 @@ import { Observable } from './Observable'
 import { Data } from './Data'
 import { Merge } from './Merge'
 import { Domain } from './Domain'
+import { action } from './Domain.action'
 
 const dispatchExt = (job: () => any) => {
     Dispatcher.push(job, DispatcherPriorities.EXTERNAL)
@@ -14,5 +15,6 @@ export {
     Data,
     Merge,
     Domain,
-    dispatchExt as dispatch
+    dispatchExt as dispatch,
+    action
 }
