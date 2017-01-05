@@ -124,6 +124,10 @@ export class BaseObservable<T> {
         return subscription
     }
 
+    cancel() {
+        this.pushMessage([MessageTypes.Complete, , noop])
+    }
+
     protected pushMessage(message: Message<any>) {
         BaseObservable.awaitingMessages.push([this, message])
         BaseObservable.dispatchDigestMessages()
