@@ -7,7 +7,7 @@ type writer<T> = (currentValue: T) => T
 
 export class Data<T> extends Observable<T> {
     constructor(defaultValue: T) {
-        super(null)
+        super(observer => { observer.next(defaultValue) })
         this.lastValue = defaultValue
     }
 

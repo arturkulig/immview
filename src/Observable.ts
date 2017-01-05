@@ -12,7 +12,7 @@ export class Observable<T> extends BaseObservable<T> {
     public static from<T>(values: Observable<T> | Iterable<T>): Observable<T> {
         if (values[ObservableSymbol]) {
             return new Observable<T>(observer => {
-                const sub = (values[ObservableSymbol]() as Observable<T>).subscribe(observer.next, observer.error, observer.complete)
+                (values[ObservableSymbol]() as Observable<T>).subscribe(observer.next, observer.error, observer.complete)
             })
         }
 

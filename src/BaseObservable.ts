@@ -38,7 +38,6 @@ export class BaseObservable<T> {
     static lastObservablePriority = 0
 
     protected lastValue: T
-    protected lastMessage: Message<T>
     public closed = false
     public priority: number
     private cancelSubscriber: () => void
@@ -106,11 +105,9 @@ export class BaseObservable<T> {
 
         if (onNext) {
             this.nextSubscriptions.push(onNext)
-            if (this.lastValue !== undefined) onNext(this.lastValue)
         }
         if (onError) {
             this.errorSubscriptions.push(onError)
-            if (this.lastMessage && this.lastMessage[0] === MessageTypes.Error) onError((this.lastMessage[1] as Error))
         }
         if (onCompletion) {
             this.completionSubscriptions.push(onCompletion)
@@ -162,7 +159,6 @@ export class BaseObservable<T> {
 
     private static digestNodeMessage(node: BaseObservable<any>, message: Message<any>) {
         if (!node.closed) {
-            node.lastMessage = message
             const [type, , doneCallback] = message
             if (type === MessageTypes.Next) {
                 const [, getValue] = (message as NextMessage<any>)

@@ -24,6 +24,19 @@ describe('Data', () => {
         )
     })
 
+    it('can be subscribed later and first value will be pushed if no subscription occurred before', done => {
+        const value = {}
+        const subject = new Data(value)
+        setTimeout(() => {
+            subject.subscribe(
+                next => {
+                    expect(next).toBe(value)
+                    setTimeout(done)
+                }
+            )
+        })
+    })
+
     it('can be written to with a value', done => {
         const value = {}
         const value2 = {}
