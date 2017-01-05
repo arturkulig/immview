@@ -19,13 +19,17 @@ export class Domain<T> extends Observable<T> {
         (stream: Observable<T>, actions?: U, fields?: V) {
         const instance = (new Domain(stream) as Object)
         if (actions) for (let key in actions) {
-            if (!Object.prototype.hasOwnProperty.call(actions, key)) continue
+            if (!Object.prototype.hasOwnProperty.call(actions, key)) {
+                continue
+            }
             instance[(key as string)] =
                 (...args) =>
                     dispatchPromise(actions[key].bind(instance, ...args))
         }
         if (fields) for (let key in fields) {
-            if (!Object.prototype.hasOwnProperty.call(fields, key)) continue
+            if (!Object.prototype.hasOwnProperty.call(fields, key)) {
+                continue
+            }
             instance[(key as string)] = fields[key]
         }
         return (instance as Domain<T> & U & V)
