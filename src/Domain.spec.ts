@@ -14,7 +14,7 @@ describe('Domain', () => {
 
     it('allows creation with actions', () => {
         expect(() => {
-            Domain.create(new Observable(), { test() { } })
+            Domain.create(new Observable(), { test: () => { } })
         }).not.toThrow()
     })
 
@@ -32,18 +32,21 @@ describe('Domain', () => {
     })
 
     it('action calls return Promises of execution', done => {
-        expect(() => {
-            let tested = false
-            const TheDomain = Domain.create(
-                new Observable(),
-                { test() { tested = true; return Promise.resolve() } }
-            )
-            TheDomain.test().then(result => {
-                expect(result).toBe(undefined)
-                expect({ tested }).toEqual({ tested: true })
-                setTimeout(done)
-            })
-        }).not.toThrow()
+        let tested = false
+        const TheDomain = Domain.create(
+            new Observable(),
+            {
+                test() {
+                    tested = true
+                    return Promise.resolve()
+                }
+            }
+        )
+        TheDomain.test().then(result => {
+            expect(result).toBe(undefined)
+            expect({ tested }).toEqual({ tested: true })
+            setTimeout(done)
+        })
     })
 
     it('shares same data as provided observable', done => {

@@ -47,11 +47,11 @@ describe('Data', () => {
                 switch (true) {
                     case next === expected && next === value: {
                         expected = value2
-                        break;
+                        break
                     }
                     case next === expected && next === value2: {
                         setTimeout(done)
-                        break;
+                        break
                     }
                     default: expect(next).toBe(expected)
                 }
