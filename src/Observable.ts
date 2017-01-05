@@ -47,7 +47,26 @@ export class Observable<T> extends BaseObservable<T> {
     }
 
     filter(filter: (value: T) => boolean): Observable<T> {
-        throw new Error('not implemented')
+        return new Observable<T>(observer => {
+            this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+
+                    try {
+                        if (!filter(value)) {
+                            return undefined
+                        }
+                    } catch (e) {
+                        return observer.error(e)
+                    }
+                    return observer.next(value)
+                },
+                observer.error,
+                observer.complete
+            )
+        })
     }
 
     scan<U>(scanner: (values: T[]) => U, historyLength = 2, defaultValue = null): Observable<U> {
