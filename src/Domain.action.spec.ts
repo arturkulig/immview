@@ -7,7 +7,7 @@ import { action } from './Domain.action'
 
 describe('Domain', () => {
     it('extending class method can be decorated to become an action', done => {
-        class DerivativeOfDomain extends Domain<{}>{
+        class DerivativeOfDomain extends Domain<{}> {
             tested = false
 
             constructor() {
@@ -30,7 +30,7 @@ describe('Domain', () => {
     })
 
     it('decorated class method returns promise of execution', done => {
-        class DerivativeOfDomain extends Domain<{}>{
+        class DerivativeOfDomain extends Domain<{}> {
             tested = false
 
             constructor() {

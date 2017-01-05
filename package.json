@@ -11,16 +11,17 @@
     "start": "NODE_ENV=testing jest",
     "build": "NODE_ENV=production webpack -p",
     "preversion": "npm run test && npm run build",
-    "test": "$(npm bin)/tsc --noEmit && jest",
+    "test": "$(npm bin)/tsc --noEmit && $(npm bin)/tslint --project ./tsconfig.json --config ./tslint.json --format stylish && jest",
     "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i"
   },
   "author": "Artur Kulig",
   "license": "MIT",
   "devDependencies": {
+    "@types/jasmine": "^2.5.38",
     "@types/node": "^6.0.53",
-    "@types/jasmine": "^2.5.38",    
     "jest": "^18.0.0",
     "ts-loader": "^1.3.3",
+    "tslint": "^4.2.0",
     "typescript": "^2.1.4",
     "webpack": "^1.14.0"
   },
@@ -40,9 +41,8 @@
     ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      ".*\\.tsx?$": "<rootDir>/jest-ts-preprocessor.js"  
+      ".*\\.tsx?$": "<rootDir>/jest-ts-preprocessor.js"
     }
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

@@ -2,7 +2,7 @@ import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatchPromise } from './DispatcherInstance'
 
-interface actions {
+interface Actions {
     [id: string]: () => void
 }
 
@@ -31,5 +31,3 @@ export class Domain<T> extends Observable<T> {
         return (instance as Domain<T> & U & V)
     }
 }
-
-Domain.create(new Observable(), { test() { return 5 } }).test()

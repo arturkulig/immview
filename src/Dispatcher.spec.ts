@@ -1,22 +1,22 @@
 import { Dispatcher } from './Dispatcher'
 
-describe("Dispatcher", () => {
-    it("exists", () => {
+describe('Dispatcher', () => {
+    it('exists', () => {
         expect(typeof Dispatcher).toBe('function')
     })
 
-    it("can receive a job", () => {
+    it('can receive a job', () => {
         const dispatcher = new Dispatcher()
         expect(dispatcher.tasks.length).toBe(0)
         dispatcher.push(() => null)
         expect(dispatcher.tasks.length).toBe(1)
     })
 
-    it("can perform a job", done => {
+    it('can perform a job', done => {
         new Dispatcher().push(() => setTimeout(done)).run()
     })
 
-    it("can perform many jobs", done => {
+    it('can perform many jobs', done => {
         let counter = 0
         let expectedCounter = 100
         const tester = () => {
@@ -30,7 +30,7 @@ describe("Dispatcher", () => {
         dispatcher.run()
     })
 
-    it("can prioritize jobs", done => {
+    it('can prioritize jobs', done => {
         let result = ''
         const dispatcher = new Dispatcher()
         dispatcher.push(() => { result += 'a' }, 1)

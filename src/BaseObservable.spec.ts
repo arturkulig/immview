@@ -5,7 +5,8 @@ import { BaseObservable } from './BaseObservable'
 
 const impossibru = function (done, msg): () => void {
     return (): void => {
-        expect(`${msg} WILL NOT HAPPEN`).toBe(''); setTimeout(done)
+        expect(`${msg} WILL NOT HAPPEN`).toBe('')
+        setTimeout(done)
     }
 }
 
@@ -64,8 +65,8 @@ describe('BaseObservable', () => {
         let o2SubHit = null
         subject.subscribe(v => { o2SubHit = v })
         dispatch(() => {
-            expect({o1SubHit}).toEqual({o1SubHit: 5})
-            expect({o2SubHit}).toEqual({o2SubHit: 5})
+            expect({ o1SubHit }).toEqual({ o1SubHit: 5 })
+            expect({ o2SubHit }).toEqual({ o2SubHit: 5 })
             setTimeout(done)
         }, TEST)
     })
