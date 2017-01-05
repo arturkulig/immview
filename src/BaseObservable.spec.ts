@@ -1,4 +1,6 @@
-import { Dispatcher } from './DispatcherInstance'
+import { dispatch } from './DispatcherInstance'
+import { DispatcherPriorities } from './DispatcherPriorities'
+const { TEST } = DispatcherPriorities
 import { BaseObservable } from './BaseObservable'
 
 const impossibru = function (done, msg): () => void {
@@ -62,36 +64,6 @@ describe('BaseObservable', () => {
         })
     })
 
-    describe('can be read before any subscription', () => {
-        it('immediately', () => {
-            expect(new BaseObservable(observer => { observer.next(5) }).read()).toBe(5)
-        })
-
-        it('when read call is in dispatcher queue', () => {
-            const separatedInstantionFromReadObservable = new BaseObservable(observer => { observer.next(7) })
-            Dispatcher.push(() => {
-                expect(separatedInstantionFromReadObservable.read()).toBe(7)
-            })
-            Dispatcher.run()
-        })
-
-        it('when constructor call is in dispatcher queue', () => {
-            let separatedInstantionFromReadObservable
-            Dispatcher.push(() => {
-                separatedInstantionFromReadObservable = new BaseObservable(observer => { observer.next(7) })
-            })
-            Dispatcher.run()
-            expect(separatedInstantionFromReadObservable.read()).toBe(7)
-        })
-
-        it('immediately inside dispatcher queue', () => {
-            Dispatcher.push(() => {
-                expect(new BaseObservable(observer => { observer.next(6) }).read()).toBe(6)
-            })
-            Dispatcher.run()
-        })
-    })
-
     it('does not push completion event after stream is closed', done => {
         const obs = new BaseObservable(observer => {
             observer.complete()
@@ -100,10 +72,12 @@ describe('BaseObservable', () => {
         const sub = obs.subscribe(
             impossibru(done, 'Value sub trigger'),
             impossibru(done, 'Error sub trigger'),
+            () => {
+                expect({ observableClosed: obs.closed }).toEqual({ observableClosed: true })
+                expect({ subscriptionClosed: sub.closed }).toEqual({ subscriptionClosed: true })
+                setTimeout(done)
+            }
         )
-        expect({ observableClosed: obs.closed }).toEqual({ observableClosed: true })
-        expect({ subscriptionClosed: sub.closed }).toEqual({ subscriptionClosed: true })
-        setTimeout(done)
     })
 
     it('does not forget error after a value being pushed', done => {
@@ -146,7 +120,7 @@ describe('BaseObservable', () => {
             })
     })
 
-    it('pushes messages in request order', () => {
+    it('pushes messages in request order', done => {
         const result = []
         const actions = []
         const o1 = new BaseObservable(observer => {
@@ -162,57 +136,82 @@ describe('BaseObservable', () => {
         o1.subscribe(value => result.push(value))
         o2.subscribe(value => result.push(value))
         o3.subscribe(value => result.push(value))
-        Dispatcher.push(() => {
-            actions.forEach(action => action())
-        })
-        Dispatcher.run()
-        expect(result).toEqual([
-            'o1.1',
-            'o2.1',
-            'o3.1',
-            'o1.2',
-        ])
+        actions.forEach(action => action())
+
+        dispatch(() => {
+            expect(result).toEqual([
+                'o1.1',
+                'o2.1',
+                'o3.1',
+                'o1.2',
+            ])
+            setTimeout(done)
+        }, TEST)
     })
 
-    it('subscription gets closed on demand', () => {
+    it('subscription gets closed on demand', done => {
         let next = null
         const values = []
+        const subscription = new BaseObservable(
+            observer => {
+                next = v => observer.next(v)
+            }
+        )
+            .subscribe(v => { values.push(v) })
 
-        const subscription = new BaseObservable(observer => {
-            next = v => observer.next(v)
-        }).subscribe(v => { values.push(v) })
-
-        next(1)
-        expect(values).toEqual([1])
-        next(2)
-        expect(values).toEqual([1, 2])
-
-        subscription.unsubscribe()
-        expect(subscription.closed).toBe(true)
-
-        next(3)
-        expect(values).toEqual([1, 2])
+        dispatch(() => {
+            next(1)
+        })
+        dispatch(() => {
+            expect(values).toEqual([1])
+            next(2)
+        }, TEST)
+        dispatch(() => {
+            expect(values).toEqual([1, 2])
+        }, TEST)
+        dispatch(() => {
+            subscription.unsubscribe()
+            expect(subscription.closed).toBe(true)
+            next(3)
+        }, TEST)
+        dispatch(() => {
+            expect(values).toEqual([1, 2])
+            setTimeout(done)
+        }, TEST)
     })
 
-    it('subscription gets closed on completion', () => {
+    it('subscription gets closed on completion', done => {
         let next = null
         let complete = null
         const values = []
 
-        const subscription = new BaseObservable(observer => {
-            next = v => observer.next(v)
-            complete = () => observer.complete()
-        }).subscribe(v => { values.push(v) })
+        const subscription = new BaseObservable(
+            observer => {
+                next = v => observer.next(v)
+                complete = () => observer.complete()
+            }
+        )
+            .subscribe(v => { values.push(v) })
 
         next(1)
-        expect(values).toEqual([1])
-        next(2)
-        expect(values).toEqual([1, 2])
+        dispatch(() => {
+            expect(values).toEqual([1])
 
-        complete()
-        expect(subscription.closed).toBe(true)
+            next(2)
+        }, TEST)
+        dispatch(() => {
+            expect(values).toEqual([1, 2])
 
-        next(3)
-        expect(values).toEqual([1, 2])
+            complete()
+        }, TEST)
+        dispatch(() => {
+            expect(subscription.closed).toBe(true)
+
+            next(3)
+        }, TEST)
+        dispatch(() => {
+            expect(values).toEqual([1, 2])
+            setTimeout(done)
+        }, TEST)
     })
 })
