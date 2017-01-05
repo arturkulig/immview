@@ -1,3 +1,7 @@
+import { dispatch } from './DispatcherInstance'
+import { DispatcherPriorities } from './DispatcherPriorities'
+const { TEST } = DispatcherPriorities
+
 import { Observable } from './Observable'
 import { Domain } from './Domain'
 
@@ -14,14 +18,17 @@ describe('Domain', () => {
         }).not.toThrow()
     })
 
-    it('allows calling actions', () => {
+    it('allows calling actions', done => {
         let tested = false
         const TheDomain = Domain.create(
             new Observable(),
             { test() { tested = true } }
         )
         TheDomain.test()
-        expect({ tested }).toEqual({ tested: true })
+        dispatch(() => {
+            expect({ tested }).toEqual({ tested: true })
+            setTimeout(done)
+        }, TEST)
     })
 
     it('action calls return Promises of execution', done => {
@@ -39,9 +46,14 @@ describe('Domain', () => {
         }).not.toThrow()
     })
 
-    it('shares same data as provided observable', () => {
+    it('shares same data as provided observable', done => {
+        const pushingValues = [1, 2, 3]
+        const expectedValues = [...pushingValues]
         const values = []
-        new Domain(Observable.of(1, 2, 3)).subscribe(v => values.push(v))
-        expect(values).toEqual([1, 2, 3])
+        new Domain(Observable.from(pushingValues)).subscribe(v => {
+            values.push(v)
+            expect(v).toBe(expectedValues.shift())
+            if (values.length === 3) setTimeout(done)
+        })
     })
 })

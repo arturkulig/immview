@@ -10,7 +10,7 @@ describe('Data', () => {
     it('can be immediately read', () => {
         const value = {}
         const subject = new Data(value)
-        expect(subject.read()).toBe(value)
+        expect(subject.last()).toBe(value)
     })
 
     it('can be immediately subscribed with default value', done => {
@@ -49,7 +49,7 @@ describe('Data', () => {
 
     it('can be written to with a function', done => {
         const subject = new Data(1)
-        subject.subscribe(() => {}) // force digest on lazy observable
+        subject.subscribe(() => { }) // force digest on lazy observable
 
         const expectedCalls = 10
         let calls = 0
@@ -66,7 +66,7 @@ describe('Data', () => {
         }
         $.then(() => {
             expect({ calls }).toBe({ calls: expectedCalls })
-            expect({ value: subject.read() }).toBe({ value: expectedCalls })
-        }).catch(e => {}).then(() => setTimeout(done))
+            expect({ value: subject.last() }).toBe({ value: expectedCalls })
+        }).catch(e => { }).then(() => setTimeout(done))
     })
 })

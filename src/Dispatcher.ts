@@ -4,18 +4,21 @@ interface Task {
 }
 
 export class Dispatcher {
+    private nextTickScheduler: Promise<void> = null
     private _isRunning = false
     public get isRunning(): boolean {
         return !!this._isRunning
     }
-    
+
     tasks: Task[] = []
 
-    push(job: () => any, priority = 0) {
+    push(job: () => any, priority = 0): Dispatcher {
         this.tasks.push({
             priority,
             job,
         })
+
+        return this
     }
 
     run() {
@@ -24,23 +27,27 @@ export class Dispatcher {
 
         const job = this.findNextJob()
         if (!job) {
+            this.nextTickScheduler = null
             this._isRunning = false
             return
         }
 
-        this.next(
-            () => {
-                try {
-                    job.job()
-                } catch (e) {
-                    console.error(e.stack || e.message || e)
-                }
-            },
-            () => {
-                this._isRunning = false
-                this.run()
-            }
-        )
+        (this.nextTickScheduler = this.nextTickScheduler || Promise.resolve())
+            .then(() => {
+                this.next(
+                    () => {
+                        try {
+                            job.job()
+                        } catch (e) {
+                            console.error(e.stack || e.message || e)
+                        }
+                    },
+                    () => {
+                        this._isRunning = false
+                        this.run()
+                    }
+                )
+            })
     }
 
     private findNextJob() {

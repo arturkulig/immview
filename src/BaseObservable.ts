@@ -1,4 +1,4 @@
-import { Dispatcher, dispatch } from './DispatcherInstance'
+import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { BaseObservableSubscription } from './BaseObservableSubscription'
 
@@ -52,17 +52,6 @@ export class BaseObservable<T> {
         this.completionSubscriptions = []
         this.priority = BaseObservable.lastObservablePriority++
 
-        if (Dispatcher.isRunning) {
-            this.runSubscriber(subscriber)
-        } else {
-            Dispatcher.push(() => {
-                this.runSubscriber(subscriber)
-            }, DispatcherPriorities.OBSERVABLE)
-            Dispatcher.run()
-        }
-    }
-
-    private runSubscriber(subscriber: Subscriber<T>) {
         this.cancelSubscriber = (
             subscriber &&
             subscriber(new SubscriptionObserver(
@@ -85,7 +74,7 @@ export class BaseObservable<T> {
         ) || noop
     }
 
-    read(): T {
+    last(): T {
         if (this.lastValue) return this.lastValue
         if (this.nextSubscriptions.length > 0) return this.lastValue
         const messages = BaseObservable.awaitingMessages.filter(
@@ -107,6 +96,14 @@ export class BaseObservable<T> {
             return new BaseObservableSubscription(null)
         }
 
+        const disableSubscription = () => {
+            subscription.unsubscribe()
+            this.completionSubscriptions = this.completionSubscriptions.filter(
+                sub => sub !== disableSubscription
+            )
+        }
+        this.completionSubscriptions.push(disableSubscription)
+
         if (onNext) {
             this.nextSubscriptions.push(onNext)
             if (this.lastValue !== undefined) onNext(this.lastValue)
@@ -124,13 +121,6 @@ export class BaseObservable<T> {
             if (onError) { this.errorSubscriptions = this.errorSubscriptions.filter(sub => sub !== onError) }
             if (onCompletion) { this.completionSubscriptions = this.completionSubscriptions.filter(sub => sub !== onCompletion) }
         })
-        const disableSubscription = () => {
-            subscription.unsubscribe()
-            this.completionSubscriptions = this.completionSubscriptions.filter(
-                sub => sub !== disableSubscription
-            )
-        }
-        this.completionSubscriptions.push(disableSubscription)
 
         BaseObservable.dispatchDigestMessages()
 
