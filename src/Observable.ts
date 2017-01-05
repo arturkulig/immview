@@ -35,7 +35,23 @@ export class Observable<T> extends BaseObservable<T> {
     }
 
     map<U>(action: (value: T) => U): Observable<U> {
-        throw new Error('not implemented')
+        return new Observable<U>(observer => {
+            const subscription = this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+                    try {
+                        observer.next(action(value))
+                    } catch (e) {
+                        observer.error(e)
+                    }
+                },
+                observer.error,
+                observer.complete
+            )
+            return () => subscrition.unsubscribe()
+        })
     }
 
     flatMap<U>(action: (value: T) => Observable<U>): Observable<U> {
@@ -43,11 +59,50 @@ export class Observable<T> extends BaseObservable<T> {
     }
 
     reduce<U>(reductor: (value: T, summary: U) => U): Observable<U> {
-        throw new Error('not implemented')
+        return new Observable<U>(observer => {
+            let summary : U = null
+            const subscription = this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+
+                    let newValue
+                    try {
+                        newValue = summary
+                            ? reductor(value, summary)
+                            : value
+                        summary = newValue
+                    } catch (e) {
+                        observer.error(e)
+                    }
+                    observer.next(newValue)
+                },
+                observer.error,
+                observer.complete
+            )
+            return () => subscrition.unsubscribe()
+        })
     }
 
     filter(filter: (value: T) => boolean): Observable<T> {
-        throw new Error('not implemented')
+        return new Observable<T>(observer => {
+            const subscription = this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+                    try {
+                        filter(value) && observer.next(value)
+                    } catch (e) {
+                        observer.error(e)
+                    }
+                },
+                observer.error,
+                observer.complete
+            )
+            return () => subscrition.unsubscribe()
+        })
     }
 
     scan<U>(scanner: (values: T[]) => U, historyLength = 2, defaultValue = null): Observable<U> {
