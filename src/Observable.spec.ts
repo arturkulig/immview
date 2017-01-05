@@ -74,8 +74,8 @@ describe('Observable', () => {
         const pushValues = [1, 2, 3]
         const expectedValues = [5, 10, 15]
         let result = []
-        const subscription = Observable.of(1, 2, 3).map(
-            v => v * 5
+        Observable.of(1, 2, 3).map(v =>
+            v * 5
         ).subscribe(value => {
             result.push(value)
             expect(value).toBe(expectedValues.shift())
