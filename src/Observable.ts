@@ -36,23 +36,21 @@ export class Observable<T> extends BaseObservable<T> {
 
     map<U>(action: (value: T) => U): Observable<U> {
         return new Observable<U>(observer => {
-            this.subscribe(
+            const subscription = this.subscribe(
                 value => {
                     if (observer.closed) {
                         return
                     }
-
-                    let newValue
                     try {
-                        newValue = action(value)
+                        observer.next(action(value))
                     } catch (e) {
-                        return observer.error(e)
+                        observer.error(e)
                     }
-                    return observer.next(newValue)
                 },
                 observer.error,
                 observer.complete
             )
+            return () => subscrition.unsubscribe()
         })
     }
 
@@ -62,8 +60,8 @@ export class Observable<T> extends BaseObservable<T> {
 
     reduce<U>(reductor: (value: T, summary: U) => U): Observable<U> {
         return new Observable<U>(observer => {
-            let _summary : U = null
-            this.subscribe(
+            let summary : U = null
+            const subscription = this.subscribe(
                 value => {
                     if (observer.closed) {
                         return
@@ -71,41 +69,39 @@ export class Observable<T> extends BaseObservable<T> {
 
                     let newValue
                     try {
-                        newValue = _summary
-                            ? reductor(value, _summary)
+                        newValue = summary
+                            ? reductor(value, summary)
                             : value
-                        _summary = newValue
+                        summary = newValue
                     } catch (e) {
-                        return observer.error(e)
+                        observer.error(e)
                     }
-                    return observer.next(newValue)
+                    observer.next(newValue)
                 },
                 observer.error,
                 observer.complete
             )
+            return () => subscrition.unsubscribe()
         })
     }
 
     filter(filter: (value: T) => boolean): Observable<T> {
         return new Observable<T>(observer => {
-            this.subscribe(
+            const subscription = this.subscribe(
                 value => {
                     if (observer.closed) {
                         return
                     }
-
                     try {
-                        if (!filter(value)) {
-                            return undefined
-                        }
+                        filter(value) && observer.next(value)
                     } catch (e) {
-                        return observer.error(e)
+                        observer.error(e)
                     }
-                    return observer.next(value)
                 },
                 observer.error,
                 observer.complete
             )
+            return () => subscrition.unsubscribe()
         })
     }
 
