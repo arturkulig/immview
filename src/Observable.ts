@@ -35,7 +35,25 @@ export class Observable<T> extends BaseObservable<T> {
     }
 
     map<U>(action: (value: T) => U): Observable<U> {
-        throw new Error('not implemented')
+        return new Observable<U>(observer => {
+            this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+
+                    let newValue
+                    try {
+                        newValue = action(value)
+                    } catch (e) {
+                        return observer.error(e)
+                    }
+                    return observer.next(newValue)
+                },
+                observer.error,
+                observer.complete
+            )
+        })
     }
 
     flatMap<U>(action: (value: T) => Observable<U>): Observable<U> {
@@ -43,7 +61,29 @@ export class Observable<T> extends BaseObservable<T> {
     }
 
     reduce<U>(reductor: (value: T, summary: U) => U): Observable<U> {
-        throw new Error('not implemented')
+        return new Observable<U>(observer => {
+            let _summary : U = null
+            this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+
+                    let newValue
+                    try {
+                        newValue = _summary
+                            ? reductor(value, _summary)
+                            : value
+                        _summary = newValue
+                    } catch (e) {
+                        return observer.error(e)
+                    }
+                    return observer.next(newValue)
+                },
+                observer.error,
+                observer.complete
+            )
+        })
     }
 
     filter(filter: (value: T) => boolean): Observable<T> {
