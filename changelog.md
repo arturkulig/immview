@@ -4,9 +4,16 @@
 
 - feat: **Immview** is now written with TypeScript and exposes types declarations
 - feat: `Dispatcher` and by that `Domain` actions and `Data` writes return promises of these being executed
-- feat: `Observable`s are first class citizens of the library, not implementation detail and are compliant to TC39 Observable proposal
-- feat: `View`, `Scan`, `Debounce`, `Throttle` classes are gone - creating derivative streams is done with `Observable::map` etc. functions only.
+- feat: `Observable`s are first class citizens of the library, not implementation detail and follows TC39 Observable proposal as closely as possible and in most usable way https://github.com/tc39/proposal-observable
+- feat: `Observable::subscribe` callback will not be immediately called with last shared value
+- feat: `View` functionality will be achievable using `Observable::map` function only
+- feat: `Scan` functionality will be achievable using `Observable::scan` function only
+- feat: `Reduce` functionality will be achievable using `Observable::reduce` function only
+- feat: `Debounce` functionality will be achievable using `Observable::debounce` function only
+- feat: `Throttle` functionality will be achievable using `Observable::throttle` function only
 - feat: `Observable::buffer` function is introduced. Observables next stream values pressure unloading by replacing awaiting values caused by previous implementation of `Dispatcher` will no longer be.
+- feat: `Domain` with actions can now be created through factory `Domain.create`
+- feat: Adding actions while extending `Domain` class can be achieved through `@action` decorator
 
 ---
 
