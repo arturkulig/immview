@@ -55,6 +55,21 @@ describe('BaseObservable', () => {
         }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
     })
 
+    it('allows multiple subscriptions before pushing values', done => {
+        const subject = new BaseObservable(observer => {
+            observer.next(5)
+        })
+        let o1SubHit = null
+        subject.subscribe(v => { o1SubHit = v })
+        let o2SubHit = null
+        subject.subscribe(v => { o2SubHit = v })
+        dispatch(() => {
+            expect({o1SubHit}).toEqual({o1SubHit: 5})
+            expect({o2SubHit}).toEqual({o2SubHit: 5})
+            setTimeout(done)
+        }, TEST)
+    })
+
     it('pushes errors', done => {
         new BaseObservable(observer => {
             observer.error(new Error('666'))
