@@ -39,7 +39,7 @@ describe('Domain', () => {
         }).not.toThrow()
     })
 
-    it('shares same data as provided observable', done => {
+    it('shares same data as provided observable', () => {
         const values = []
         new Domain(Observable.of(1, 2, 3)).subscribe(v => values.push(v))
         expect(values).toEqual([1, 2, 3])
