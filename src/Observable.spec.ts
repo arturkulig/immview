@@ -59,8 +59,8 @@ describe('Observable', () => {
         const pushValues = [1, 2, 3]
         const expectedValues = [1, 3, 6]
         let result = []
-        Observable.of(1, 2, 3).reduce((value, acc) =>
-            value + acc
+        Observable.of(1, 2, 3).reduce((value, summary : number) =>
+            summary + value
         ).subscribe(value => {
             result.push(value)
             expect(value).toBe(expectedValues.shift())
