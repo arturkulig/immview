@@ -10,30 +10,31 @@ describe('Domain', () => {
 
     it('allows creation with actions', () => {
         expect(() => {
-            new Domain(new Observable(), { test() { } })
+            Domain.create(new Observable(), { test() { } })
         }).not.toThrow()
     })
 
     it('allows calling actions', () => {
         let tested = false
-        const TheDomain = new Domain(
+        const TheDomain = Domain.create(
             new Observable(),
             { test() { tested = true } }
         )
-        TheDomain.dispatch('test')
+        TheDomain.test()
         expect({ tested }).toEqual({ tested: true })
     })
 
     it('action calls return Promises of execution', done => {
         expect(() => {
             let tested = false
-            const TheDomain = new Domain(
+            const TheDomain = Domain.create(
                 new Observable(),
-                { test() { tested = true } }
+                { test() { tested = true; return Promise.resolve() } }
             )
-            TheDomain.dispatch('test').then(() => {
+            TheDomain.test().then(result => {
+                expect(result).toBe(undefined)
                 expect({ tested }).toEqual({ tested: true })
-                done()
+                setTimeout(done)
             })
         }).not.toThrow()
     })

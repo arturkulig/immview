@@ -4,7 +4,11 @@ interface Task {
 }
 
 export class Dispatcher {
-    private isRunning = false
+    private _isRunning = false
+    public get isRunning(): boolean {
+        return !!this._isRunning
+    }
+    
     tasks: Task[] = []
 
     push(job: () => any, priority = 0) {
@@ -15,12 +19,12 @@ export class Dispatcher {
     }
 
     run() {
-        if (this.isRunning) return
-        this.isRunning = true
+        if (this._isRunning) return
+        this._isRunning = true
 
         const job = this.findNextJob()
         if (!job) {
-            this.isRunning = false
+            this._isRunning = false
             return
         }
 
@@ -33,7 +37,7 @@ export class Dispatcher {
                 }
             },
             () => {
-                this.isRunning = false
+                this._isRunning = false
                 this.run()
             }
         )

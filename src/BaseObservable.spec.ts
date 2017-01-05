@@ -15,17 +15,17 @@ describe('BaseObservable', () => {
     })
     it('can be created with subscriber function', () => {
         expect(() => {
-            new BaseObservable(() => {})
+            new BaseObservable(() => { })
         }).not.toThrow()
     })
-    
+
     it('can be created w/o subscriber function', () => {
         expect(() => {
             new BaseObservable(null)
             new BaseObservable()
         }).not.toThrow()
     })
-    
+
     it('pushes plain values', done => {
         new BaseObservable<number>(observer => {
             observer.next(5)
@@ -34,7 +34,7 @@ describe('BaseObservable', () => {
             setTimeout(done)
         }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
     })
-    
+
     it('pushes values with functions', done => {
         const firstValueTester = value => {
             expect(value).toBe(2)
@@ -42,7 +42,7 @@ describe('BaseObservable', () => {
         }
         const secondValueTester = value => {
             expect(value).toBe(5)
-            setTimeout(done)            
+            setTimeout(done)
         }
         let tester = firstValueTester
         new BaseObservable<number>(observer => {
@@ -59,6 +59,36 @@ describe('BaseObservable', () => {
         }).subscribe(null, err => {
             expect(err.message).toBe('666')
             setTimeout(done)
+        })
+    })
+
+    describe('can be read before any subscription', () => {
+        it('immediately', () => {
+            expect(new BaseObservable(observer => { observer.next(5) }).read()).toBe(5)
+        })
+
+        it('when read call is in dispatcher queue', () => {
+            const separatedInstantionFromReadObservable = new BaseObservable(observer => { observer.next(7) })
+            Dispatcher.push(() => {
+                expect(separatedInstantionFromReadObservable.read()).toBe(7)
+            })
+            Dispatcher.run()
+        })
+
+        it('when constructor call is in dispatcher queue', () => {
+            let separatedInstantionFromReadObservable
+            Dispatcher.push(() => {
+                separatedInstantionFromReadObservable = new BaseObservable(observer => { observer.next(7) })
+            })
+            Dispatcher.run()
+            expect(separatedInstantionFromReadObservable.read()).toBe(7)
+        })
+
+        it('immediately inside dispatcher queue', () => {
+            Dispatcher.push(() => {
+                expect(new BaseObservable(observer => { observer.next(6) }).read()).toBe(6)
+            })
+            Dispatcher.run()
         })
     })
 
@@ -83,7 +113,7 @@ describe('BaseObservable', () => {
             observer.next(5)
         }).subscribe(
             value => {
-                expect({errorHandled}).toEqual({errorHandled: true})
+                expect({ errorHandled }).toEqual({ errorHandled: true })
                 expect(value).toBe(5)
                 setTimeout(done)
             },

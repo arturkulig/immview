@@ -1,4 +1,4 @@
-import { dispatch } from './DispatcherInstance'
+import { Dispatcher, dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { BaseObservableSubscription } from './BaseObservableSubscription'
 
@@ -14,6 +14,7 @@ class SubscriptionObserver<T> {
         return this._closed()
     }
 }
+type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() => void)
 
 export enum MessageTypes { Next, Error, Complete }
 type NextMessage<T> = [MessageTypes.Next, (currentState: T) => T, () => void]
@@ -45,38 +46,60 @@ export class BaseObservable<T> {
     private errorSubscriptions: ErrorListener[]
     private completionSubscriptions: CompletionListener[]
 
-    constructor(subscriber?: (observer: SubscriptionObserver<T>) => void | (() => void)) {
+    constructor(subscriber?: Subscriber<T>) {
         this.nextSubscriptions = []
         this.errorSubscriptions = []
         this.completionSubscriptions = []
         this.priority = BaseObservable.lastObservablePriority++
 
-        dispatch(() => {
-            this.cancelSubscriber = (
-                subscriber &&
-                subscriber(new SubscriptionObserver(
-                    (nextValue: T) => {
-                        if (this.closed) return
-                        this.pushMessage([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
-                    },
-                    (reason: Error) => {
-                        if (this.closed) return
-                        this.pushMessage([MessageTypes.Error, reason, noop])
-                    },
-                    () => {
-                        if (this.closed) return
-                        this.pushMessage([MessageTypes.Complete, , noop])
-                    },
-                    () => {
-                        return this.closed
-                    }
-                ))
-            ) || noop
-        }, DispatcherPriorities.OBSERVABLE)
+        if (Dispatcher.isRunning) {
+            this.runSubscriber(subscriber)
+        } else {
+            Dispatcher.push(() => {
+                this.runSubscriber(subscriber)
+            }, DispatcherPriorities.OBSERVABLE)
+            Dispatcher.run()
+        }
+    }
+
+    private runSubscriber(subscriber: Subscriber<T>) {
+        this.cancelSubscriber = (
+            subscriber &&
+            subscriber(new SubscriptionObserver(
+                (nextValue: T) => {
+                    if (this.closed) return
+                    this.pushMessage([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
+                },
+                (reason: Error) => {
+                    if (this.closed) return
+                    this.pushMessage([MessageTypes.Error, reason, noop])
+                },
+                () => {
+                    if (this.closed) return
+                    this.pushMessage([MessageTypes.Complete, , noop])
+                },
+                () => {
+                    return this.closed
+                }
+            ))
+        ) || noop
     }
 
     read(): T {
-        return this.lastValue
+        if (this.lastValue) return this.lastValue
+        if (this.nextSubscriptions.length > 0) return this.lastValue
+        const messages = BaseObservable.awaitingMessages.filter(
+            ([node, message]) => node === this
+        )
+        if (messages.length === 0) return
+        const marginEntry = messages[0] as MessagesListEntry<T>
+        const marginMessage = marginEntry[1] as NextMessage<T>
+        if (marginMessage[0] === MessageTypes.Next) {
+            BaseObservable.awaitingMessages = BaseObservable.awaitingMessages.filter(
+                (entry) => entry !== marginEntry
+            )
+            return (this.lastValue = (marginMessage[1](this.lastValue) as T))
+        }
     }
 
     subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): BaseObservableSubscription {

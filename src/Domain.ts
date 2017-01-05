@@ -1,39 +1,35 @@
 import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
-import { dispatch } from './DispatcherInstance'
+import { dispatchPromise } from './DispatcherInstance'
 
 interface actions {
     [id: string]: () => void
 }
 
-export class Domain<T, U extends actions> {
+export class Domain<T> extends Observable<T> {
     constructor(
-        private stream: Observable<T>,
-        private actions?: U
-    ) { }
-
-    public dispatch(actionName: keyof U, ...args: any[]): Promise<void> {
-        return new Promise<void>(resolve => {
-            dispatch(() => {
-                try {
-                    this.actions[actionName].apply(this, args)
-                } catch (e) {
-                    console.error(e.stack || e.message || e)
-                }
-                resolve()
-            }, DispatcherPriorities.DOMAIN)
+        stream: Observable<T>
+    ) {
+        super(observer => {
+            stream.subscribe(observer.next, observer.error, observer.complete)
         })
     }
 
-    public read() {
-        return this.stream.read()
-    }
-
-    public subscribe(listener: (value: T) => void) {
-        return this.stream.subscribe()
-    }
-
-    public map<U>(processor: (value: T) => U) {
-        return this.stream.map<U>(processor)
+    public static create<T, U extends { [id: string]: () => void }, V extends {}>
+        (stream: Observable<T>, actions?: U, fields?: V) {
+        const instance = (new Domain(stream) as Object)
+        if (actions) for (let key in actions) {
+            if (!Object.prototype.hasOwnProperty.call(actions, key)) continue
+            instance[(key as string)] =
+                (...args) =>
+                    dispatchPromise(actions[key].bind(instance, ...args))
+        }
+        if (fields) for (let key in fields) {
+            if (!Object.prototype.hasOwnProperty.call(fields, key)) continue
+            instance[(key as string)] = fields[key]
+        }
+        return (instance as Domain<T> & U & V)
     }
 }
+
+Domain.create(new Observable(), { test() { return 5 } }).test()

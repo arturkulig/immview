@@ -5,11 +5,11 @@ import { action } from './Domain.action'
 
 describe('Domain', () => {
     it('extending class method can be decorated to become an action', () => {
-        class DerivativeOfDomain<T> extends Domain <{}, {}>{
+        class DerivativeOfDomain extends Domain<{}>{
             tested = false
 
             constructor() {
-                super(new Observable(), {})
+                super(new Observable())
             }
 
             @action

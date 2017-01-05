@@ -11,7 +11,7 @@
     "start": "NODE_ENV=testing jest",
     "build": "NODE_ENV=production webpack -p",
     "preversion": "npm run test && npm run build",
-    "test": "jest",
+    "test": "$(npm bin)/tsc --noEmit; jest",
     "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i"
   },
   "author": "Artur Kulig",
