@@ -1,11 +1,5 @@
 import { Observable } from './Observable'
 
-const impossibru = function (done, msg): () => void {
-    return (): void => {
-        expect(`${msg} WILL NOT HAPPEN`).toBe(''); setTimeout(done)
-    }
-}
-
 describe('Observable', () => {
     it('can be created with array', done => {
         const pushValues = [1, 2, 3]
@@ -53,44 +47,41 @@ describe('Observable', () => {
     })
 
     it('can filter messages', done => {
-        const tester = value => {
-            expect(value).toBe(3)
-            setTimeout(done)
-        }
         Observable.of(1, 2, 3).filter(value =>
             value > 2
         ).subscribe(value => {
-            tester(value)
-        }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
+            expect(value).toBe(3)
+            setTimeout(done)
+        })
     })
 
     it('can reduce messages', done => {
-        const tester = value => {
-            expect(value).toBe(6)
-            setTimeout(done)
-        }
-        Observable.of(1, 2, 3).reduce((acc, value) =>
-            acc + value
+        const pushValues = [1, 2, 3]
+        const expectedValues = [1, 3, 6]
+        let result = []
+        Observable.of(1, 2, 3).reduce((value, acc) =>
+            value + acc
         ).subscribe(value => {
-            tester(value)
-        }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
+            result.push(value)
+            expect(value).toBe(expectedValues.shift())
+            if (result.length === 3) {
+                setTimeout(done)
+            }
+        })
     })
 
-    it('can map messages', () => {
-        let next = null
-        const values = []
-
-        const subscription = new Observable(observer => {
-            next = v => observer.next(v)
-        }).map(
+    it('can map messages', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [5, 10, 15]
+        let result = []
+        const subscription = Observable.of(1, 2, 3).map(
             v => v * 5
-        ).subscribe(v => { values.push(v) })
-
-        next(1)
-        expect(values).toEqual([5])
-        next(2)
-        expect(values).toEqual([5, 10])
-        next(3)
-        expect(values).toEqual([5, 10, 15])
+        ).subscribe(value => {
+            result.push(value)
+            expect(value).toBe(expectedValues.shift())
+            if (result.length === 3) {
+                setTimeout(done)
+            }
+        })
     })
 })
