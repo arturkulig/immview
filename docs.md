@@ -1,55 +1,42 @@
 #Docs
 
-> Any types are provided in descriptions follow **flowtype** style.
-
 - [abstract class Observable](#abstract-class-observable)
-- [class Domain](#class-domain)
 - [class Data](#class-data)
-- [class View](#class-view)
 - [class Merge](#class-merge)
-- [class Debounce](#class-debounce)
-- [class Throttle](#class-throttle)
-- [class Scan](#class-scan)
-- [module Dispatcher](#module-dispatcher)
+- [class Domain](#class-domain)
 
-## abstract class `Observable`
+## class `Observable`&lt;T&gt;
+#### (subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)
+Construct with `subscriber` function that receives `observer` object. `Observer` is for pushing values, errors and completion signal.
+`Subscriber` function may return function that should be called if `Observable` receives `complete` signal or is cancelled.
 
-### Observable::read
-#### () => mixed
-
-Method used to retrieve current structure holden by the Observable.
+### Observable::last
+#### () => T
+Returns last **value** that has been pushed through the `Observable` instance.
 
 ```javascript
 // Example
-const source = new Data({a: 1})
-source.read().a // = 1
+const source = new Observable(({next}) => { next(1) })
+source.subscribe(value => {
+    value === source.last() // true
+})
 ```
 
+### Observable::cancel
+#### () => void
+Sends `complete` signal through the `Observable` instance.
+
 ### Observable::subscribe
-#### ( reaction: (data: mixed) => void ) => () => void
-Registers a function called every time when the Observable changes value that it holds.
+#### ( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => () => void
+Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
 Returns a function to unregister the subscription.
 
-### Observable::map
-#### ( processor: (data: mixed) => mixed ) => View (since 1.4)
-Creates new **View** with the current instance as a data source and **processor** as function applying onto it's source stream state. **Processor** function will receive a data structure and should return data structure that will become that **View** instance state. Read more in **View** section.
+## class `Domain`&lt;T&gt;
+#### extends `Observable`&lt;T&gt;
+#### ( source: Observable&lt;T&gt; )
+#### Domain.create&lt;T&gt;( source: Observable&lt;T&gt; , actions: { [name: string]: () => Promise&lt;any&gt; | void }, fields: {})
 
-### Observable::debounce
-#### ( timeout: number ) => Debounce (since 1.5)
-Creates a new stream of values being pushed with a provided delay since last update.
-
-### Observable::throttle
-#### ( timeout: number ) => Throttle (since 1.5)
-Creates a new stream of values being push with a provided delay since first update.
-
-### Observable::scan
-#### ( valuesToRemember: number, initialValue: any ) => Scan (since 1.6)
-Creates  a new stream of `List` of values that were pushed from a source stream recently. List has a max length of `valuesToRemember` argument. Additionally for first `valuesToRemember - 1` runs if `initialValue` is provided, `List` of values is always `valuesToRemember` long and filled with `initialValue` for not yet existing steps.
-
-## class `Domain`
-#### extends `Observable`
-#### ( source: Observable )
-#### ( source: Observable , { [name: string]: any } )
+// TODO from here
 
 First argument of constructor is a data source. It can be any observable element listed below. That will be a *state* stream of the newly created **Domain**. Only single data source can be tied to a **Domain**, and because of that any **Domain** can be used as data source.
 
