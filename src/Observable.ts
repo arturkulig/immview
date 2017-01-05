@@ -3,6 +3,25 @@ import { DispatcherPriorities } from './DispatcherPriorities'
 import { Dispatcher } from './DispatcherInstance'
 
 export class Observable<T> extends BaseObservable<T> {
+    public static of<T>(...values: T[]): Observable<T> {
+        return Observable.from<T>(values)
+    }
+
+    public static from<T>(values: Iterable<T>): Observable<T> {
+        return new Observable<T>(({next, error}) => {
+            const iterator = values[Symbol.iterator]()
+            for (
+                let result: IteratorResult<T> = iterator.next();
+                result.done === false;
+                result = iterator.next()
+            ) {
+                result.value instanceof Error
+                    ? error(result.value)
+                    : next(result.value)
+            }
+        })
+    }
+
     map<U>(action: (value: T) => U): Observable<U> {
         throw new Error('not implemented')
     }

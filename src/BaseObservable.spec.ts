@@ -215,28 +215,4 @@ describe('BaseObservable', () => {
         next(3)
         expect(values).toEqual([1, 2])
     })
-
-    it('can be create with static from', done => {
-        let result = []
-        BaseObservable.from([1, 2, 3]).subscribe(
-            value => {
-                result.push(value)
-                if (result.length === 3) {
-                    setTimeout(done)
-                }
-            }
-        )
-    })
-
-    it('can be create with static of', done => {
-        let result = []
-        BaseObservable.of(1, 2, 3).subscribe(
-            value => {
-                result.push(value)
-                if (result.length === 3) {
-                    setTimeout(done)
-                }
-            }
-        )
-    })
 })
