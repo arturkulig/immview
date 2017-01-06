@@ -34,105 +34,29 @@ Returns a function to unregister the subscription.
 ## class `Domain`&lt;T&gt;
 #### extends `Observable`&lt;T&gt;
 #### ( source: Observable&lt;T&gt; )
-#### Domain.create&lt;T&gt;( source: Observable&lt;T&gt; , actions: { [name: string]: () => Promise&lt;any&gt; | void }, fields: {})
 
-// TODO from here
+Class constructor alone will be only helpful when extending `Domain` class.
 
-First argument of constructor is a data source. It can be any observable element listed below. That will be a *state* stream of the newly created **Domain**. Only single data source can be tied to a **Domain**, and because of that any **Domain** can be used as data source.
 
-Second argument is an object aggregating functions used to create actions and other values that will be exposed as part of the **Domain** interface. Provided functions will be wrapped with an internal Dispatcher calls. **Domain** *actions* won't be ever returning anything and will be executed in call order, **one after another** even if *actions* calls are done from another *action* call.
-
-```javascript
-// example usage
-import {Data, Merge, Domain} from 'immview'
-
-const EyesDomain = new Domain(
-	new Merge({
-		HorizonDomain,
-		MusclesDomain,
-	}),
-	{
-		roll() {
-			MusclesDomain.doStuff()
-		},
-        EXTRAOCULAR_MUSCLES: 6
-	}
-)
-
-EyesDomain.roll()
-EyesDomain.EXTRAOCULAR_MUSCLES // 6
-```
-
-### Domain::read (since 1.2)
-
-bypassed to state stream given in constructor (see `Data.read`)
-
-> Although **Domain** can be created using **Data**, Domain won't be having **write** method available to discourage writing directly from dependent instances.
-
-### Domain::subscribe (since 1.2)
-bypassed to state stream given in constructor (see `Data.subscribe`)
-
-### Domain::map (since 1.4)
-bypassed to state stream given in constructor (see `Data.map`)
-
-### Domain::debounce (since 1.5)
-bypassed to state stream given in constructor (see `Data.debounce`)
-
-### Domain::throttle (since 1.5)
-bypassed to state stream given in constructor (see `Data.throttle`)
-
-### Domain::scan (since 1.6)
-bypassed to state stream given in constructor (see `Data.scan`)
-
-### Domain::destroy (since 1.7)
-Destroys inner stream, deactivates all actions mounted onto the domain. Recommended for easing GC after i.e. server side render of application, although it is recommended to try to keep domains between renders, to reuse them.
-
-### Domain::actions (since 1.7)
-Returns array of actions passed in constructor.
-
-### Domain::stream (since 1.7)
-field that holds observable that has been passed into the domain. Handy for testing on mocked domains. *NOT INTENDED FOR REGULAR USAGE*
-
-### Domain::[ACTION_NAME]
-function that existed on a set of functions provided as actions in constructor. It is not exactly the same function as it is wrapped, so it is run in **Dispatcher** queue.
-
-```javascript
-const domain = new Domain(
-	new Data(0),
-	{ foo: () => console.log('bar') }
-)
-domain.foo()
-// prints: 'bar'
-```
-
-### Domain::[ACTION_NAME].originalLength (since 1.6)
-Amount of arguments indicated by original action function
-
-```javascript
-domain.foo.originalLength // 0
-```
-
-## class `Data`
-#### extends `Observable`
-#### ( initialData: mixed )
+## class `Data`&lt;T&gt;
+#### extends `Observable`&lt;T&gt;
+#### ( initialData: T )
 ```javascript
 import {Data} from 'immview'
-
 new Data( 2 )
 ```
-
-An **initialData** object can be object any native immutable (bool, string, number) or Immutable.js data structure.
+**Data** class is a top level node, observable that enables pushing data through it with it's `write` method.
 
 ### Data::write
-#### (change: mixed ) => void
-#### (change: (currentStructure) => mixed) => void
+#### (change: T ) => void
+#### (change: (currentStructure) => T) => void
 
-Method used to store new data structure.
+Method used to push new message of type `T` to observers.
 
 **change** parameter is:
 
-- any data structure that should replace current one. If passed value is either undefined or null, replacement will not occur;
-- a function that should return a data structure that should replace current one. If function returns undefined or null, replacement will not occur.
+- any data structure that should replace current one.
+- a function that should return a data structure that should replace current one.
 
 ```javascript
 const source = new Data({a: 1})
@@ -144,187 +68,77 @@ be also warned, that you should not change any data structures you are given ins
 source.write(data => ({ ...data, b: 3}))
 ```
 
-If already inside **Dispatcher** queue, replacement will be postponed and executed after all currently queued commands. This may be even more varied with non-standard **Dispatcher.tick** function. **You should never presume timing of write execution.**
+In both ways replacement will be postponed and executed after all currently queued commands.
 
-## class `View`
-#### extends `Observable`
-#### ( source: Observable, processor: (sourceData: mixed) => mixed )
-
-```javascript
-import { Data, View } from 'immview'
-
-// transform source with processor function
-const place = new Data(0)
-const transformation = new View (place, v => v + 1)
-transformation.read() === 1 // true
-
-place.write(1)
-transformation.read() === 2 // true
-```
-
-Constructor of **View** object takes any source (a stream or a **Domain**) as first argument and optionally function transforming this data as a second argument.
-A processor function will receive a value and has to return next one that will be state of current node.
-
-Returning a `Promise` will result in subscriptions being fired upon that `Promise` resolution.
-
-Returning **null** or **undefined** will result in no subscription being fired.
-
-### View::read
-Same as `Data` function of the same name.
-
-### View::subscribe
-Same as `Data` function of the same name.
-
-### View::map (since 1.4)
-Same as `Data` function of the same name.
-
-### View::debounce (since 1.5)
-Same as `Data` function of the same name.
-
-### View::throttle (since 1.5)
-Same as `Data` function of the same name.
-
-### View::scan (since 1.6)
-Same as `Data` function of the same name.
-
-## class `Merge`
-(since 1.7)
-#### extends `Observable`
+## class `Merge`&lt;T&gt;
+#### extends `Observable`&lt;T&gt;
 #### ( { [name: string]: Observable } )
-Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) place.
+Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.
 
 ```javascript
 const join = new Merge({
 	a: new Data('a'),
 	b: new Data('b')
 })
-join.read() // { a: 'a', b: 'b' }
+join.subscribe(v => {
+    console.log(v) // {a: 'a', b: 'b'}
+})
 ```
 
-## class `Debounce`
-(since 1.5)
-#### extends `Observable`
-#### ( source: Observable, delay: number )
+### Domain.create&lt;T&gt;
+####( source: Observable&lt;T&gt; , actions: { [name: string]: () => Promise&lt;any&gt; | void }, fields: {})
 
-```javascript
-new Debouce(sourceStream, 10)
-// or
-sourceStream.debounce(10)
+`Domain` class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of `Domain`s scope.
+For example: if you have a folder like:
 ```
-
-Creates a new stream of values being pushed with a provided delay since **last** update.
-Shares interface with a **View**.
-
-## class `Throttle`
-(since 1.5)
-#### extends `Observable`
-#### ( source: Observable, delay: number )
-
-```javascript
-new Throttle(sourceStream, 10)
-// or
-sourceStream.throttle(10)
+└ SomeDomain
+  ├ index.js // here is Domain creation
+  ├ SomeDomainState.js // downstream - source observables or stream transformations
+  └ SomeDomainActions.js // functions to manipulate `Domain`'s state
 ```
+you should export SomeDomain from index.js and use only that in any other file.
 
-Creates a new stream of values being push with a provided delay since **first** update.
-Shares interface with a **View**.
+First argument of the factory function is an observable emiting messages that will be emited by the `Domain`'s instance too.
+Only single data source can be tied to a **Domain**, but you can always use `Merge` to combine multiple streams.
 
-## class `Scan`
-(since 1.6)
-#### extends `Observable`
-#### ( source: Observable, valuesToRemember: number = 2, initialValue: any = null )
-
-```javascript
-new Scan(sourceStream, 2)
-// or
-sourceStream.scan(2)
-
-new Scan(sourceStream, 2, {})
-// or
-sourceStream.scan(2, {})
-
-const source = new Data(0)
-const trans =
-	source
-		.scan(2)
-		.map(
-			numbers => numbers.reduce((sum, num) => sum + num)
-		)
-trans.read() === 0
-
-source.write(1)
-trans.read() === 1
-
-source.write(2)
-trans.read() === 3
-
-source.write(3)
-trans.read() === 5
-```
-
-Creates  a new stream of `Arrays` of values that were pushed from a source stream recently. List has a max length of `valuesToRemember` argument. Additionally if `initialValue` is provided for first `valuesToRemember - 1` runs , `Array` of values is always `valuesToRemember` long and filled with `initialValue` for not yet existing steps.
-
-Shares interface with a **View**.
-
-## class `Reduce`
-(since 1.7)
-### extends `Observable`
-#### &lt;T, U&gt;(source: Observable&lt;T&gt;, (resultState: &lt;U&gt;, sourceState: T) =&gt; U)
+Second argument is an object aggregating functions used to create actions and other values that will be exposed as part of the **Domain** interface.
+Provided functions will be wrapped with an internal Dispatcher calls. That mechanism ensures that they will always be executed one **after** another. That is a design decision which makes it easier to reason about what is happening inside application.
+Functions provided as **Domain** *actions* must not return any value.
+Calling an action however will return a Promise resolved after action function execution.
 
 ```javascript
-const source = new Data(0)
-const result = new Reduce(
-	source,
-	(resultState, sourceState) => resultState + sourceState
+// example usage
+import {Data, Merge, Domain} from 'immview'
+import {HorizonDomain} from './HorizonDomain'
+import {MusclesDomain} from './MusclesDomain'
+
+const EyesDomain = Domain.create(
+	new Merge({
+		HorizonDomain,
+		MusclesDomain,
+	}),
+	{
+		roll() {
+			MusclesDomain.doStuff()
+		}
+	},
+	{
+		EXTRAOCULAR_MUSCLES: 6
+	}
 )
 
-source.write(1)
-result.read() === 1
-
-source.write(2)
-result.read() === 3
-
-source.write(3)
-result.read() === 6
+EyesDomain.roll().then(() => { console.log('I saw that!') })
+EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
 
-## module `Dispatcher`
+### Domain::[ACTION_NAME]
+function that existed on a set of functions provided as actions in constructor. It is not exactly the same function as it is wrapped, so it is run in **Dispatcher** queue.
 
-### Dispatcher.logger (since 1.5)
-
-Replace to change for logging errors in queue runner
 ```javascript
-// default
-Dispatcher.logger = console;
-```
-
-### Dispatcher.tick (since 1.5)
-
-Replace to change how next function is being called.
-```javascript
-// default
-Dispatcher.tick = func => func();
-```
-
-### Dispatcher.dispatch( action: function, context: any, args: any[] ) (since 1.5)
-
-Call to place action on a queue. Can be imported directly from package too.
-```javascript
-// example
-
-Dispatcher.dispatch( console.log, console, ['oi!'] );
-// 'oi!'
-```
-
-### Dispatcher.rejectContext( context: any ) (since 1.5)
-
-Call to remove actions with provided context from queue.
-```javascript
-// example
-Dispatcher.dispatch( () => {
-  console.log('ay!');
-  Dispatcher.dispatch( console.log, console, ['oi!'] );
-  Dispatcher.rejectContext( console );
-} );
-// 'ay!'
+const domain = new Domain(
+	new Data(0),
+	{ foo: () => console.log('bar') }
+)
+domain.foo()
+// prints: 'bar'
 ```
