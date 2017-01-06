@@ -110,7 +110,25 @@ export class Observable<T> extends BaseObservable<T> {
     }
 
     buffer(maxLastMessages: number = 1): Observable<T> {
-        throw new Error('not implemented')
+        let messages: T[] = []
+        return new Observable<T>(observer => {
+            const subscription = this.subscribe(
+                message => {
+                    messages = [message, ...messages].splice(0, maxLastMessages)
+                    if (messages.length === 1) {
+                        Dispatcher
+                            .push(() => {
+                                messages
+                                    .splice(0, messages.length)
+                                    .reverse()
+                                    .forEach(observer.next)
+                            }, DispatcherPriorities.BUFFER)
+                            .run()
+                    }
+                }
+            )
+            return () => subscription.unsubscribe()
+        })
     }
 }
 
