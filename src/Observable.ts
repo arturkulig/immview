@@ -118,8 +118,26 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    scan<U>(scanner: (values: T[]) => U, historyLength = 2, defaultValue = null): Observable<U> {
-        throw new Error('not implemented')
+    scan(historyLength = 2, defaultValue = null): Observable<T[]> {
+        const history: T[] = defaultValue !== null
+            ? Array(historyLength).fill(defaultValue)
+            : []
+        return new Observable<T[]>(observer => {
+            const subscription = this.subscribe(
+                value => {
+                    if (observer.closed) {
+                        return
+                    }
+
+                    history.unshift(value)
+                    history.splice(historyLength)
+                    observer.next([...history])
+                },
+                observer.error,
+                observer.complete
+            )
+            return () => subscription.unsubscribe()
+        })
     }
 
     buffer(maxLastMessages: number = 0): Observable<T[]> {
