@@ -4,8 +4,8 @@ describe('Observable', () => {
     it('can be created with array', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [...pushValues]
-        let result = []
-        Observable.from([1, 2, 3]).subscribe(
+        const result = []
+        Observable.from(pushValues).subscribe(
             value => {
                 result.push(value)
                 expect(value).toBe(expectedValues.shift())
@@ -19,8 +19,8 @@ describe('Observable', () => {
     it('can be created from other Observable', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [...pushValues]
-        let result = []
-        Observable.from(Observable.from([1, 2, 3])).subscribe(
+        const result = []
+        Observable.from(Observable.from(pushValues)).subscribe(
             value => {
                 result.push(value)
                 expect(value).toBe(expectedValues.shift())
@@ -34,8 +34,8 @@ describe('Observable', () => {
     it('can be create listing future values', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [...pushValues]
-        let result = []
-        Observable.of(1, 2, 3).subscribe(
+        const result = []
+        Observable.from(pushValues).subscribe(
             value => {
                 result.push(value)
                 expect(value).toBe(expectedValues.shift())
@@ -47,7 +47,8 @@ describe('Observable', () => {
     })
 
     it('can filter messages', done => {
-        Observable.of(1, 2, 3).filter(value =>
+        const pushValues = [1, 2, 3]
+        Observable.from(pushValues).filter(value =>
             value > 2
         ).subscribe(value => {
             expect(value).toBe(3)
@@ -58,8 +59,8 @@ describe('Observable', () => {
     it('can reduce messages', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [1, 3, 6]
-        let result = []
-        Observable.of(1, 2, 3).reduce((value, summary: number) =>
+        const result = []
+        Observable.from(pushValues).reduce((value, summary: number) =>
             summary + value
         ).subscribe(value => {
             result.push(value)
@@ -73,8 +74,8 @@ describe('Observable', () => {
     it('can map messages', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [5, 10, 15]
-        let result = []
-        Observable.of(1, 2, 3).map(v =>
+        const result = []
+        Observable.from(pushValues).map(v =>
             v * 5
         ).subscribe(value => {
             result.push(value)
@@ -83,5 +84,20 @@ describe('Observable', () => {
                 setTimeout(done)
             }
         })
+    })
+
+    it('can create sliding buffer', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [2, 3]
+        const result = []
+        Observable.from(pushValues).buffer(2).subscribe(
+            value => {
+                result.push(value)
+            }
+        )
+        setTimeout(() => {
+            expect(result).toEqual(expectedValues)
+            done()
+        }, 10)
     })
 })
