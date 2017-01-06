@@ -176,4 +176,34 @@ describe('Observable', () => {
             done()
         })
     })
+
+    it('can scan messages without default value', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [[1], [2, 1], [3, 2]]
+        let result = []
+        Observable.from(pushValues).scan(2).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 3) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('can scan messages with default value', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [[1, 0, 0], [2, 1, 0], [3, 2, 1]]
+        let result = []
+        Observable.from(pushValues).scan(3, 0).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 3) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
 })
