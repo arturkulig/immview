@@ -110,7 +110,7 @@ export class Observable<T> extends BaseObservable<T> {
 
     scan(historyLength = 2, defaultValue = null): Observable<T[]> {
         const history: T[] = defaultValue !== null
-            ? Array(historyLength).fill(defaultValue)
+            ? fillArray(Array(historyLength), defaultValue)
             : []
         return new Observable<T[]>(observer => {
             const subscription = this.subscribe(
@@ -161,6 +161,13 @@ export class Observable<T> extends BaseObservable<T> {
             return () => subscription.unsubscribe()
         })
     }
+}
+
+function fillArray(array, defaultValue) {
+    for (let i = 0; i < array.length; i++) {
+        array[i] = defaultValue
+    }
+    return array
 }
 
 Observable.prototype[ObservableSymbol] = function () { return this }
