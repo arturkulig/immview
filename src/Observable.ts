@@ -115,8 +115,10 @@ export class Observable<T> extends BaseObservable<T> {
         return new Observable<T[]>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    history.unshift(value)
-                    history.splice(historyLength)
+                    history.push(value)
+                    if (history.length > historyLength) {
+                      history.shift()
+                    }
                     observer.next([...history])
                 },
                 observer.error,
