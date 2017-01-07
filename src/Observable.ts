@@ -17,7 +17,7 @@ export class Observable<T> extends BaseObservable<T> {
         }
 
         if (values[Symbol.iterator]) {
-            return new Observable<T>(({next, error}) => {
+            return new Observable<T>(({next, error, complete}) => {
                 const iterator = values[Symbol.iterator]()
                 for (
                     let result: IteratorResult<T> = iterator.next();
@@ -28,6 +28,7 @@ export class Observable<T> extends BaseObservable<T> {
                         ? error(result.value)
                         : next(result.value)
                 }
+                complete()
             })
         }
 
@@ -111,21 +112,26 @@ export class Observable<T> extends BaseObservable<T> {
     bufferCount(bufferSize: number, startBufferEvery: number = null): Observable<T[]> {
         const bufferInterval = startBufferEvery || bufferSize
         let history: T[] = []
+        let newMessage = true
         return new Observable<T[]>(observer => {
-            let newMessages = 0
             const subscription = this.subscribe(
                 value => {
-                    history = [value, ...history].splice(0, bufferSize)
-                    newMessages++
-                    if (newMessages === bufferInterval) {
-                        newMessages = 0
-                        if (history.length === bufferSize) {
-                            observer.next([...history].reverse())
-                        }
+                    newMessage = true
+                    history.unshift(value)
+                    if (history.length === bufferSize) {
+                        newMessage = false
+                        observer.next([...history].reverse())
+                        history
+                            .splice(bufferSize - bufferInterval, bufferInterval)
                     }
                 },
                 observer.error,
-                observer.complete
+                () => {
+                    if (newMessage) {
+                        observer.next([...history].reverse())
+                    }
+                    observer.complete()
+                }
             )
             return () => subscription.unsubscribe()
         })

@@ -206,4 +206,49 @@ describe('Observable', () => {
             }
         )
     })
+
+    it('should emit partial buffers if reaches end', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [[1, 2, 3]]
+        let result = []
+        Observable.from(pushValues).bufferCount(4).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 1) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('should emit full buffers then partial buffer if reaches end', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2, 3], [4]]
+        let result = []
+        Observable.from(pushValues).bufferCount(3).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 2) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('should emit full buffers then partial buffer with old values if reaches end', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2, 3], [3, 4]]
+        let result = []
+        Observable.from(pushValues).bufferCount(3, 2).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 2) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
 })
