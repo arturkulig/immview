@@ -68,7 +68,7 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    reduce<U>(reductor: (value: T, summary: U) => U): Observable<U> {
+    scan<U>(reductor: (value: T, summary: U) => U): Observable<U> {
         return new Observable<U>(observer => {
             let summary: U = null
             const subscription = this.subscribe(
@@ -108,18 +108,21 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    scan(historyLength = 2, defaultValue = null): Observable<T[]> {
-        const history: T[] = defaultValue !== null
-            ? fillArray(Array(historyLength), defaultValue)
-            : []
+    bufferCount(bufferSize: number, startBufferEvery: number = null): Observable<T[]> {
+        const bufferInterval = startBufferEvery || bufferSize
+        let history: T[] = []
         return new Observable<T[]>(observer => {
+            let newMessages = 0
             const subscription = this.subscribe(
                 value => {
-                    history.push(value)
-                    if (history.length > historyLength) {
-                      history.shift()
+                    history = [value, ...history].splice(0, bufferSize)
+                    newMessages++
+                    if (newMessages === bufferInterval) {
+                        newMessages = 0
+                        if (history.length === bufferSize) {
+                            observer.next([...history].reverse())
+                        }
                     }
-                    observer.next([...history])
                 },
                 observer.error,
                 observer.complete
@@ -163,13 +166,6 @@ export class Observable<T> extends BaseObservable<T> {
             return () => subscription.unsubscribe()
         })
     }
-}
-
-function fillArray(array, defaultValue) {
-    for (let i = 0; i < array.length; i++) {
-        array[i] = defaultValue
-    }
-    return array
 }
 
 Observable.prototype[ObservableSymbol] = function () { return this }

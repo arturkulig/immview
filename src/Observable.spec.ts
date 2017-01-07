@@ -56,11 +56,11 @@ describe('Observable', () => {
         })
     })
 
-    it('can reduce messages', done => {
+    it('can scan messages, and reduce output', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [1, 3, 6]
         const result = []
-        Observable.from(pushValues).reduce((value, summary: number) =>
+        Observable.from(pushValues).scan((value, summary: number) =>
             summary + value
         ).subscribe(value => {
             result.push(value)
@@ -177,30 +177,30 @@ describe('Observable', () => {
         })
     })
 
-    it('can scan messages without default value', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [[1], [1, 2], [2, 3]]
+    it('can take buffered messages with default interval', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2], [3, 4]]
         let result = []
-        Observable.from(pushValues).scan(2).subscribe(
+        Observable.from(pushValues).bufferCount(2).subscribe(
             value => {
                 result.push(value)
                 expect(value).toEqual(expectedValues.shift())
-                if (result.length === 3) {
+                if (result.length === 2) {
                     setTimeout(done)
                 }
             }
         )
     })
 
-    it('can scan messages with default value', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [[0, 0, 1], [0, 1, 2], [1, 2, 3]]
+    it('can take buffered messages with set interval', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2, 3], [2, 3, 4]]
         let result = []
-        Observable.from(pushValues).scan(3, 0).subscribe(
+        Observable.from(pushValues).bufferCount(3, 1).subscribe(
             value => {
                 result.push(value)
                 expect(value).toEqual(expectedValues.shift())
-                if (result.length === 3) {
+                if (result.length === 2) {
                     setTimeout(done)
                 }
             }
