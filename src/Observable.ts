@@ -38,9 +38,6 @@ export class Observable<T> extends BaseObservable<T> {
         return new Observable<U>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
                     try {
                         observer.next(action(value))
                     } catch (e) {
@@ -76,10 +73,6 @@ export class Observable<T> extends BaseObservable<T> {
             let summary: U = null
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
-
                     let newValue
                     try {
                         newValue = summary
@@ -102,9 +95,6 @@ export class Observable<T> extends BaseObservable<T> {
         return new Observable<T>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
                     try {
                         filter(value) && observer.next(value)
                     } catch (e) {
@@ -125,10 +115,6 @@ export class Observable<T> extends BaseObservable<T> {
         return new Observable<T[]>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
-
                     history.unshift(value)
                     history.splice(historyLength)
                     observer.next([...history])
