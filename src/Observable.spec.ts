@@ -161,4 +161,19 @@ describe('Observable', () => {
             }, 10)
         })
     })
+
+    it('can flatten observable values', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [...pushValues]
+        const result = []
+        new Observable<Observable<number>>(observer => {
+            observer.next(Observable.from(pushValues))
+        }).flatten().subscribe(v => {
+            result.push(v)
+        })
+        setTimeout(() => {
+            expect(result).toEqual(expectedValues)
+            done()
+        })
+    })
 })
