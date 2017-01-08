@@ -86,18 +86,65 @@ describe('Observable', () => {
         })
     })
 
-    it('can create sliding buffer', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [2, 3]
-        const result = []
-        Observable.from(pushValues).buffer(2).subscribe(
-            value => {
-                result.push(value)
-            }
-        )
-        setTimeout(() => {
-            expect(result).toEqual(expectedValues)
-            done()
-        }, 10)
+    describe('can create sliding buffer', () => {
+        it('can create sliding buffer - window length 1', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [[3]]
+            const result = []
+            Observable.from(pushValues).buffer(1).subscribe(
+                value => {
+                    result.push(value)
+                }
+            )
+            setTimeout(() => {
+                expect(result).toEqual(expectedValues)
+                done()
+            }, 10)
+        })
+
+        it('can create sliding buffer - window length 2', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [[2, 3]]
+            const result = []
+            Observable.from(pushValues).buffer(2).subscribe(
+                value => {
+                    result.push(value)
+                }
+            )
+            setTimeout(() => {
+                expect(result).toEqual(expectedValues)
+                done()
+            }, 10)
+        })
+
+        it('can create sliding buffer - window length 3', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [[1, 2, 3]]
+            const result = []
+            Observable.from(pushValues).buffer(3).subscribe(
+                value => {
+                    result.push(value)
+                }
+            )
+            setTimeout(() => {
+                expect(result).toEqual(expectedValues)
+                done()
+            }, 10)
+        })
+
+        it('can create sliding buffer - window length longer than stream', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [[1, 2, 3]]
+            const result = []
+            Observable.from(pushValues).buffer(4).subscribe(
+                value => {
+                    result.push(value)
+                }
+            )
+            setTimeout(() => {
+                expect(result).toEqual(expectedValues)
+                done()
+            }, 10)
+        })
     })
 })
