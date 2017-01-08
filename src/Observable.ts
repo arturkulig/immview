@@ -54,8 +54,21 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    flatMap<U>(action: (value: T) => Observable<U>): Observable<U> {
-        throw new Error('not implemented')
+    flatten<U>(this: Observable<Observable<U>>): Observable<U> {
+        return new Observable<U>(observer => {
+            this.subscribe(
+                nextSource => {
+                    nextSource && nextSource.subscribe(
+                        nextSourceValue => {
+                            observer.next(nextSourceValue)
+                        },
+                        err => observer.error(err)
+                    )
+                },
+                observer.error,
+                observer.complete
+            )
+        })
     }
 
     reduce<U>(reductor: (value: T, summary: U) => U): Observable<U> {
