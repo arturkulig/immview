@@ -109,22 +109,36 @@ export class Observable<T> extends BaseObservable<T> {
         throw new Error('not implemented')
     }
 
-    buffer(maxLastMessages: number = 1): Observable<T> {
+    buffer(maxLastMessages: number = 0): Observable<T[]> {
         let messages: T[] = []
-        return new Observable<T>(observer => {
+        return new Observable<T[]>(observer => {
             const subscription = this.subscribe(
                 message => {
-                    messages = [message, ...messages].splice(0, maxLastMessages)
-                    if (messages.length === 1) {
-                        Dispatcher
-                            .push(() => {
+                    messages = maxLastMessages > 0
+                        ? [message, ...messages].splice(0, maxLastMessages)
+                        : [message, ...messages]
+                    Dispatcher
+                        .push(() => {
+                            if (messages.length < 1) return
+                            if (observer.closed) return
+                            observer.next(
                                 messages
                                     .splice(0, messages.length)
                                     .reverse()
-                                    .forEach(observer.next)
-                            }, DispatcherPriorities.BUFFER)
-                            .run()
+                            )
+                        }, DispatcherPriorities.BUFFER)
+                        .run()
+                },
+                e => observer.error(e),
+                () => {
+                    if (messages.length > 0) {
+                        observer.next(
+                            messages
+                                .splice(0, messages.length)
+                                .reverse()
+                        )
                     }
+                    observer.complete()
                 }
             )
             return () => subscription.unsubscribe()
