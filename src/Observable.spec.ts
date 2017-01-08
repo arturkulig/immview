@@ -87,7 +87,21 @@ describe('Observable', () => {
     })
 
     describe('can create sliding buffer', () => {
-        it('can create sliding buffer - window length 1', done => {
+        it('without specified window length', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [[1, 2, 3]]
+            const result = []
+            Observable.from(pushValues).buffer().subscribe(
+                value => {
+                    result.push(value)
+                }
+            )
+            setTimeout(() => {
+                expect(result).toEqual(expectedValues)
+                done()
+            }, 10)
+        })
+        it('with window length 1', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [[3]]
             const result = []
@@ -102,7 +116,7 @@ describe('Observable', () => {
             }, 10)
         })
 
-        it('can create sliding buffer - window length 2', done => {
+        it('with window length 2', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [[2, 3]]
             const result = []
@@ -117,7 +131,7 @@ describe('Observable', () => {
             }, 10)
         })
 
-        it('can create sliding buffer - window length 3', done => {
+        it('with window length 3', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [[1, 2, 3]]
             const result = []
@@ -132,7 +146,7 @@ describe('Observable', () => {
             }, 10)
         })
 
-        it('can create sliding buffer - window length longer than stream', done => {
+        it('with window length longer than stream', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [[1, 2, 3]]
             const result = []

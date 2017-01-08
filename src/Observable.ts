@@ -129,7 +129,7 @@ export class Observable<T> extends BaseObservable<T> {
                         }, DispatcherPriorities.BUFFER)
                         .run()
                 },
-                e => observer.error(e),
+                observer.error,
                 () => {
                     if (messages.length > 0) {
                         observer.next(
