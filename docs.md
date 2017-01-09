@@ -1,10 +1,5 @@
 #Docs
 
-- [abstract class Observable](#abstract-class-observable)
-- [class Data](#class-data)
-- [class Merge](#class-merge)
-- [class Domain](#class-domain)
-
 ## class `Observable`&lt;T&gt;
 #### (subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)
 Construct with `subscriber` function that receives `observer` object. `Observer` is for pushing values, errors and completion signal.
@@ -38,16 +33,16 @@ Returns a function to unregister the subscription.
 Class constructor alone will be only helpful when extending `Domain` class.
 
 
-## class `Data`&lt;T&gt;
+## class `Origin`&lt;T&gt;
 #### extends `Observable`&lt;T&gt;
 #### ( initialData: T )
 ```javascript
-import {Data} from 'immview'
-new Data( 2 )
+import {Origin} from 'immview'
+new Origin( 2 )
 ```
-**Data** class is a top level node, observable that enables pushing data through it with it's `write` method.
+**Origin** class is a top level node, observable that enables pushing values through it with it's `push` method.
 
-### Data::write
+### Origin::push
 #### (change: T ) => void
 #### (change: (currentStructure) => T) => void
 
@@ -59,13 +54,13 @@ Method used to push new message of type `T` to observers.
 - a function that should return a data structure that should replace current one.
 
 ```javascript
-const source = new Data({a: 1})
-source.write({a: 2})
+const source = new Origin({a: 1})
+source.push({a: 2})
 
 /*
 be also warned, that you should not change any data structures you are given inside these functions
 */
-source.write(data => ({ ...data, b: 3}))
+source.push(data => ({ ...data, b: 3}))
 ```
 
 In both ways replacement will be postponed and executed after all currently queued commands.
@@ -77,8 +72,8 @@ Responsible for being reactive to more than one source and placing source stream
 
 ```javascript
 const join = new Merge({
-	a: new Data('a'),
-	b: new Data('b')
+	a: new Origin('a'),
+	b: new Origin('b')
 })
 join.subscribe(v => {
     console.log(v) // {a: 'a', b: 'b'}
@@ -108,7 +103,7 @@ Calling an action however will return a Promise resolved after action function e
 
 ```javascript
 // example usage
-import {Data, Merge, Domain} from 'immview'
+import {Origin, Merge, Domain} from 'immview'
 import {HorizonDomain} from './HorizonDomain'
 import {MusclesDomain} from './MusclesDomain'
 
@@ -135,8 +130,8 @@ EyesDomain.EXTRAOCULAR_MUSCLES // 6
 function that existed on a set of functions provided as actions in constructor. It is not exactly the same function as it is wrapped, so it is run in **Dispatcher** queue.
 
 ```javascript
-const domain = new Domain(
-	new Data(0),
+const domain = Domain.create(
+	new Origin(0),
 	{ foo: () => console.log('bar') }
 )
 domain.foo()
