@@ -5,13 +5,13 @@ import { Observable } from './Observable'
 
 export type writer<T> = (currentValue: T) => T
 
-export class Data<T> extends Observable<T> {
+export class Origin<T> extends Observable<T> {
     constructor(defaultValue: T) {
         super(observer => { observer.next(defaultValue) })
         this.lastValue = defaultValue
     }
 
-    write(nextValue: T | writer<T>): Promise<void> {
+    push(nextValue: T | writer<T>): Promise<void> {
         return new Promise<void>(resolve => {
             this.pushMessage([
                 MessageTypes.Next,
