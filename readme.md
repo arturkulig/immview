@@ -1,11 +1,24 @@
 # <img src="https://raw.githubusercontent.com/arturkulig/immview/master/immview.png" />
 
-Immview is a library to create **Domains** - *non-visual components* - similar to flux stores, exposing their **state** through *observables* pushing data and having specific to them **actions**. It can be used instead of any flux implementation or redux.
+**Immview** is a library to create `Domain`s - *non-visual components*
+- similar to flux stores, exposing their **state** or emitting **signals**
+through `Observable`s pushing values and having specific to their concerns **actions**.
+Their primary role is to encapsulate a concern
+and to be the only thing exported from a javascript module or modules
+that deal with the concern.
 
-State of a **Domain** can be either an *original* data source (**Data**) or a *derivative* data source (**View/Merge/Debounce/Throttle/Scan**). **Views** etc. can be **only** a derivative of other stream (or combination of sources) and eventually use pure transforming function. By connecting these nodes, derivative data source subscribes to all changes of it's source (or sources) and recomputes it's content upon these changes.
+It completely replaces any flux implementation or Redux.
 
-If you familiar with stream libraries like Rx\* **Data** can be seen as an original observable and others are transformation functions like `map` effectively producing new observable.
-All **Domains** must be provided with a state stream (so either **Data** or a **View**), but not all storages must be assigned to a **Domain**.
+If you are familiar with streaming libraries like RxJS,
+an **Immview** taste of `Observable` does not have a different meaning or role.
+Also, just as RxJS 5, it tries to follow
+[TC39 Observable proposal](https://github.com/tc39/proposal-observable).
+
+All `Domain`s must be provided with a single stream of values
+(so either `Origin` or any other transformed `Observable`),
+but not all `Observable`s must be attached to a `Domain`
+ - you can perform many transformations on a source
+ before it is exposed through a `Domain`.
 
 ## Installation
 
@@ -20,10 +33,11 @@ npm i immview --save
 If you are using React to create presentation layer of your app you should check [immview-react-connect](https://github.com/arturkulig/immview-react-connect)
 
 # Read more
-* [Reactive logic with immview](https://medium.com/@arturkulig/reactive-logic-with-immview-cf60ff06b7dc) - an introduction to reasoning behind immview
 * [Documentation](./docs.md)
 * [Simple usage](./usage_simple.md)
 * [Changelog](./changelog.md)
+* [Immview — application state management by streaming 101 (Jan 4, 2017)](https://medium.com/@arturkulig/immview-application-state-management-by-streaming-101-c12f81e3abac)
+* [Reactive logic with immview (May 28, 2016)](https://medium.com/@arturkulig/reactive-logic-with-immview-cf60ff06b7dc) - an introduction to reasoning behind immview 1.x
 
 # Compatibility
 
@@ -33,12 +47,12 @@ Not compatible with IE8 unless:
 # 2.0 Roadmap
 - [X] Dispatcher
 - [X] BaseObservable
-- [X] Data
+- [X] Data -> Origin
 - [X] Merge
-- [ ] Observable.map
-- [ ] Observable.reduce
-- [ ] Observable.scan
-- [ ] Observable.buffer
-- [ ] Observable.flatMap
-- [ ] Domain
+- [X] Observable.map
+- [X] Observable.scan
+- [X] Observable.flatten
+- [X] Observable.buffer
+- [X] Observable.bufferCount
+- [X] Domain
 - [ ] external: immview-react-connect 2.0

@@ -1,21 +1,21 @@
-import { Data } from './Data'
+import { Origin } from './Origin'
 
-describe('Data', () => {
+describe('Origin', () => {
     it('can be created', () => {
         expect(() => {
-            new Data(null)
+            new Origin(null)
         }).not.toThrow()
     })
 
     it('can be immediately read', () => {
         const value = {}
-        const subject = new Data(value)
+        const subject = new Origin(value)
         expect(subject.last()).toBe(value)
     })
 
     it('can be immediately subscribed with default value', done => {
         const value = {}
-        const subject = new Data(value)
+        const subject = new Origin(value)
         subject.subscribe(
             next => {
                 expect(next).toBe(value)
@@ -26,7 +26,7 @@ describe('Data', () => {
 
     it('can be subscribed later and first value will be pushed if no subscription occurred before', done => {
         const value = {}
-        const subject = new Data(value)
+        const subject = new Origin(value)
         setTimeout(() => {
             subject.subscribe(
                 next => {
@@ -41,7 +41,7 @@ describe('Data', () => {
         const value = {}
         const value2 = {}
         let expected = value
-        const subject = new Data(value)
+        const subject = new Origin(value)
         subject.subscribe(
             next => {
                 switch (true) {
@@ -57,11 +57,11 @@ describe('Data', () => {
                 }
             }
         )
-        subject.write(value2)
+        subject.push(value2)
     })
 
     it('can be written to with a function', done => {
-        const subject = new Data(1)
+        const subject = new Origin(1)
         subject.subscribe(() => { }) // force digest on lazy observable
 
         const expectedCalls = 10
@@ -69,7 +69,7 @@ describe('Data', () => {
         let $: Promise<any> = new Promise(resolve => setTimeout(resolve))
         for (let i = 0; i < expectedCalls; i++) {
             $ = $.then(() =>
-                subject.write(
+                subject.push(
                     next => {
                         calls++
                         return next + 1

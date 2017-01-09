@@ -1,7 +1,7 @@
 import { Dispatcher } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { Observable } from './Observable'
-import { Data } from './Data'
+import { Origin } from './Origin'
 import { Merge } from './Merge'
 import { Domain } from './Domain'
 import { action } from './Domain.action'
@@ -12,7 +12,7 @@ const dispatchExt = (job: () => any) => {
 
 export {
     Observable,
-    Data,
+    Origin,
     Merge,
     Domain,
     dispatchExt as dispatch,
