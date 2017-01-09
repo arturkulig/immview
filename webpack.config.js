@@ -4,7 +4,7 @@ var webpack = require('webpack');
 var config = {
     entry: path.resolve(__dirname, 'src/index.ts'),
     output: {
-        path: __dirname + '/dist',
+        path: path.resolve(__dirname, 'dist'),
         filename: 'immview.js',
         library: 'immview',
         libraryTarget: 'umd',
@@ -23,7 +23,7 @@ var config = {
     devtool: 'source-map',
     plugins: [
         new webpack.DefinePlugin({
-            'process.env':{
+            'process.env': {
                 'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
             }
         })
