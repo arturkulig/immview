@@ -2,16 +2,18 @@
   "name": "immview",
   "version": "2.0.0",
   "description": "",
-  "main": "dist/immview.js",
+  "main": "./dist/immview.js",
+  "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/arturkulig/immview"
   },
   "scripts": {
     "start": "NODE_ENV=testing jest",
-    "build": "NODE_ENV=production webpack -p",
+    "build": "NODE_ENV=production webpack -p; npm run declarations",
+    "declarations": "rm -rf ./dist/*.d.ts; tsc --declaration --declarationDir ./dist --outDir ./tsc_tmp_output; rm -rf ./dist/*.spec.d.ts; rm -rf ./tsc_tmp_output",
     "preversion": "npm run test && npm run build",
-    "test": "$(npm bin)/tsc --noEmit && $(npm bin)/tslint --project ./tsconfig.json --config ./tslint.json --format stylish && jest",
+    "test": "tsc --noEmit && $(npm bin)/tslint --project ./tsconfig.json --config ./tslint.json --format stylish && jest",
     "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i"
   },
   "author": "Artur Kulig",

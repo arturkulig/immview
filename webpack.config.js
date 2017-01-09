@@ -1,5 +1,6 @@
-var path = require('path');
-var webpack = require('webpack');
+var path = require('path')
+var webpack = require('webpack')
+const ClosureCompiler = require('google-closure-compiler-js').webpack
 
 var config = {
     entry: path.resolve(__dirname, 'src/index.ts'),
@@ -28,7 +29,7 @@ var config = {
             }
         })
     ]
-};
+}
 
 if (process.env.NODE_ENV === 'production') {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
@@ -39,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
             screw_ie8: true,
             warnings: false
         }
-    }));
+    }))
 }
 
-module.exports = config;
+module.exports = config

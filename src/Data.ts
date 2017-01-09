@@ -3,7 +3,7 @@ import { DispatcherPriorities } from './DispatcherPriorities'
 import { MessageTypes } from './BaseObservable'
 import { Observable } from './Observable'
 
-type writer<T> = (currentValue: T) => T
+export type writer<T> = (currentValue: T) => T
 
 export class Data<T> extends Observable<T> {
     constructor(defaultValue: T) {

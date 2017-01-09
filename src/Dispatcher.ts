@@ -1,4 +1,4 @@
-interface Task {
+export interface Task {
     priority: number,
     job: () => any,
 }
