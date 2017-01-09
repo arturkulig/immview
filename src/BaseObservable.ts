@@ -2,8 +2,8 @@ import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { BaseObservableSubscription } from './BaseObservableSubscription'
 
-type writer<T> = (currentValue: T) => T
-class SubscriptionObserver<T> {
+export type writer<T> = (currentValue: T) => T
+export class SubscriptionObserver<T> {
     constructor(
         public next: (value: T | writer<T>) => void,
         public error: (reason: Error) => void,
@@ -14,22 +14,22 @@ class SubscriptionObserver<T> {
         return this._closed()
     }
 }
-type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() => void)
+export type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() => void)
 
 export enum MessageTypes { Next, Error, Complete }
-type NextMessage<T> = [MessageTypes.Next, (currentState: T) => T, () => void]
-type ErrorMessage = [MessageTypes.Error, Error, () => void]
-type CompletionMessage = [MessageTypes.Complete, void, () => void]
-type Message<T> =
+export type NextMessage<T> = [MessageTypes.Next, (currentState: T) => T, () => void]
+export type ErrorMessage = [MessageTypes.Error, Error, () => void]
+export type CompletionMessage = [MessageTypes.Complete, void, () => void]
+export type Message<T> =
     NextMessage<T> |
     ErrorMessage |
     CompletionMessage
-type MessagesListEntry<T> = [BaseObservable<T>, Message<T>]
-type MessagesList = MessagesListEntry<any>[]
+export type MessagesListEntry<T> = [BaseObservable<T>, Message<T>]
+export type MessagesList = MessagesListEntry<any>[]
 
-interface ValueListener<T> { (nextValue: T): any }
-interface ErrorListener { (err: Error): any }
-interface CompletionListener { (): any }
+export interface ValueListener<T> { (nextValue: T): any }
+export interface ErrorListener { (err: Error): any }
+export interface CompletionListener { (): any }
 
 const noop = () => { }
 
