@@ -56,11 +56,11 @@ describe('Observable', () => {
         })
     })
 
-    it('can reduce messages', done => {
+    it('can scan messages, and reduce output', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [1, 3, 6]
         const result = []
-        Observable.from(pushValues).reduce((value, summary: number) =>
+        Observable.from(pushValues).scan((value, summary: number) =>
             summary + value
         ).subscribe(value => {
             result.push(value)
@@ -175,5 +175,80 @@ describe('Observable', () => {
             expect(result).toEqual(expectedValues)
             done()
         })
+    })
+
+    it('can take buffered messages with default interval', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2], [3, 4]]
+        let result = []
+        Observable.from(pushValues).bufferCount(2).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 2) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('can take buffered messages with set interval', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2, 3], [2, 3, 4]]
+        let result = []
+        Observable.from(pushValues).bufferCount(3, 1).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 2) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('should emit partial buffers if reaches end', done => {
+        const pushValues = [1, 2, 3]
+        const expectedValues = [[1, 2, 3]]
+        let result = []
+        Observable.from(pushValues).bufferCount(4).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 1) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('should emit full buffers then partial buffer if reaches end', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2, 3], [4]]
+        let result = []
+        Observable.from(pushValues).bufferCount(3).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 2) {
+                    setTimeout(done)
+                }
+            }
+        )
+    })
+
+    it('should emit full buffers then partial buffer with old values if reaches end', done => {
+        const pushValues = [1, 2, 3, 4]
+        const expectedValues = [[1, 2, 3], [3, 4]]
+        let result = []
+        Observable.from(pushValues).bufferCount(3, 2).subscribe(
+            value => {
+                result.push(value)
+                expect(value).toEqual(expectedValues.shift())
+                if (result.length === 2) {
+                    setTimeout(done)
+                }
+            }
+        )
     })
 })

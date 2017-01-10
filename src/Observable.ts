@@ -17,7 +17,7 @@ export class Observable<T> extends BaseObservable<T> {
         }
 
         if (values[Symbol.iterator]) {
-            return new Observable<T>(({next, error}) => {
+            return new Observable<T>(({next, error, complete}) => {
                 const iterator = values[Symbol.iterator]()
                 for (
                     let result: IteratorResult<T> = iterator.next();
@@ -28,6 +28,7 @@ export class Observable<T> extends BaseObservable<T> {
                         ? error(result.value)
                         : next(result.value)
                 }
+                complete()
             })
         }
 
@@ -38,9 +39,6 @@ export class Observable<T> extends BaseObservable<T> {
         return new Observable<U>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
                     try {
                         observer.next(action(value))
                     } catch (e) {
@@ -71,15 +69,11 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    reduce<U>(reductor: (value: T, summary: U) => U): Observable<U> {
+    scan<U>(reductor: (value: T, summary: U) => U): Observable<U> {
         return new Observable<U>(observer => {
             let summary: U = null
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
-
                     let newValue
                     try {
                         newValue = summary
@@ -102,9 +96,6 @@ export class Observable<T> extends BaseObservable<T> {
         return new Observable<T>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    if (observer.closed) {
-                        return
-                    }
                     try {
                         filter(value) && observer.next(value)
                     } catch (e) {
@@ -118,8 +109,31 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    scan<U>(scanner: (values: T[]) => U, historyLength = 2, defaultValue = null): Observable<U> {
-        throw new Error('not implemented')
+    bufferCount(bufferSize: number, customBufferCount: number = null): Observable<T[]> {
+        const bufferInterval = customBufferCount || bufferSize
+        let history: T[] = []
+        return new Observable<T[]>(observer => {
+            const subscription = this.subscribe(
+                value => {
+                    history.push(value)
+                    if (history.length === bufferSize) {
+                        observer.next([...history])
+                        history = history.splice(
+                            bufferInterval,
+                            bufferSize - bufferInterval
+                        )
+                    }
+                },
+                observer.error,
+                () => {
+                    if (history.length > bufferSize - bufferInterval) {
+                        observer.next([...history])
+                    }
+                    observer.complete()
+                }
+            )
+            return () => subscription.unsubscribe()
+        })
     }
 
     buffer(maxLastMessages: number = 0): Observable<T[]> {
