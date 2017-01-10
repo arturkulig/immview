@@ -26,12 +26,6 @@ Sends `complete` signal through the `Observable` instance.
 Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
 Returns a function to unregister the subscription.
 
-## class `Domain`&lt;T&gt;
-#### extends `Observable`&lt;T&gt;
-#### ( source: Observable&lt;T&gt; )
-
-Class constructor alone will be only helpful when extending `Domain` class.
-
 
 ## class `Origin`&lt;T&gt;
 #### extends `Observable`&lt;T&gt;
@@ -79,6 +73,12 @@ join.subscribe(v => {
     console.log(v) // {a: 'a', b: 'b'}
 })
 ```
+
+## class `Domain`&lt;T&gt;
+#### extends `Observable`&lt;T&gt;
+#### ( source: Observable&lt;T&gt; )
+
+Class constructor alone will be only helpful when extending `Domain` class.
 
 ### Domain.create&lt;T&gt;
 ####( source: Observable&lt;T&gt; , actions: { [name: string]: () => Promise&lt;any&gt; | void }, fields: {})
