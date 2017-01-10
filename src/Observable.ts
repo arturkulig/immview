@@ -109,26 +109,25 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    bufferCount(bufferSize: number, startBufferEvery: number = null): Observable<T[]> {
-        const bufferInterval = startBufferEvery || bufferSize
+    bufferCount(bufferSize: number, customBufferCount: number = null): Observable<T[]> {
+        const bufferInterval = customBufferCount || bufferSize
         let history: T[] = []
-        let newMessage = true
         return new Observable<T[]>(observer => {
             const subscription = this.subscribe(
                 value => {
-                    newMessage = true
-                    history.unshift(value)
+                    history.push(value)
                     if (history.length === bufferSize) {
-                        newMessage = false
-                        observer.next([...history].reverse())
-                        history
-                            .splice(bufferSize - bufferInterval, bufferInterval)
+                        observer.next([...history])
+                        history = history.splice(
+                            bufferInterval,
+                            bufferSize - bufferInterval
+                        )
                     }
                 },
                 observer.error,
                 () => {
-                    if (newMessage) {
-                        observer.next([...history].reverse())
+                    if (history.length > bufferSize - bufferInterval) {
+                        observer.next([...history])
                     }
                     observer.complete()
                 }
