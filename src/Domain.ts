@@ -2,8 +2,8 @@ import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatchPromise } from './DispatcherInstance'
 
-interface Actions {
-    [id: string]: () => void
+export interface Actions {
+    [id: string]: () => void | Promise<any>
 }
 
 export class Domain<T> extends Observable<T> {
@@ -15,7 +15,7 @@ export class Domain<T> extends Observable<T> {
         })
     }
 
-    public static create<T, U extends { [id: string]: () => Promise<void> | void }, V extends {}>
+    public static create<T, U extends Actions, V extends {}>
         (stream: Observable<T>, actions?: U, fields?: V) {
         const instance = (new Domain(stream) as Object)
         if (actions) {
