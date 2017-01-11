@@ -24,7 +24,7 @@ export interface CompletionListener { (): any }
 
 const noop = () => { }
 
-export class BaseObservable<T> {
+export class BaseObservable<T> implements Observer<T> {
     static awaitingMessages: MessagesList = []
     static lastObservablePriority = 0
 
@@ -63,6 +63,8 @@ export class BaseObservable<T> {
     previous(): T {
         return this.lastValue
     }
+
+    start() {} // intentionally noop
 
     next(value: NextStep<T>) {
         return new Promise<void>(resolve => this.pushMessage([

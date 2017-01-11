@@ -23,7 +23,7 @@ export interface ErrorListener {
 export interface CompletionListener {
     (): any;
 }
-export declare class BaseObservable<T> {
+export declare class BaseObservable<T> implements Observer<T> {
     static awaitingMessages: MessagesList;
     static lastObservablePriority: number;
     protected lastValue: T;
@@ -33,6 +33,7 @@ export declare class BaseObservable<T> {
     private observers;
     constructor(subscriber?: Subscriber<T>);
     previous(): T;
+    start(): void;
     next(value: NextStep<T>): Promise<void>;
     error(error: Error): Promise<void>;
     complete(): Promise<void>;

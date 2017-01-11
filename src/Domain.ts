@@ -11,7 +11,7 @@ export class Domain<T> extends Observable<T> {
         stream: Observable<T>
     ) {
         super(observer => {
-            stream.subscribe(observer.next, observer.error, observer.complete)
+            stream.subscribe(observer)
         })
     }
 
