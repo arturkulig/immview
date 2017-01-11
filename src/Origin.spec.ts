@@ -10,7 +10,7 @@ describe('Origin', () => {
     it('can be immediately read', () => {
         const value = {}
         const subject = new Origin(value)
-        expect(subject.last()).toBe(value)
+        expect(subject.previous()).toBe(value)
     })
 
     it('can be immediately subscribed with default value', done => {
@@ -79,7 +79,7 @@ describe('Origin', () => {
         }
         $.then(() => {
             expect({ calls }).toBe({ calls: expectedCalls })
-            expect({ value: subject.last() }).toBe({ value: expectedCalls })
+            expect({ value: subject.previous() }).toBe({ value: expectedCalls })
         }).catch(e => { }).then(() => setTimeout(done))
     })
 })
