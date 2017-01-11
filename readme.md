@@ -9,16 +9,33 @@ that deal with the concern.
 
 It completely replaces any flux implementation or Redux.
 
-If you are familiar with streaming libraries like RxJS,
-an **Immview** taste of `Observable` does not have a different meaning or role.
-Also, just as RxJS 5, it tries to follow
-[TC39 Observable proposal](https://github.com/tc39/proposal-observable).
-
 All `Domain`s must be provided with a single stream of values
 (so either `Origin` or any other transformed `Observable`),
 but not all `Observable`s must be attached to a `Domain`
  - you can perform many transformations on a source
  before it is exposed through a `Domain`.
+
+### For RxJS users
+If you are familiar with RxJS 5, an **Immview** taste of `Observable` does not have a different meaning or role, although behaviour differs and is more similar to RxJS's `Subject`
+Also, just as RxJS 5, it mimics [TC39 Observable proposal](https://github.com/tc39/proposal-observable) interface.
+
+## Quick overview
+
+```javascript
+const FooSenderDomain = Domain.create(new Observable(), {
+  send() {
+    this.next('foo')
+  }
+})
+
+// register observers
+FooSenderDomain.subscribe(v => console.log(v))
+FooSenderDomain.map(v => v + 'bar').subscribe(v => console.log(v))
+
+FooSenderDomain.send()
+// prints: foo
+// prints: foobar
+```
 
 ## Installation
 
