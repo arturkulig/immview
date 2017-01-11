@@ -147,7 +147,6 @@ export class Observable<T> extends BaseObservable<T> {
                     Dispatcher
                         .push(() => {
                             if (messages.length < 1) return
-                            if (observer.closed) return
                             observer.next(
                                 messages
                                     .splice(0, messages.length)

@@ -1,19 +1,13 @@
-import { BaseObservableSubscription } from './BaseObservableSubscription';
-export declare type writer<T> = (currentValue: T) => T;
-export declare class SubscriptionObserver<T> {
-    next: (value: T | writer<T>) => void;
-    error: (reason: Error) => void;
-    complete: () => void;
-    private _closed;
-    constructor(next: (value: T | writer<T>) => void, error: (reason: Error) => void, complete: () => void, _closed: () => boolean);
-    readonly closed: boolean;
-}
-export declare type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() => void);
+import { Subscription } from './Subscription';
+import { Observer } from './Observer';
+export declare type Subscriber<T> = (observer: Observer<T>) => void | (() => void);
 export declare enum MessageTypes {
     Next = 0,
     Error = 1,
     Complete = 2,
 }
+export declare type Transformer<T> = (current: T) => T;
+export declare type NextStep<T> = T | Transformer<T>;
 export declare type NextMessage<T> = [MessageTypes.Next, (currentState: T) => T, () => void];
 export declare type ErrorMessage = [MessageTypes.Error, Error, () => void];
 export declare type CompletionMessage = [MessageTypes.Complete, void, () => void];
@@ -36,13 +30,14 @@ export declare class BaseObservable<T> {
     closed: boolean;
     priority: number;
     private cancelSubscriber;
-    private nextSubscriptions;
-    private errorSubscriptions;
-    private completionSubscriptions;
+    private observers;
     constructor(subscriber?: Subscriber<T>);
-    last(): T;
-    subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): BaseObservableSubscription;
-    cancel(): void;
+    previous(): T;
+    next(value: NextStep<T>): Promise<void>;
+    error(error: Error): Promise<void>;
+    complete(): Promise<void>;
+    subscribe(observer: Observer<T>): Subscription;
+    subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): Subscription;
     protected pushMessage(message: Message<any>): void;
     protected static dispatchDigestMessages(): void;
     private static digestAwaitingMessages();

@@ -1,6 +1,5 @@
 var path = require('path')
 var webpack = require('webpack')
-const ClosureCompiler = require('google-closure-compiler-js').webpack
 
 var config = {
     entry: path.resolve(__dirname, 'src/index.ts'),
