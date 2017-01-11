@@ -22,9 +22,10 @@ Also, just as RxJS 5, it mimics [TC39 Observable proposal](https://github.com/tc
 ## Quick overview
 
 ```javascript
-const FooSenderDomain = Domain.create(new Observable(), {
+const Foos = new Observable()
+const FooSenderDomain = Domain.create(Foos, {
   send() {
-    this.next('foo')
+    Foos.next('foo')
   }
 })
 
