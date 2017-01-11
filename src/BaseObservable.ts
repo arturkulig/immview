@@ -67,25 +67,21 @@ export class BaseObservable<T> implements Observer<T> {
     start() {} // intentionally noop
 
     next(value: NextStep<T>) {
-        return new Promise<void>(resolve => this.pushMessage([
+        this.pushMessage([
             MessageTypes.Next,
             (typeof value === 'function')
                 ? (value as Transformer<T>)
                 : (() => value),
-            resolve
-        ]))
+            noop
+        ])
     }
 
     error(error: Error) {
-        return new Promise<void>(
-            resolve => this.pushMessage([MessageTypes.Error, error, resolve])
-        )
+        this.pushMessage([MessageTypes.Error, error, noop])
     }
 
     complete() {
-        return new Promise<void>(
-            resolve => this.pushMessage([MessageTypes.Complete, , resolve])
-        )
+        this.pushMessage([MessageTypes.Complete, , noop])
     }
 
     subscribe(observer: Observer<T>): Subscription

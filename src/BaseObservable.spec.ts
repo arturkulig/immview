@@ -195,6 +195,14 @@ describe('BaseObservable', () => {
         })
     })
 
+    it('has previous() equal to last pushed value', done => {
+        const subject = new BaseObservable(observer => { observer.next(6) })
+        subject.subscribe(value => {
+            expect(value).toEqual(subject.previous())
+            done()
+        })
+    })
+
     describe('subscription', () => {
         it('subscription gets closed on demand', done => {
             let next = null

@@ -13,51 +13,28 @@ Returns last **value** that has been pushed through the `Observable` instance.
 // Example
 const source = new Observable(({next}) => { next(1) })
 source.subscribe(value => {
-    value === source.last() // true
+    value === source.previous() // true
 })
 ```
 
-### Observable::cancel
+### Observable::next
+#### (nextValue: T) => void
+Sends value signal through the `Observable` instance. Values can be received, by `Observable::subscribe` method or `Observable::previous`.
+
+### Observable::error
+#### (error: Error) => void
+Sends error signal through the `Observable` instance. Errors can be received, with `Observable::subscribe` method.
+
+### Observable::complete
 #### () => void
-Sends `complete` signal through the `Observable` instance.
+Sends `complete` signal through the `Observable` instance. Completion can be handled, with `Observable::subscribe` method.
 
 ### Observable::subscribe
+#### ( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => () => void
 #### ( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => () => void
 Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
 Returns a function to unregister the subscription.
 
-
-## class `Origin`&lt;T&gt;
-#### extends `Observable`&lt;T&gt;
-#### ( initialData: T )
-```javascript
-import {Origin} from 'immview'
-new Origin( 2 )
-```
-**Origin** class is a top level node, observable that enables pushing values through it with it's `push` method.
-
-### Origin::push
-#### (change: T ) => void
-#### (change: (currentStructure) => T) => void
-
-Method used to push new message of type `T` to observers.
-
-**change** parameter is:
-
-- any data structure that should replace current one.
-- a function that should return a data structure that should replace current one.
-
-```javascript
-const source = new Origin({a: 1})
-source.push({a: 2})
-
-/*
-be also warned, that you should not change any data structures you are given inside these functions
-*/
-source.push(data => ({ ...data, b: 3}))
-```
-
-In both ways replacement will be postponed and executed after all currently queued commands.
 
 ## class `Merge`&lt;T&gt;
 #### extends `Observable`&lt;T&gt;
@@ -66,8 +43,8 @@ Responsible for being reactive to more than one source and placing source stream
 
 ```javascript
 const join = new Merge({
-	a: new Origin('a'),
-	b: new Origin('b')
+    a: new Observable(observer => { observer.next('a') }),
+	b: new Observable(observer => { observer.next('b') })
 })
 join.subscribe(v => {
     console.log(v) // {a: 'a', b: 'b'}
@@ -103,7 +80,7 @@ Calling an action however will return a Promise resolved after action function e
 
 ```javascript
 // example usage
-import {Origin, Merge, Domain} from 'immview'
+import {Merge, Domain} from 'immview'
 import {HorizonDomain} from './HorizonDomain'
 import {MusclesDomain} from './MusclesDomain'
 
@@ -114,7 +91,7 @@ const EyesDomain = Domain.create(
 	}),
 	{
 		roll() {
-			MusclesDomain.doStuff()
+			MusclesDomain.doMuscleStuff()
 		}
 	},
 	{
@@ -131,7 +108,7 @@ function that existed on a set of functions provided as actions in constructor. 
 
 ```javascript
 const domain = Domain.create(
-	new Origin(0),
+	new Observable(observer => { ... }),
 	{ foo: () => console.log('bar') }
 )
 domain.foo()
