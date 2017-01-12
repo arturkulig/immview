@@ -14,7 +14,14 @@ describe('Domain', () => {
 
     it('allows creation with actions', () => {
         expect(() => {
-            Domain.create(new Observable(), { test: () => { } })
+            Domain.create(
+                new Observable<{}>(),
+                {
+                    test (v: number) {
+                        // noop, just for types check
+                    }
+                }
+            )
         }).not.toThrow()
     })
 
