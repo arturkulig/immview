@@ -2,9 +2,9 @@ import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { Subscription } from './Subscription'
 import { Observer } from './Observer'
-import { CustomObserver } from './CustomObserver'
+import { SubscriptionObserver } from './SubscriptionObserver'
 
-export type Subscriber<T> = (observer: Observer<T>) => void | (() => void)
+export type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() => void)
 export enum MessageTypes { Next, Error, Complete }
 export type Transformer<T> = (current: T) => T
 export type NextStep<T> = T | Transformer<T>
@@ -35,6 +35,7 @@ export class BaseObservable<T> implements Observer<T> {
     private observers: Observer<T>[]
 
     constructor(subscriber?: Subscriber<T>) {
+        const _this_ = this
         this.observers = []
         this.priority = BaseObservable.lastObservablePriority++
 
@@ -44,18 +45,20 @@ export class BaseObservable<T> implements Observer<T> {
         }
 
         this.cancelSubscriber = (
-            subscriber(new CustomObserver(
-                noop,
-                (nextValue: T) => {
+            subscriber({
+                next: (nextValue: T) => {
                     this.pushMessage([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
                 },
-                (reason: Error) => {
+                error: (reason: Error) => {
                     this.pushMessage([MessageTypes.Error, reason, noop])
                 },
-                () => {
+                complete: () => {
                     this.pushMessage([MessageTypes.Complete, , noop])
+                },
+                get closed(): boolean {
+                    return _this_.observers.length > 0
                 }
-            )) ||
+            }) ||
             noop
         )
     }
@@ -64,7 +67,10 @@ export class BaseObservable<T> implements Observer<T> {
         return this.lastValue
     }
 
-    start() {} // intentionally noop
+    start() {
+        // obserever compat
+        // noop on purpose
+    }
 
     next(value: NextStep<T>) {
         this.pushMessage([
