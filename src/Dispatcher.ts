@@ -1,10 +1,9 @@
 export interface Task {
     priority: number,
-    job: () => any,
+    execute: () => any,
 }
 
 export class Dispatcher {
-    private nextTickScheduler: Promise<void> = null
     private _isRunning = false
     public get isRunning(): boolean {
         return !!this._isRunning
@@ -12,10 +11,10 @@ export class Dispatcher {
 
     tasks: Task[] = []
 
-    push(job: () => any, priority = 0): Dispatcher {
+    push(execute: () => any, priority = 0): Dispatcher {
         this.tasks.push({
             priority,
-            job,
+            execute,
         })
 
         return this
@@ -25,32 +24,26 @@ export class Dispatcher {
         if (this._isRunning) return
         this._isRunning = true
 
-        const job = this.findNextJob()
-        if (!job) {
-            this.nextTickScheduler = null
+        Promise.resolve().then(() => this.loop())
+    }
+
+    loop() {
+        const task = this.findNextTask()
+        if (!task) {
             this._isRunning = false
             return
         }
 
-        (this.nextTickScheduler = this.nextTickScheduler || Promise.resolve())
-            .then(() => {
-                this.next(
-                    () => {
-                        try {
-                            job.job()
-                        } catch (e) {
-                            console.error(e.stack || e.message || e)
-                        }
-                    },
-                    () => {
-                        this._isRunning = false
-                        this.run()
-                    }
-                )
-            })
+        this.next(
+            task.execute,
+            () => {
+                this._isRunning = false
+                this.run()
+            }
+        )
     }
 
-    private findNextJob() {
+    private findNextTask() {
         let maxPriorityJobIdx: number = null
         for (let i = 0; i < this.tasks.length; i++) {
             if (
@@ -68,8 +61,12 @@ export class Dispatcher {
      * Function can be replaced with a custom implementation
      * for integrating different scheduling strategy
      */
-    next(job, next) {
-        job()
+    next(job: () => void, next: () => void) {
+        try {
+            job()
+        } catch (e) {
+            console.error(e.stack || e.message || e)
+        }
         next()
     }
 }
