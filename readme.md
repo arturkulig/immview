@@ -19,6 +19,7 @@ before it is exposed through a `Domain`.
 
 **Immview** has been built with TypeScript.
 You do not have to use it, but some editors may offer better experience.
+
 <img src="https://raw.githubusercontent.com/arturkulig/immview/dev-2.0/editor.png" />
 
 ### For RxJS users
