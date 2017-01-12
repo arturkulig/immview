@@ -6,23 +6,31 @@ import { Observable } from './Observable'
 import { Domain } from './Domain'
 
 describe('Domain', () => {
-    it('allows creation with constructor', () => {
-        expect(() => {
-            new Domain(new Observable())
-        }).not.toThrow()
-    })
+    describe('allows creation', () => {
+        it('with constructor', () => {
+            expect(() => {
+                new Domain(new Observable())
+            }).not.toThrow()
+        })
 
-    it('allows creation with actions', () => {
-        expect(() => {
-            Domain.create(
-                new Observable<{}>(),
-                {
-                    test (v: number) {
-                        // noop, just for types check
+        it('with actions', () => {
+            expect(() => {
+                Domain.create(
+                    new Observable<{}>(),
+                    {
+                        test(v: number) {
+                            // noop, just for types check
+                        }
                     }
-                }
-            )
-        }).not.toThrow()
+                )
+            }).not.toThrow()
+        })
+
+        it('with no source Observable for small Domains', () => {
+            expect(() => {
+                Domain.create(null, {})
+            }).not.toThrow()
+        })
     })
 
     it('allows calling actions', done => {
