@@ -8,14 +8,16 @@ export interface Actions<T> {
 
 export class Domain<T> extends Observable<T> {
     constructor(
-        stream: Observable<T>
+        stream?: Observable<T>
     ) {
-        super(observer => {
-            stream.subscribe({
-                ...observer,
-                start: () => { }
+        if (stream) {
+            super(observer => {
+                stream.subscribe({
+                    ...observer,
+                    start: () => { }
+                })
             })
-        })
+        }
     }
 
     public static create<T, U extends Actions<T>, V extends {}>
