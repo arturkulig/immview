@@ -26,9 +26,17 @@ describe('Domain', () => {
             }).not.toThrow()
         })
 
+        it('with null source Observable for small Domains', () => {
+            expect(() => {
+                new Domain(null).next(null)
+                Domain.create(null, { test() {} }).test()
+            }).not.toThrow()
+        })
+
         it('with no source Observable for small Domains', () => {
             expect(() => {
-                Domain.create(null, {})
+                new Domain().next(null)
+                Domain.create({ test() {} }).test()
             }).not.toThrow()
         })
     })
