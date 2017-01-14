@@ -11,18 +11,18 @@ describe('Merge', () => {
         ]
         const lastExpectedValue = expectedValues[expectedValues.length - 1]
         new Merge<{ o1: string, o2: string, o3: string }>({
-            o1: new Observable(observer => {
+            o1: new Observable<string>(observer => {
                 observer.next('o1')
                 observer.next('o1b')
             }),
-            o2: new Observable(observer => {
+            o2: new Observable<string>(observer => {
                 observer.next('o2')
                 setTimeout(() => {
                     observer.next('o2b')
                     observer.next('o2c')
                 }, 100)
             }),
-            o3: new Observable(observer => {
+            o3: new Observable<string>(observer => {
                 observer.next('o3')
             }),
         })
@@ -36,7 +36,7 @@ describe('Merge', () => {
     })
     it('listens to changes', done => {
         let push = null
-        const source = new Observable(observer => {
+        const source = new Observable<number>(observer => {
             push = observer.next
             push(1)
         })
