@@ -1,13 +1,13 @@
 import { Observable } from './Observable'
 
-export class Merge<T extends Object> extends Observable<T> {
-    constructor(sources: { [id: string]: Observable<any> }) {
+export class Merge<V extends {}> extends Observable<V> {
+    constructor(sources: { [id in keyof V]: Observable<V[id]> }) {
         super(observer => {
             const names: string[] = []
             const initialized: string[] = []
 
             let preinitialReceivedMessages: [string, any][] = []
-            let result: T = ({} as T)
+            let result = ({} as V)
 
             const subscriptions = []
             for (let key in sources) {
@@ -25,7 +25,7 @@ export class Merge<T extends Object> extends Observable<T> {
                         }
 
                         if (preinitialReceivedMessages) {
-                            let initialMessage: T = ({} as T)
+                            let initialMessage = ({} as V)
                             let initializedFields: string[] = []
                             const repeatedPreinitialReceivedMessages: [string, any][] = []
                             for (let i = 0; i < preinitialReceivedMessages.length; i++) {
@@ -42,7 +42,7 @@ export class Merge<T extends Object> extends Observable<T> {
                                 observer.next(result = ({
                                     ...(result as {}),
                                     [sourceName]: sourceMessage
-                                } as T))
+                                } as V))
                             })
                             preinitialReceivedMessages = null
                             return
@@ -51,7 +51,7 @@ export class Merge<T extends Object> extends Observable<T> {
                         observer.next(result = ({
                             ...(result as {}),
                             [key]: nextSourceValue
-                        } as T))
+                        } as V))
                     })
                 )
             }
