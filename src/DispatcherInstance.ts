@@ -2,11 +2,11 @@ import { Dispatcher } from './Dispatcher'
 import { DispatcherPriorities } from './DispatcherPriorities'
 
 const DispatcherInstance = new Dispatcher()
-const dispatch = (job: () => any, priority: DispatcherPriorities = DispatcherPriorities.EXTERNAL) => {
+const dispatch = (job: () => any, priority: DispatcherPriorities) => {
     DispatcherInstance.push(job, priority)
     DispatcherInstance.run()
 }
-const dispatchPromise = (job: () => any, priority: DispatcherPriorities = DispatcherPriorities.EXTERNAL) => {
+const dispatchPromise = (job: () => any, priority: DispatcherPriorities) => {
     return new Promise<void>((resolve, reject) => {
         dispatch(() => {
             try {
