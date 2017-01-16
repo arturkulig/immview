@@ -71,7 +71,7 @@ export class Observable<T> extends BaseObservable<T> {
 
     scan<U>(reductor: (value: T, summary: U) => U): Observable<U> {
         return new Observable<U>(observer => {
-            let summary: U = null
+            let summary: U
             const subscription = this.subscribe(
                 value => {
                     try {
