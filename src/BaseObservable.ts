@@ -46,13 +46,13 @@ export class BaseObservable<T> implements Observer<T> {
 
         this.cancelSubscriber = (
             subscriber({
-                next: (nextValue: T) => {
+                next: (nextValue: T): void => {
                     this.pushMessage([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
                 },
-                error: (reason: Error) => {
+                error: (reason: Error): void => {
                     this.pushMessage([MessageTypes.Error, reason, noop])
                 },
-                complete: () => {
+                complete: (): void => {
                     this.pushMessage([MessageTypes.Complete, , noop])
                 },
                 get closed(): boolean {
