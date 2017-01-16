@@ -132,32 +132,31 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    buffer(maxLastMessages: number = 0): Observable<T[]> {
-        let messages: T[] = []
+    buffer(maxLastValues: number = 0): Observable<T[]> {
+        let values: T[] = []
         return new Observable<T[]>(observer => {
             const subscription = this.subscribe(
-                message => {
-                    messages = maxLastMessages > 0
-                        ? [message, ...messages].splice(0, maxLastMessages)
-                        : [message, ...messages]
+                nextValue => {
+                    values = maxLastValues > 0
+                        ? [nextValue, ...values].splice(0, maxLastValues)
+                        : [nextValue, ...values]
                     Dispatcher
-                        .push(() => {
-                            if (messages.length < 1) return
+                        .push(
+                        () => {
+                            if (values.length === 0) return
                             observer.next(
-                                messages
-                                    .splice(0, messages.length)
-                                    .reverse()
+                                values.splice(0).reverse()
                             )
-                        }, DispatcherPriorities.BUFFER)
+                        },
+                        DispatcherPriorities.BUFFER
+                        )
                         .run()
                 },
                 observer.error,
                 () => {
-                    if (messages.length > 0) {
+                    if (values.length > 0) {
                         observer.next(
-                            messages
-                                .splice(0, messages.length)
-                                .reverse()
+                            values.splice(0).reverse()
                         )
                     }
                     observer.complete()

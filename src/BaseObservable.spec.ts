@@ -216,7 +216,7 @@ describe('BaseObservable', () => {
 
             dispatch(() => {
                 next(1)
-            })
+            }, TEST)
             dispatch(() => {
                 expect(values).toEqual([1])
                 next(2)

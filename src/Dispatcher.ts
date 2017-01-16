@@ -11,7 +11,7 @@ export class Dispatcher {
 
     tasks: Task[] = []
 
-    push(execute: () => any, priority = 0): Dispatcher {
+    push(execute: () => any, priority): Dispatcher {
         this.tasks.push({
             priority,
             execute,
@@ -23,7 +23,6 @@ export class Dispatcher {
     run() {
         if (this._isRunning) return
         this._isRunning = true
-
         Promise.resolve().then(() => this.loop())
     }
 
@@ -37,8 +36,7 @@ export class Dispatcher {
         this.next(
             task.execute,
             () => {
-                this._isRunning = false
-                this.run()
+                this.loop()
             }
         )
     }

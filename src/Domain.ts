@@ -41,7 +41,7 @@ export class Domain<T> extends Observable<T> {
                 }
                 instance[(actionsKey as string)] =
                     (...args) =>
-                        dispatchPromise(actions[actionsKey].bind(instance, ...args))
+                        dispatchPromise(actions[actionsKey].bind(instance, ...args), DispatcherPriorities.DOMAIN)
             }
         }
         if (fields) {
