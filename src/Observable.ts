@@ -74,16 +74,12 @@ export class Observable<T> extends BaseObservable<T> {
             let summary: U = null
             const subscription = this.subscribe(
                 value => {
-                    let newValue
                     try {
-                        newValue = summary
-                            ? reductor(value, summary)
-                            : value
-                        summary = newValue
+                        summary = reductor(value, summary)
                     } catch (e) {
                         observer.error(e)
                     }
-                    observer.next(newValue)
+                    observer.next(summary)
                 },
                 observer.error,
                 observer.complete

@@ -58,10 +58,10 @@ describe('Observable', () => {
 
     it('can scan messages, and reduce output', done => {
         const pushValues = [1, 2, 3]
-        const expectedValues = [1, 3, 6]
+        const expectedValues = [2, 6, 12]
         const result = []
-        Observable.from(pushValues).scan((value, summary: number) =>
-            summary + value
+        Observable.from(pushValues).scan(
+        (value, summary: number) => (summary | 0) + value * 2
         ).subscribe(value => {
             result.push(value)
             expect(value).toBe(expectedValues.shift())
