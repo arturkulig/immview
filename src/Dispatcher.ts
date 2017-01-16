@@ -36,7 +36,7 @@ export class Dispatcher {
         this.next(
             task.execute,
             () => {
-                this.loop()
+                Promise.resolve().then(() => this.loop())
             }
         )
     }
