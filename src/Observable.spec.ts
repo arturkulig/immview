@@ -61,7 +61,7 @@ describe('Observable', () => {
         const expectedValues = [2, 6, 12]
         const result = []
         Observable.from(pushValues).scan(
-        (value, summary: number) => (summary | 0) + value * 2
+            (summary: number, value) => (summary | 0) + value * 2
         ).subscribe(value => {
             result.push(value)
             expect(value).toBe(expectedValues.shift())
