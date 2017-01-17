@@ -7,6 +7,8 @@ export interface Actions<T> {
 }
 
 export class Domain<T> extends Observable<T> {
+    name: string
+
     constructor(
         stream?: Observable<T>
     ) {
@@ -22,8 +24,17 @@ export class Domain<T> extends Observable<T> {
         })
     }
 
-    public static create<T, U extends Actions<T>, V extends {}>(stream: Observable<T>, actions: U, fields?: V): Domain<T> & U & V
-    public static create<T, U extends Actions<T>, V extends {}>(actions: U, fields?: V): Domain<T> & U & V
+    public static tagged(parts: TemplateStringsArray, ...filling: string[]) {
+        const creator: typeof Domain.create = (...args) => {
+            const instance = Domain.create.apply(undefined, args)
+            instance.name = parts.reduce((result, item, i) => result + (i > 0 ? filling[i - 1] : '') + item)
+            return instance
+        }
+        return creator
+    }
+
+    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(stream: Observable<DomainT>, actions: ActionsT, fields?: FieldsT): Domain<DomainT> & ActionsT & FieldsT
+    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(actions: ActionsT, fields?: FieldsT): Domain<DomainT> & ActionsT & FieldsT
     public static create<T, U extends Actions<T>, V extends {}>(...args: any[]): Domain<T> & U & V {
         let stream: Observable<T>
         let actions: U
