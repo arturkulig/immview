@@ -29,14 +29,14 @@ describe('Domain', () => {
         it('with null source Observable for small Domains', () => {
             expect(() => {
                 new Domain(null).next(null)
-                Domain.create(null, { test() {} }).test()
+                Domain.create(null, { test() { } }).test()
             }).not.toThrow()
         })
 
         it('with no source Observable for small Domains', () => {
             expect(() => {
                 new Domain().next(null)
-                Domain.create({ test() {} }).test()
+                Domain.create({ test() { } }).test()
             }).not.toThrow()
         })
     })
@@ -81,5 +81,13 @@ describe('Domain', () => {
             expect(v).toBe(expectedValues.shift())
             if (values.length === 3) setTimeout(done)
         })
+    })
+
+    it('allows creation of tagged Domains', async () => {
+        let tested = false
+        const subject = Domain.tagged`Root${'0'}fAllDevil`({ test() { tested = true } })
+        expect(subject.name).toBe('Root0fAllDevil')
+        await subject.test()
+        expect(tested).toBe(true)
     })
 })
