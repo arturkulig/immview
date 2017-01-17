@@ -35,6 +35,30 @@ Sends `complete` signal through the `Observable` instance. Completion can be han
 Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
 Returns a function to unregister the subscription.
 
+### Observable::map
+#### (): Observable
+// TODO
+
+### Observable::filter
+#### (): Observable
+// TODO
+
+### Observable::scan
+#### (): Observable
+// TODO
+
+### Observable::flatten
+#### (): Observable
+// TODO
+
+### Observable::buffer
+#### (): Observable
+// TODO
+
+### Observable::bufferCount
+#### (): Observable
+// TODO
+
 
 ## class `Merge`&lt;T&gt;
 #### extends `Observable`&lt;T&gt;
