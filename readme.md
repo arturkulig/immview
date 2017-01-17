@@ -61,23 +61,13 @@ If you are using React to create presentation layer of your app you should check
 * [Documentation](./docs.md)
 * [Simple usage](./usage_simple.md)
 * [Changelog](./changelog.md)
+
+## For 1.x versions
+
 * [Immview — application state management by streaming 101 (Jan 4, 2017)](https://medium.com/@arturkulig/immview-application-state-management-by-streaming-101-c12f81e3abac)
 * [Reactive logic with immview (May 28, 2016)](https://medium.com/@arturkulig/reactive-logic-with-immview-cf60ff06b7dc) - an introduction to reasoning behind immview 1.x
 
 # Compatibility
 
-Not compatible with IE8 unless:
-- Array.prototype.filter is polyfilled
-
-# 2.0 Roadmap
-- [X] Dispatcher
-- [X] BaseObservable
-- [X] Data -> Origin
-- [X] Merge
-- [X] Observable.map
-- [X] Observable.scan
-- [X] Observable.flatten
-- [X] Observable.buffer
-- [X] Observable.bufferCount
-- [X] Domain
-- [ ] external: immview-react-connect 2.0
+Not compatible unless:
+- Array.prototype.filter is polyfilled [kangax compat table](http://kangax.github.io/compat-table/es5/#test-Array_methods_Array.prototype.filter)
