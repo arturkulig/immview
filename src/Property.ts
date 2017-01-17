@@ -7,10 +7,17 @@ import { DispatcherPriorities } from './DispatcherPriorities'
 
 export class Property<T> extends Observable<T> {
     constructor(defaultValue: T) {
+        if (defaultValue === undefined) return
         super(observer => {
             observer.next(defaultValue)
         })
         this.lastValue = defaultValue
+    }
+
+    static of<T>(source: Observable<T>): Property<T> {
+        const subject = new Property(source.previous())
+        source.subscribe(subject)
+        return subject
     }
 
     subscribe(...args) {
