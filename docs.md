@@ -58,7 +58,7 @@ join.subscribe(v => {
 Class constructor alone will be only helpful when extending `Domain` class.
 
 ### Domain.create&lt;T&gt;
-####( source: Observable&lt;T&gt; , actions: { [name: string]: () => Promise&lt;any&gt; | void }, fields: {})
+####( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain
 
 `Domain` class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of `Domain`s scope.
 For example: if you have a folder like:
@@ -102,6 +102,16 @@ const EyesDomain = Domain.create(
 EyesDomain.roll().then(() => { console.log('I saw that!') })
 EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
+
+## Domain.tagged
+#### `name` => ( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain
+
+Basically the same as `Domain.create`, but it returns a function that receives same arguments as `Domain.create`, but creates `Domain` that uses name provided with tagged template string literal.
+
+```javascript
+import {Domain} from 'immview'
+Domain.tagged`Yolo`(new Observable(observer => { observer.next('once')}), {})
+````
 
 ### Domain::[ACTION_NAME]
 function that existed on a set of functions provided as actions in constructor. It is not exactly the same function as it is wrapped, so it is run in **Dispatcher** queue.
