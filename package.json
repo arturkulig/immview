@@ -17,6 +17,12 @@
     "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i"
   },
   "author": "Artur Kulig",
+  "contributors": [
+    {
+      "name": "Sebastian Szewczyk",
+      "url": "https://github.com/sebryu"
+    }
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/jasmine": "^2.5.40",
