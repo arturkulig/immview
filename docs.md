@@ -127,7 +127,7 @@ EyesDomain.roll().then(() => { console.log('I saw that!') })
 EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
 
-## Domain.tagged
+### Domain.tagged
 #### `name` => ( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain
 
 Basically the same as `Domain.create`, but it returns a function that receives same arguments as `Domain.create`, but creates `Domain` that uses name provided with tagged template string literal.
@@ -138,7 +138,10 @@ Domain.tagged`Yolo`(new Observable(observer => { observer.next('once')}), {})
 ````
 
 ### Domain::[ACTION_NAME]
-function that existed on a set of functions provided as actions in constructor. It is not exactly the same function as it is wrapped, so it is run in **Dispatcher** queue.
+#### (...args): Promise
+A function that was in a provided in constructor set of actions.
+It is **not** exactly the same function as provided, because it is wrapped with internal scheduler call.
+Because it's deferred execution **it always returns a Promise** resolved with that function result.
 
 ```javascript
 const domain = Domain.create(
