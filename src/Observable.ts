@@ -69,17 +69,18 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    scan<U>(reductor: (value: T, summary: U) => U): Observable<U> {
+    scan<U>(reductor: (summary: U, value: T, index: number) => U): Observable<U> {
         return new Observable<U>(observer => {
             let summary: U
+            let index = 0
             const subscription = this.subscribe(
                 value => {
                     try {
-                        summary = reductor(value, summary)
+                        summary = reductor(summary, value, index++)
+                        observer.next(summary)
                     } catch (e) {
                         observer.error(e)
                     }
-                    observer.next(summary)
                 },
                 observer.error,
                 observer.complete

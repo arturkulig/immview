@@ -68,7 +68,7 @@ export class BaseObservable<T> implements Observer<T> {
     }
 
     start() {
-        // obserever compat
+        // observer compat
         // noop on purpose
     }
 
