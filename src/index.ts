@@ -13,6 +13,7 @@ export {
     Observable,
     Merge,
     Domain,
+    Dispatcher,
     dispatchExt as dispatch,
     action
 }
