@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/arturkulig/immview/dev-2.0/immview.png" />
+# Immview 2
 
 **Immview** is a library to create `Domain`s - *non-visual components* -
 similar to flux stores, exposing their **state** or emitting **signals**

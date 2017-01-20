@@ -69,7 +69,7 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
-    scan<U>(reductor: (summary: U, value: T, index: number) => U): Observable<U> {
+    scan<U>(reductor: (accumulator: U, value: T, index: number) => U): Observable<U> {
         return new Observable<U>(observer => {
             let summary: U
             let index = 0
