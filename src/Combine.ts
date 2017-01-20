@@ -1,6 +1,6 @@
 import { Observable } from './Observable'
 
-export class Merge<V extends {}> extends Observable<V> {
+export class Combine<V extends {}> extends Observable<V> {
     constructor(sources: { [id in keyof V]: Observable<V[id]> }) {
         super(observer => {
             const names: string[] = []

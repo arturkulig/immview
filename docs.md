@@ -13,7 +13,7 @@
         - [Observable::flatten](#observableflatten)
         - [Observable::buffer](#observablebuffer)
         - [Observable::bufferCount](#observablebuffercount)
-    - [class `Merge`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-mergelttgt-extends-observablelttgt)
+    - [class `Combine`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-combinelttgt-extends-observablelttgt)
     - [class `Domain`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-domainlttgt-extends-observablelttgt)
         - [Domain.create](#domaincreate)
         - [Domain.tagged](#domaintagged)
@@ -121,12 +121,12 @@ b --------[1,2,3]-[3,4,5]|
 ```
 
 
-## class `Merge`&lt;T&gt; extends `Observable`&lt;T&gt;
+## class `Combine`&lt;T&gt; extends `Observable`&lt;T&gt;
 `( { [name: string]: Observable } )`
 Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.
 
 ```javascript
-const join = new Merge({
+const join = new Combine({
     a: new Observable(observer => { observer.next('a') }),
 	b: new Observable(observer => { observer.next('b') })
 })
@@ -154,7 +154,7 @@ For example: if you have a folder like:
 you should export SomeDomain from index.js and use only that in any other file.
 
 First argument of the factory function is an observable emiting messages that will be emited by the `Domain`'s instance too.
-Only single data source can be tied to a **Domain**, but you can always use `Merge` to combine multiple streams.
+Only single data source can be tied to a **Domain**, but you can always use `Combine` to combine multiple streams.
 
 Second argument is an object aggregating functions used to create actions and other values that will be exposed as part of the **Domain** interface.
 Provided functions will be wrapped with an internal Dispatcher calls. That mechanism ensures that they will always be executed one **after** another. That is a design decision which makes it easier to reason about what is happening inside application.
@@ -163,12 +163,12 @@ Calling an action however will return a Promise resolved after action function e
 
 ```javascript
 // example usage
-import {Merge, Domain} from 'immview'
+import {Combine, Domain} from 'immview'
 import {HorizonDomain} from './HorizonDomain'
 import {MusclesDomain} from './MusclesDomain'
 
 const EyesDomain = Domain.create(
-	new Merge({
+	new Combine({
 		HorizonDomain,
 		MusclesDomain,
 	}),

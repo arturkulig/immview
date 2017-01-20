@@ -1,7 +1,7 @@
 import { Observable } from './Observable'
-import { Merge } from './Merge'
+import { Combine } from './Combine'
 
-describe('Merge', () => {
+describe('Combine', () => {
     it('can be created with observables', done => {
         const expectedValues = [
             { o1: 'o1', o2: 'o2', o3: 'o3' },
@@ -10,7 +10,7 @@ describe('Merge', () => {
             { o1: 'o1b', o2: 'o2c', o3: 'o3' },
         ]
         const lastExpectedValue = expectedValues[expectedValues.length - 1]
-        new Merge<{ o1: string, o2: string, o3: string }>({
+        new Combine<{ o1: string, o2: string, o3: string }>({
             o1: new Observable<string>(observer => {
                 observer.next('o1')
                 observer.next('o1b')
@@ -41,7 +41,7 @@ describe('Merge', () => {
             push(1)
         })
         const values = []
-        new Merge<{ source: number }>({ source })
+        new Combine<{ source: number }>({ source })
             .subscribe(merged => {
                 values.push(merged.source)
                 if (
