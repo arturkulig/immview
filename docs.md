@@ -1,13 +1,36 @@
-#Docs
+<!-- TOC -->
+
+- [Documentation](#documentation)
+    - [class `Observable`&lt;T&gt;](#class-observablelttgt)
+        - [Observable::previous](#observableprevious)
+        - [Observable::next](#observablenext)
+        - [Observable::error](#observableerror)
+        - [Observable::complete](#observablecomplete)
+        - [Observable::subscribe](#observablesubscribe)
+        - [Observable::map](#observablemap)
+        - [Observable::filter](#observablefilter)
+        - [Observable::scan](#observablescan)
+        - [Observable::flatten](#observableflatten)
+        - [Observable::buffer](#observablebuffer)
+        - [Observable::bufferCount](#observablebuffercount)
+    - [class `Merge`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-mergelttgt-extends-observablelttgt)
+    - [class `Domain`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-domainlttgt-extends-observablelttgt)
+        - [Domain.create](#domaincreate)
+        - [Domain.tagged](#domaintagged)
+        - [Domain::[ACTION_NAME]](#domainaction_name)
+
+<!-- /TOC -->
+
+# Documentation
 
 ## class `Observable`&lt;T&gt;
-#### (subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)
+`(subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)`
 Construct with `subscriber` function that receives `observer` object. `Observer` is for pushing values, errors and completion signal.
 `Subscriber` function may return function that should be called if `Observable` receives `complete` signal or is cancelled.
 
-### Observable::last
-#### () => T
-Returns last **value** that has been pushed through the `Observable` instance.
+### Observable::previous
+`() => T`
+Returns previous **value** that has been pushed through the `Observable` instance.
 
 ```javascript
 // Example
@@ -18,51 +41,88 @@ source.subscribe(value => {
 ```
 
 ### Observable::next
-#### (nextValue: T) => void
+`(nextValue: T) => void`
 Sends value signal through the `Observable` instance. Values can be received, by `Observable::subscribe` method or `Observable::previous`.
 
 ### Observable::error
-#### (error: Error) => void
+`(error: Error) => void`
 Sends error signal through the `Observable` instance. Errors can be received, with `Observable::subscribe` method.
 
 ### Observable::complete
-#### () => void
+`() => void`
 Sends `complete` signal through the `Observable` instance. Completion can be handled, with `Observable::subscribe` method.
 
 ### Observable::subscribe
-#### ( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => () => void
-#### ( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => () => void
+`( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => () => void`
+`( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => () => void`
 Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
 Returns a function to unregister the subscription.
 
 ### Observable::map
-#### (): Observable
-// TODO
+`(action: (value: T) => U): Observable&lt;U&gt;`
+Creates a derivative stream of values where
+every value pushed by a parent is transformed with `action` function and push further by `Observable` - result of this function call.
 
 ### Observable::filter
-#### (): Observable
-// TODO
+`(filter: (value: T) => boolean): Observable&lt;T&gt;`
+Creates a derivative stream of values where
+only those values that meet requirements formulated
+with `filter` function are going to be pushed by that derivative `Observable`.
 
 ### Observable::scan
-#### (): Observable
-// TODO
+`(accumulator: (summary: U, value: T, index: number) => U): Observable&lt;U&gt;`
+Creates a derivative stream of values where
+on every value that parent pushes
+there is `accumulator` function called
+getting last pushed value and new value that has been pushed by parent `Observable`.
+Result of the function is next value of newly created `Observable`.
 
 ### Observable::flatten
-#### (): Observable
-// TODO
+`(): Observable&lt;U&gt;`
+When parent `Observable` is releasing other `Observable`s as values
+use `flatten` to create a derivative stream that consists only of values
+that are released by these "observable values".
 
 ### Observable::buffer
-#### (): Observable
-// TODO
+`(maxLastValues: number = 0): Observable&lt;T[]&gt;`
+Creates a derivative stream of parent `Observable` values gathered in array.
+New values set is released after
+all other `Observable`s values are pushed through
+and all `Domain` actions being called.
+You can specify how many of there messages has to be remembered.
 
 ### Observable::bufferCount
-#### (): Observable
-// TODO
+`(bufferSize: number, customBufferCount: number = null): Observable&lt;T[]&gt;`
+Creates a derivative stream containing parent `Observable` values
+gathered in an Array.
+New values set is released
+every `bufferSize`-th parent `Observable` value or
+every `customBufferCount`-th parent `Observable` value
+if second argument is present.
+
+As it might be still mysterious how it works
+consider these graphical representations
+of how values are pushed in time:
+
+```
+const a = Observable.of(1, 2, 3, 4, 5)
+const b = a.bufferCount(2)
+
+a --1--2--3--4--5--|
+b -----[1,2]-[3,4]-[5]|
+```
+
+```
+const a = Observable.of(1, 2, 3, 4, 5)
+const b = a.bufferCount(3, 2) // now with custom window
+
+a --1--2--3----4--5|
+b --------[1,2,3]-[3,4,5]|
+```
 
 
-## class `Merge`&lt;T&gt;
-#### extends `Observable`&lt;T&gt;
-#### ( { [name: string]: Observable } )
+## class `Merge`&lt;T&gt; extends `Observable`&lt;T&gt;
+`( { [name: string]: Observable } )`
 Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.
 
 ```javascript
@@ -75,14 +135,13 @@ join.subscribe(v => {
 })
 ```
 
-## class `Domain`&lt;T&gt;
-#### extends `Observable`&lt;T&gt;
-#### ( source: Observable&lt;T&gt; )
+## class `Domain`&lt;T&gt; extends `Observable`&lt;T&gt;
+`( source: Observable&lt;T&gt; )`
 
 Class constructor alone will be only helpful when extending `Domain` class.
 
-### Domain.create&lt;T&gt;
-####( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain
+### Domain.create
+`( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain`
 
 `Domain` class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of `Domain`s scope.
 For example: if you have a folder like:
@@ -128,7 +187,7 @@ EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
 
 ### Domain.tagged
-#### `name` => ( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain
+`name` => `( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain`
 
 Basically the same as `Domain.create`, but it returns a function that receives same arguments as `Domain.create`, but creates `Domain` that uses name provided with tagged template string literal.
 
@@ -138,7 +197,7 @@ Domain.tagged`Yolo`(new Observable(observer => { observer.next('once')}), {})
 ````
 
 ### Domain::[ACTION_NAME]
-#### (...args): Promise
+`(...args): Promise`
 A function that was in a provided in constructor set of actions.
 It is **not** exactly the same function as provided, because it is wrapped with internal scheduler call.
 Because it's deferred execution **it always returns a Promise** resolved with that function result.
