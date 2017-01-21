@@ -7,8 +7,6 @@ export interface Actions<T> {
 }
 
 export class Domain<T> extends Observable<T> {
-    name: string
-
     constructor(
         stream?: Observable<T>
     ) {

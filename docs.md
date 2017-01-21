@@ -2,34 +2,53 @@
 
 - [Documentation](#documentation)
     - [class `Observable`&lt;T&gt;](#class-observablelttgt)
-        - [Observable::previous](#observableprevious)
-        - [Observable::next](#observablenext)
-        - [Observable::error](#observableerror)
-        - [Observable::complete](#observablecomplete)
-        - [Observable::subscribe](#observablesubscribe)
-        - [Observable::map](#observablemap)
-        - [Observable::filter](#observablefilter)
-        - [Observable::scan](#observablescan)
-        - [Observable::flatten](#observableflatten)
-        - [Observable::buffer](#observablebuffer)
-        - [Observable::bufferCount](#observablebuffercount)
+        - [Observable.`of`](#observableof)
+        - [Observable.`from`](#observablefrom)
+        - [Observable.prototype.`previous`](#observableprototypeprevious)
+        - [Observable.prototype.`next`](#observableprototypenext)
+        - [Observable.prototype.`error`](#observableprototypeerror)
+        - [Observable.prototype.`complete`](#observableprototypecomplete)
+        - [Observable.prototype.`subscribe`](#observableprototypesubscribe)
+        - [Observable.prototype.`map`](#observableprototypemap)
+        - [Observable.prototype.`filter`](#observableprototypefilter)
+        - [Observable.prototype.`scan`](#observableprototypescan)
+        - [Observable.prototype.`flatten`](#observableprototypeflatten)
+        - [Observable.prototype.`buffer`](#observableprototypebuffer)
+        - [Observable.prototype.`bufferCount`](#observableprototypebuffercount)
     - [class `Combine`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-combinelttgt-extends-observablelttgt)
     - [class `Domain`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-domainlttgt-extends-observablelttgt)
         - [Domain.create](#domaincreate)
         - [Domain.tagged](#domaintagged)
-        - [Domain::[ACTION_NAME]](#domainaction_name)
+        - [*DomainInstance*.[ACTION_NAME]](#domaininstanceaction_name)
 
 <!-- /TOC -->
 
 # Documentation
 
 ## class `Observable`&lt;T&gt;
+
 `(subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)`
+
 Construct with `subscriber` function that receives `observer` object. `Observer` is for pushing values, errors and completion signal.
+
 `Subscriber` function may return function that should be called if `Observable` receives `complete` signal or is cancelled.
 
-### Observable::previous
+---
+### Observable.`of`
+`(...args: T[]): Observable&lt;T&gt;`
+
+Function to create an `Observable` that immediately pushes values given as arguments.
+
+---
+### Observable.`from`
+`(values: T[]): Observable&lt;T&gt;`
+
+Function to create an `Observable` that immediately pushes values given as an array of values.
+
+---
+### Observable.prototype.`previous`
 `() => T`
+
 Returns previous **value** that has been pushed through the `Observable` instance.
 
 ```javascript
@@ -40,59 +59,83 @@ source.subscribe(value => {
 })
 ```
 
-### Observable::next
+---
+### Observable.prototype.`next`
 `(nextValue: T) => void`
-Sends value signal through the `Observable` instance. Values can be received, by `Observable::subscribe` method or `Observable::previous`.
 
-### Observable::error
+Sends value signal through the `Observable` instance. Values can be received, by `Observable.prototype.subscribe` method or `Observable.prototype.previous`.
+
+---
+### Observable.prototype.`error`
 `(error: Error) => void`
-Sends error signal through the `Observable` instance. Errors can be received, with `Observable::subscribe` method.
 
-### Observable::complete
+Sends error signal through the `Observable` instance. Errors can be received, with `Observable.prototype.subscribe` method.
+
+---
+### Observable.prototype.`complete`
 `() => void`
-Sends `complete` signal through the `Observable` instance. Completion can be handled, with `Observable::subscribe` method.
 
-### Observable::subscribe
-`( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => () => void`
-`( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => () => void`
+Sends `complete` signal through the `Observable` instance. Completion can be handled, with `Observable.prototype.subscribe` method.
+
+---
+### Observable.prototype.`subscribe`
+`( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => { unsubscribe(): void }`
+
+`( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => { unsubscribe(): void }`
+
 Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
+
 Returns a function to unregister the subscription.
 
-### Observable::map
+---
+### Observable.prototype.`map`
 `(action: (value: T) => U): Observable&lt;U&gt;`
-Creates a derivative stream of values where
-every value pushed by a parent is transformed with `action` function and push further by `Observable` - result of this function call.
 
-### Observable::filter
+Creates a derivative stream of values where
+every value pushed by a parent is transformed with `action` function and push further by `Observable`
+- result of this function call.
+
+---
+### Observable.prototype.`filter`
 `(filter: (value: T) => boolean): Observable&lt;T&gt;`
+
 Creates a derivative stream of values where
 only those values that meet requirements formulated
 with `filter` function are going to be pushed by that derivative `Observable`.
 
-### Observable::scan
+---
+### Observable.prototype.`scan`
 `(accumulator: (summary: U, value: T, index: number) => U): Observable&lt;U&gt;`
+
 Creates a derivative stream of values where
 on every value that parent pushes
 there is `accumulator` function called
 getting last pushed value and new value that has been pushed by parent `Observable`.
+
 Result of the function is next value of newly created `Observable`.
 
-### Observable::flatten
+---
+### Observable.prototype.`flatten`
 `(): Observable&lt;U&gt;`
+
 When parent `Observable` is releasing other `Observable`s as values
 use `flatten` to create a derivative stream that consists only of values
 that are released by these "observable values".
 
-### Observable::buffer
+---
+### Observable.prototype.`buffer`
 `(maxLastValues: number = 0): Observable&lt;T[]&gt;`
+
 Creates a derivative stream of parent `Observable` values gathered in array.
 New values set is released after
 all other `Observable`s values are pushed through
 and all `Domain` actions being called.
 You can specify how many of there messages has to be remembered.
 
-### Observable::bufferCount
+---
+### Observable.prototype.`bufferCount`
 `(bufferSize: number, customBufferCount: number = null): Observable&lt;T[]&gt;`
+
 Creates a derivative stream containing parent `Observable` values
 gathered in an Array.
 New values set is released
@@ -120,9 +163,10 @@ a --1--2--3----4--5|
 b --------[1,2,3]-[3,4,5]|
 ```
 
-
+---
 ## class `Combine`&lt;T&gt; extends `Observable`&lt;T&gt;
 `( { [name: string]: Observable } )`
+
 Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.
 
 ```javascript
@@ -135,11 +179,13 @@ join.subscribe(v => {
 })
 ```
 
+---
 ## class `Domain`&lt;T&gt; extends `Observable`&lt;T&gt;
 `( source: Observable&lt;T&gt; )`
 
 Class constructor alone will be only helpful when extending `Domain` class.
 
+---
 ### Domain.create
 `( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain`
 
@@ -186,18 +232,25 @@ EyesDomain.roll().then(() => { console.log('I saw that!') })
 EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
 
+---
 ### Domain.tagged
 `name` => `( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain`
 
-Basically the same as `Domain.create`, but it returns a function that receives same arguments as `Domain.create`, but creates `Domain` that uses name provided with tagged template string literal.
+Basically the same as `Domain.create`,
+but it returns a function that receives same arguments as `Domain.create`,
+that creates `Domain` using name provided with tagged template string literal.
+
+Helpful for debugging purposes.
 
 ```javascript
 import {Domain} from 'immview'
 Domain.tagged`Yolo`(new Observable(observer => { observer.next('once')}), {})
 ````
 
-### Domain::[ACTION_NAME]
+---
+### *DomainInstance*.[ACTION_NAME]
 `(...args): Promise`
+
 A function that was in a provided in constructor set of actions.
 It is **not** exactly the same function as provided, because it is wrapped with internal scheduler call.
 Because it's deferred execution **it always returns a Promise** resolved with that function result.

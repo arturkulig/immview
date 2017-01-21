@@ -31,6 +31,7 @@ export class BaseObservable<T> implements Observer<T> {
     protected lastValue: T
     public closed = false
     public priority: number
+    public name: string
     private cancelSubscriber: () => void
     private observers: Observer<T>[]
 
