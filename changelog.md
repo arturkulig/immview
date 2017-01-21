@@ -1,19 +1,18 @@
-#Changelog
+# Changelog
 
 ## 2.0.0
 
-- feat: **Immview** is now written with TypeScript and exposes types declarations
-- feat: `Dispatcher` and by that `Domain` actions and `Data` writes return promises of these being executed
-- feat: `Observable`s are first class citizens of the library, not implementation detail and follows TC39 Observable proposal as closely as possible and in most usable way https://github.com/tc39/proposal-observable
-- feat: `Observable::subscribe` callback will not be immediately called with last shared value
-- feat: `View` functionality will be achievable using `Observable::map` function only
-- feat: `Scan` functionality will be achievable using `Observable::scan` function only
-- feat: `Reduce` functionality will be achievable using `Observable::reduce` function only
-- feat: `Debounce` functionality will be achievable using `Observable::debounce` function only
-- feat: `Throttle` functionality will be achievable using `Observable::throttle` function only
-- feat: `Observable::buffer` function is introduced. Observables next stream values pressure unloading by replacing awaiting values caused by previous implementation of `Dispatcher` will no longer be.
-- feat: `Domain` with actions can now be created through factory `Domain.create`
-- feat: Adding actions while extending `Domain` class can be achieved through `@action` decorator
+- feat: **Immview** is now written with TypeScript and exposes types declarations.
+- feat: `Domain` actions return promises of these being executed.
+- feat: `Observable` is a first class citizen of the library, not an implementation detail and follows [TC39 Observable proposal](https://github.com/tc39/proposal-observable) as closely as possible and in most usable way.
+- feat: `Observable::subscribe` callback will not be immediately called with last shared value.
+- feat: `Data` is achievable through normal `Observable` creation and pushing values. All `Observable`s are observers (actually all observer's proxy) and can push messages even if are derivative to some other stream..
+- feat: `View` functionality will be achievable using `Observable::map` function only.
+- feat: `Scan` functionality will be achievable using `Observable::scan` function only.
+- feat: `Merge` is renamed to `Combine`.
+- feat: `Observable::buffer*` functions are introduced. `Observable`s stream pressure unloading by replacing awaiting values will no longer be.
+- feat: `Domain` with actions can now be created through factory `Domain.create`.
+- feat: Adding actions while extending `Domain` class can be achieved through `@action` decorator (experimental feature).
 
 ---
 
