@@ -6,15 +6,23 @@ const dispatch = (job: () => any, priority: DispatcherPriorities) => {
     DispatcherInstance.push(job, priority)
     DispatcherInstance.run()
 }
+
 const dispatchPromise = (job: () => any, priority: DispatcherPriorities) => {
     return new Promise<void>((resolve, reject) => {
+        let ok: boolean
+        let result
+        let error
         dispatch(() => {
             try {
-                resolve(job())
+                result = job()
+                ok = true
             } catch (e) {
-                console.error(e.stack || e.message || e)
-                reject(e)
+                error = e
+                ok = false
             }
+        }, priority)
+        dispatch(() => {
+            ok ? resolve(result) : reject(error)
         }, priority)
     })
 }
