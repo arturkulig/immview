@@ -106,6 +106,27 @@ export class Observable<T> extends BaseObservable<T> {
         })
     }
 
+    merge(...others: Observable<T>[]): Observable<T> {
+        let completeSignalsAmount = 0
+        const result = new Observable<T>()
+        const subscriber = {
+            start() { },
+            next(value: T) { result.next(value) },
+            error(error: Error) { result.error(error) },
+            complete() {
+                completeSignalsAmount++
+                if (completeSignalsAmount === others.length + 1) {
+                    result.complete()
+                }
+            },
+        }
+        this.subscribe(subscriber)
+        others.forEach(
+            other => other.subscribe(subscriber)
+        )
+        return result
+    }
+
     bufferCount(bufferSize: number, customBufferCount: number = null): Observable<T[]> {
         const bufferInterval = customBufferCount || bufferSize
         let history: T[] = []

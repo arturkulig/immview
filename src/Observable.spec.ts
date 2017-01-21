@@ -1,4 +1,14 @@
 import { Observable } from './Observable'
+import { DispatcherPriorities } from './DispatcherPriorities'
+import { dispatch } from './DispatcherInstance'
+const { TEST } = DispatcherPriorities
+
+const fail = function (done, msg): () => void {
+    return (): void => {
+        expect(`${msg} WILL NOT HAPPEN`).toBe('')
+        setTimeout(done)
+    }
+}
 
 describe('Observable', () => {
     it('can be created with array', done => {
@@ -98,7 +108,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                done()
+                setTimeout(done)
             }, 10)
         })
         it('with window length 1', done => {
@@ -112,7 +122,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                done()
+                setTimeout(done)
             }, 10)
         })
 
@@ -127,7 +137,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                done()
+                setTimeout(done)
             }, 10)
         })
 
@@ -142,7 +152,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                done()
+                setTimeout(done)
             }, 10)
         })
 
@@ -157,7 +167,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                done()
+                setTimeout(done)
             }, 10)
         })
     })
@@ -171,9 +181,64 @@ describe('Observable', () => {
         }).flatten().subscribe(v => {
             result.push(v)
         })
-        setTimeout(() => {
+        dispatch(() => {
             expect(result).toEqual(expectedValues)
-            done()
+            setTimeout(done)
+        }, TEST)
+    })
+
+    describe('can merge', () => {
+        describe('two streams', () => {
+            it('none ends', done => {
+                const a = new Observable(observer => { observer.next(1) })
+                const b = new Observable(observer => { observer.next(2) })
+                const c = a.merge(b)
+                const values = []
+                c.subscribe(value => { values.push(value) }, fail('error', done), fail('completion', done))
+                dispatch(() => {
+                    expect(values).toEqual([1, 2])
+                    setTimeout(done)
+                }, TEST)
+            })
+            it('one ends', done => {
+                const a = new Observable(observer => {
+                    observer.next(1)
+                    observer.complete()
+                })
+                const b = new Observable(observer => { observer.next(2) })
+                const c = a.merge(b)
+                const values = []
+                c.subscribe(value => { values.push(value) }, fail('error', done), fail('completion', done))
+                dispatch(() => {
+                    expect(values).toEqual([1, 2])
+                    setTimeout(done)
+                }, TEST)
+            })
+            it('both ends', done => {
+                const a = Observable.of(1)
+                const b = Observable.of(2)
+                const c = a.merge(b)
+                const values = []
+                c.subscribe(value => { values.push(value) }, fail('error', done), () => { values.push('complete') })
+                dispatch(() => {
+                    expect(values).toEqual([1, 2, 'complete'])
+                    setTimeout(done)
+                }, TEST)
+            })
+        })
+        it('many streams', done => {
+            const subject = Observable.of(1).merge(
+                Observable.of(2),
+                Observable.of(3),
+                Observable.of(4),
+                Observable.of(5)
+            )
+            const values = []
+            subject.subscribe(v => values.push(v), fail('error', done), () => values.push('complete'))
+            dispatch(() => {
+                expect(values).toEqual([1, 2, 3, 4, 5, 'complete'])
+                setTimeout(done)
+            }, TEST)
         })
     })
 
