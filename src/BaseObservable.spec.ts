@@ -4,7 +4,7 @@ const { TEST } = DispatcherPriorities
 import { BaseObservable } from './BaseObservable'
 import { Observer } from './Observer'
 
-const impossibru = function (done, msg): () => void {
+const fail = function (done, msg): () => void {
     return (): void => {
         expect(`${msg} WILL NOT HAPPEN`).toBe('')
         setTimeout(done)
@@ -40,7 +40,7 @@ describe('BaseObservable', () => {
             }).subscribe(value => {
                 expect(value).toBe(5)
                 setTimeout(done)
-            }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
+            }, fail(done, 'Error sub trigger'), fail(done, 'Completion sub trigger'))
         })
 
         it('allowing pushing values with functions', done => {
@@ -58,7 +58,7 @@ describe('BaseObservable', () => {
                 observer.next(i => i + 3)
             }).subscribe(value => {
                 tester(value)
-            }, impossibru(done, 'Error sub trigger'), impossibru(done, 'Completion sub trigger'))
+            }, fail(done, 'Error sub trigger'), fail(done, 'Completion sub trigger'))
         })
 
         it('allowing multiple subscriptions before pushing values', done => {
@@ -92,8 +92,8 @@ describe('BaseObservable', () => {
                 observer.error(new Error())
             })
             const sub = obs.subscribe(
-                impossibru(done, 'Value sub trigger'),
-                impossibru(done, 'Error sub trigger'),
+                fail(done, 'Value sub trigger'),
+                fail(done, 'Error sub trigger'),
                 () => {
                     expect({ observableClosed: obs.closed }).toEqual({ observableClosed: true })
                     expect({ subscriptionClosed: sub.closed }).toEqual({ subscriptionClosed: true })

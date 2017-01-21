@@ -13,6 +13,7 @@
         - [Observable.prototype.`filter`](#observableprototypefilter)
         - [Observable.prototype.`scan`](#observableprototypescan)
         - [Observable.prototype.`flatten`](#observableprototypeflatten)
+        - [Observable.prototype.`merge`](#observableprototypemerge)
         - [Observable.prototype.`buffer`](#observableprototypebuffer)
         - [Observable.prototype.`bufferCount`](#observableprototypebuffercount)
     - [class `Combine`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-combinelttgt-extends-observablelttgt)
@@ -121,6 +122,12 @@ Result of the function is next value of newly created `Observable`.
 When parent `Observable` is releasing other `Observable`s as values
 use `flatten` to create a derivative stream that consists only of values
 that are released by these "observable values".
+
+---
+### Observable.prototype.`merge`
+`(...args: Observable&lt;T&gt;[]): Observable&lt;T&gt;
+
+Creates a stream containing all values of parent and of provided in arguments streams.
 
 ---
 ### Observable.prototype.`buffer`
