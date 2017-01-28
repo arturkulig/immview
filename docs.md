@@ -10,10 +10,12 @@
         - [Observable.prototype.`complete`](#observableprototypecomplete)
         - [Observable.prototype.`subscribe`](#observableprototypesubscribe)
         - [Observable.prototype.`map`](#observableprototypemap)
+        - [Observable.prototype.`startWith`](#observableprototypestartwith)
         - [Observable.prototype.`filter`](#observableprototypefilter)
         - [Observable.prototype.`scan`](#observableprototypescan)
         - [Observable.prototype.`flatten`](#observableprototypeflatten)
         - [Observable.prototype.`merge`](#observableprototypemerge)
+        - [Observable.prototype.`distinct`](#observableprototypedistinct)
         - [Observable.prototype.`buffer`](#observableprototypebuffer)
         - [Observable.prototype.`bufferCount`](#observableprototypebuffercount)
     - [class `Combine`&lt;T&gt; extends `Observable`&lt;T&gt;](#class-combinelttgt-extends-observablelttgt)
@@ -93,8 +95,17 @@ Returns a function to unregister the subscription.
 `(action: (value: T) => U): Observable&lt;U&gt;`
 
 Creates a derivative stream of values where
-every value pushed by a parent is transformed with `action` function and push further by `Observable`
-- result of this function call.
+every value pushed by a parent is transformed with `action` function and push further by `Observable` -
+result of this function call.
+
+---
+### Observable.prototype.`startWith`
+`(firstValue: T): Observable&lt;T&gt;`
+
+Creates a derivative stream of values where
+it has all values of parent stream, but these are preceeded
+with `firstValue` that is immediately shared with all other nodes
+that subscribed to the newly created stream.
 
 ---
 ### Observable.prototype.`filter`
@@ -128,6 +139,13 @@ that are released by these "observable values".
 `(...args: Observable&lt;T&gt;[]): Observable&lt;T&gt;
 
 Creates a stream containing all values of parent and of provided in arguments streams.
+
+---
+### Observable.prototype.`distinct`
+`(): Observable&lt;T&gt;`
+
+Creates a derivative stream of values
+but eliminates repeated subsequent value occurences.
 
 ---
 ### Observable.prototype.`buffer`
