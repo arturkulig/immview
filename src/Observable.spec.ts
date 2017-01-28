@@ -242,6 +242,20 @@ describe('Observable', () => {
         })
     })
 
+    it('creates a stream with only distinct values', done => {
+        let values = []
+        let ref = {}
+        Observable.of<any>(1, 2, 2, 3, ref, ref, 1).distinct().subscribe(
+            v => {
+                values.push(v)
+            }
+        )
+        dispatch(() => {
+            expect(values).toEqual([1, 2, 3, ref, 1])
+            done()
+        }, TEST)
+    })
+
     it('can take buffered messages with default interval', done => {
         const pushValues = [1, 2, 3, 4]
         const expectedValues = [[1, 2], [3, 4]]

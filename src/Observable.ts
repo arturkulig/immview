@@ -16,8 +16,7 @@ export class Observable<T> extends BaseObservable<T> {
             const newObservable = new Observable<T>(observer => {
                 prevObservable.subscribe(observer.next, observer.error, observer.complete)
             })
-            const newObservableName = `${this.name}>$`
-            newObservable.name = newObservableName
+            newObservable.name = `${this.name}>$`
             return newObservable
         }
 
@@ -35,8 +34,7 @@ export class Observable<T> extends BaseObservable<T> {
                 }
                 complete()
             })
-            const newObservableName = `${values[Symbol.toStringTag] || values.toString() || `#${newObservable.priority}`}$`
-            newObservable.name = newObservableName
+            newObservable.name = `${values[Symbol.toStringTag] || values.toString() || `#${newObservable.priority}`}$`
             return newObservable
         }
 
@@ -48,7 +46,7 @@ export class Observable<T> extends BaseObservable<T> {
             const subscription = this.subscribe(
                 value => {
                     try {
-                        const diagDone = diagnose.isOn && diagnose.measure(`\$> ${newObservableName}`)
+                        const diagDone = diagnose.isOn && diagnose.measure(`\$> ${newObservable.name}`)
                         const nextValue = action(value)
                         diagDone && diagDone()
                         observer.next(nextValue)
@@ -61,13 +59,11 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        const newObservableName = `${this.name} |> ${action.name || `#${newObservable.priority}`}`
-        newObservable.name = newObservableName
+        newObservable.name = `${this.name} |> ${action.name || `#${newObservable.priority}`}`
         return newObservable
     }
 
     flatten<U>(this: Observable<Observable<U>>): Observable<U> {
-        const newObservableName = `${this.name} |> $$>$`
         const newObservable = new Observable<U>(observer => {
             this.subscribe(
                 nextSource => {
@@ -82,7 +78,7 @@ export class Observable<T> extends BaseObservable<T> {
                 observer.complete
             )
         })
-        newObservable.name = newObservableName
+        newObservable.name = `${this.name} |> $$>$`
         return newObservable
     }
 
@@ -104,7 +100,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        const newObservableName = `${this.name} += ${reductor || `#${newObservable.priority}`}`
+        const newObservableName = `${this.name} +=${reductor || `#${newObservable.priority}`}`
         newObservable.name = newObservableName
         return newObservable
     }
@@ -124,7 +120,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        const newObservableName = `${this.name} ? ${filter.name || `#${newObservable.priority}`}`
+        const newObservableName = `${this.name} ?${filter.name || `#${newObservable.priority}`}`
         newObservable.name = newObservableName
         return newObservable
     }
@@ -148,6 +144,26 @@ export class Observable<T> extends BaseObservable<T> {
             other => other.subscribe(subscriber)
         )
         newObservable.name = `( ${[this, ...others].map(o => o.name).join(' + ')} )`
+        return newObservable
+    }
+
+    distinct() {
+        const newObservable = new Observable<T>(observer => {
+            let last
+            let everPushed = false
+            this.subscribe({
+                start() { },
+                next(value: T) {
+                    if (everPushed && last === value) return
+                    everPushed = true
+                    last = value
+                    observer.next(value)
+                },
+                error(error: Error) { observer.error(error) },
+                complete() { observer.complete() },
+            })
+        })
+        newObservable.name = `${this.name} !==`
         return newObservable
     }
 
