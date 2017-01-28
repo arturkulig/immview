@@ -48,12 +48,23 @@ describe('Observable', () => {
         Observable.from(pushValues).subscribe(
             value => {
                 result.push(value)
-                expect(value).toBe(expectedValues.shift())
-                if (result.length === 3) {
-                    setTimeout(done)
-                }
             }
         )
+        dispatch(() => {
+            expect(result).toEqual(expectedValues)
+            done()
+        }, TEST)
+    })
+
+    it('can create a new stream with initial, immediately released  value', done => {
+        let values = []
+        Observable.of(2, 3).startWith(1).subscribe(v => {
+            values.push(v)
+        })
+        dispatch(() => {
+            expect(values).toEqual([1, 2, 3])
+            done()
+        }, TEST)
     })
 
     it('can filter messages', done => {
