@@ -13,9 +13,8 @@ export class Observable<T> extends BaseObservable<T> {
     public static from<T>(values: Observable<T> | Iterable<T>): Observable<T> {
         if (values[ObservableSymbol]) {
             const prevObservable = values[ObservableSymbol]() as Observable<T>
-            const newObservable = new Observable<T>(observer => {
-                prevObservable.subscribe(observer.next, observer.error, observer.complete)
-            })
+            const newObservable = new Observable<T>()
+            prevObservable.subscribe(newObservable)
             newObservable.name = `${this.name}>$`
             return newObservable
         }
@@ -39,6 +38,14 @@ export class Observable<T> extends BaseObservable<T> {
         }
 
         throw new Error('Observable.from incorrect input')
+    }
+
+    startWith(firstValue: T) {
+        const newObservable = new Observable<T>()
+        newObservable.next(firstValue)
+        this.subscribe(newObservable)
+        newObservable.name = `${this.name} [T, ...$]`
+        return newObservable
     }
 
     map<U>(action: (value: T) => U): Observable<U> {
