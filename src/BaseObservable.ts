@@ -1,5 +1,6 @@
 import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
+import { diagnose } from './Diagnose'
 import { Subscription } from './Subscription'
 import { Observer } from './Observer'
 import { SubscriptionObserver } from './SubscriptionObserver'
@@ -45,10 +46,18 @@ export class BaseObservable<T> implements Observer<T> {
             return
         }
 
+        if (!!subscriber.name && this.name === undefined) {
+            this.name = `${subscriber.name}$`
+        }
+
         this.cancelSubscriber = (
             subscriber({
                 next: (nextValue: T): void => {
-                    this.pushMessage([MessageTypes.Next, typeof nextValue === 'function' ? nextValue : () => nextValue, noop])
+                    this.pushMessage([
+                        MessageTypes.Next,
+                        typeof nextValue === 'function' ? nextValue : function value() { return nextValue },
+                        noop
+                    ])
                 },
                 error: (reason: Error): void => {
                     this.pushMessage([MessageTypes.Error, reason, noop])
@@ -73,12 +82,12 @@ export class BaseObservable<T> implements Observer<T> {
         // noop on purpose
     }
 
-    next(value: NextStep<T>) {
+    next(nextValue: NextStep<T>) {
         this.pushMessage([
             MessageTypes.Next,
-            (typeof value === 'function')
-                ? (value as Transformer<T>)
-                : (() => value),
+            (typeof nextValue === 'function')
+                ? (nextValue as Transformer<T>)
+                : function value() { return nextValue },
             noop
         ])
     }
@@ -159,7 +168,14 @@ export class BaseObservable<T> implements Observer<T> {
         const [type, , doneCallback] = message
         if (type === MessageTypes.Next) {
             const [, getValue] = (message as NextMessage<any>)
+
+            const diagDone = (
+                diagnose.isOn &&
+                diagnose.measure(`\$> ${node.name || '[anonymous]'}.next${getValue.name ? `(${getValue.name})` : ''}`)
+            )
             const nextValue = getValue(node.lastValue)
+            diagDone && diagDone()
+
             node.lastValue = nextValue
             node.observers.forEach(
                 observer => observer.next(nextValue)

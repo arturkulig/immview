@@ -28,7 +28,7 @@ const dispatchPromise = (job: () => any, priority: DispatcherPriorities) => {
 }
 
 export {
-    DispatcherInstance as Dispatcher,
+    DispatcherInstance as dispatcher,
     dispatch,
     dispatchPromise
 }
