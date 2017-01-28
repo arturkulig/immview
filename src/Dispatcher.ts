@@ -6,8 +6,9 @@ export interface Task {
 export class Dispatcher {
     private _isRunning = false
     public get isRunning(): boolean {
-        return !!this._isRunning
+        return this._isRunning
     }
+    private subsequentCalls: number = 0
 
     tasks: Task[] = []
 
@@ -30,15 +31,27 @@ export class Dispatcher {
         const task = this.findNextTask()
         if (!task) {
             this._isRunning = false
+            this.subsequentCalls = 0
             return
         }
 
+        if (this.subsequentCalls > 1024) {
+            this.tooManyCalls()
+        }
+
+        this.subsequentCalls++
+
         this.next(
             task.execute,
-            () => {
-                Promise.resolve().then(() => this.loop())
-            }
+            () => this.loop()
         )
+    }
+
+    tooManyCalls() {
+        'If you see this, that means your code made too many subsequent messages.'
+        'This situation is considered harmful.'
+        'Please handle this situation and limit how many messages are pushed at once.'
+        debugger
     }
 
     private findNextTask() {

@@ -1,6 +1,7 @@
 import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatchPromise } from './DispatcherInstance'
+import { diagnose } from './Diagnose'
 
 export interface Actions<T> {
     [id: string]: (this: Domain<T>, ...args: any[]) => void | Promise<any>
@@ -14,11 +15,8 @@ export class Domain<T> extends Observable<T> {
             super()
             return
         }
-        super(observer => {
-            stream.subscribe({
-                ...observer,
-                start: () => { }
-            })
+        super(() => {
+            stream.subscribe(this)
         })
     }
 
@@ -45,12 +43,17 @@ export class Domain<T> extends Observable<T> {
         const instance = (new Domain(stream) as Object)
         if (actions) {
             for (let actionsKey in actions) {
+                const currentActionName = actionsKey
                 if (!Object.prototype.hasOwnProperty.call(actions, actionsKey)) {
                     continue
                 }
                 instance[(actionsKey as string)] =
                     (...args) =>
-                        dispatchPromise(actions[actionsKey].bind(instance, ...args), DispatcherPriorities.DOMAIN)
+                        dispatchPromise(() => {
+                            const diagDone = diagnose.measure(`<\$ ${instance['name'] ? `${instance['name']}.` : ''}${currentActionName}`)
+                            actions[actionsKey].apply(instance, args)
+                            diagDone && diagDone()
+                        }, DispatcherPriorities.DOMAIN)
             }
         }
         if (fields) {

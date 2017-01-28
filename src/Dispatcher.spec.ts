@@ -42,4 +42,19 @@ describe('Dispatcher', () => {
         dispatcher.push(() => { result += 'b' }, 2)
         dispatcher.run()
     })
+
+    it('will break if there is more that 1024 subsequent dispatcher actions', done => {
+        let shouldFinish = false
+        const dispatcher = new Dispatcher()
+        dispatcher.tooManyCalls = () => {
+            shouldFinish = true
+            done()
+        }
+        function recursiveDispatcherCall() {
+            if (shouldFinish) return
+            dispatcher.push(recursiveDispatcherCall, 1)
+            dispatcher.run()
+        }
+        recursiveDispatcherCall()
+    })
 })

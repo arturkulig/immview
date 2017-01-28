@@ -1,12 +1,13 @@
-import { Dispatcher } from './DispatcherInstance'
+import { dispatcher } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { Observable } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
 import { action } from './Domain.action'
+import { diagnose } from './Diagnose'
 
 const dispatchExt = (job: () => any) => {
-    Dispatcher.push(job, DispatcherPriorities.EXTERNAL)
+    dispatcher.push(job, DispatcherPriorities.EXTERNAL)
 }
 
 export {
@@ -14,7 +15,8 @@ export {
     Combine,
     Combine as Merge,
     Domain,
-    Dispatcher,
+    dispatcher,
     dispatchExt as dispatch,
-    action
+    action,
+    diagnose
 }
