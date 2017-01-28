@@ -48,8 +48,8 @@ export class Dispatcher {
     }
 
     tooManyCalls() {
-        'If you see this, that means your code made too many subsequent messages.'
-        'This situation is considered harmful.'
+        'If you see this, that means your code sent too many subsequent messages.'
+        'This situation is considered harmful, as it may introduce serious lag of your app.'
         'Please handle this situation and limit how many messages are pushed at once.'
         debugger
     }
