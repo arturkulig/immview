@@ -90,4 +90,12 @@ describe('Domain', () => {
         await subject.test()
         expect(tested).toBe(true)
     })
+
+    it('allows creation of tagged Domains', async () => {
+        let tested = false
+        const subject = Domain.create('Root0fAllDevil', { test() { tested = true } })
+        expect(subject.name).toBe('Root0fAllDevil')
+        await subject.test()
+        expect(tested).toBe(true)
+    })
 })

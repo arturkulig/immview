@@ -15,7 +15,7 @@ export class Observable<T> extends BaseObservable<T> {
             const prevObservable = values[ObservableSymbol]() as Observable<T>
             const newObservable = new Observable<T>()
             prevObservable.subscribe(newObservable)
-            newObservable.name = `${this.name}>$`
+            newObservable.name = `${this.name} >$`
             return newObservable
         }
 
@@ -85,7 +85,7 @@ export class Observable<T> extends BaseObservable<T> {
                 observer.complete
             )
         })
-        newObservable.name = `${this.name} |> $$>$`
+        newObservable.name = `${this.name} $$>$`
         return newObservable
     }
 

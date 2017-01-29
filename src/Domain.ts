@@ -29,19 +29,27 @@ export class Domain<T> extends Observable<T> {
         return creator
     }
 
-    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(stream: Observable<DomainT>, actions: ActionsT, fields?: FieldsT): Domain<DomainT> & ActionsT & FieldsT
-    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(actions: ActionsT, fields?: FieldsT): Domain<DomainT> & ActionsT & FieldsT
-    public static create<T, U extends Actions<T>, V extends {}>(...args: any[]): Domain<T> & U & V {
+    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(name: string, stream: Observable<DomainT>, actions: ActionsT, fields: FieldsT): Domain<DomainT> & ActionsT & FieldsT
+    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(stream: Observable<DomainT>, actions: ActionsT, fields: FieldsT): Domain<DomainT> & ActionsT & FieldsT
+    public static create<DomainT, ActionsT extends Actions<DomainT>>(name: string, stream: Observable<DomainT>, actions: ActionsT): Domain<DomainT> & ActionsT
+    public static create<DomainT, ActionsT extends Actions<DomainT>>(stream: Observable<DomainT>, actions: ActionsT): Domain<DomainT> & ActionsT
+    public static create<DomainT, ActionsT extends Actions<DomainT>>(actions: ActionsT): Domain<DomainT> & ActionsT
+    public static create<DomainT, ActionsT extends Actions<DomainT>>(name: string, actions: ActionsT): Domain<DomainT> & ActionsT
+    public static create<T, U extends Actions<T>, V extends {}>(...args: any[]) {
+        let name: string
         let stream: Observable<T>
         let actions: U
         let fields: V
+        if (typeof args[0] === 'string') {
+            name = args.shift()
+        }
         if (typeof args[0] === 'object' && args[0] !== null && typeof args[0].subscribe === 'function') {
             stream = args.shift()
         }
         actions = args.shift()
         fields = args.shift()
         const instance = (new Domain(stream) as Object)
-        instance['name'] = `[Unnamed domain #${(instance as Domain<T>).priority}]`
+        instance['name'] = name !== undefined ? name : `${(instance as Domain<T>).priority}\$!`
         if (actions) {
             for (let actionsKey in actions) {
                 const currentActionName = actionsKey
