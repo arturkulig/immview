@@ -107,7 +107,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        const newObservableName = `${this.name} +=${reductor || `#${newObservable.priority}`}`
+        const newObservableName = `${this.name} +=${reductor.name || `#${newObservable.priority}`}`
         newObservable.name = newObservableName
         return newObservable
     }

@@ -41,6 +41,7 @@ export class Domain<T> extends Observable<T> {
         actions = args.shift()
         fields = args.shift()
         const instance = (new Domain(stream) as Object)
+        instance['name'] = `[Unnamed domain #${(instance as Domain<T>).priority}]`
         if (actions) {
             for (let actionsKey in actions) {
                 const currentActionName = actionsKey

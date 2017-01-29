@@ -9,7 +9,7 @@ export type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() =>
 export enum MessageTypes { Next, Error, Complete }
 export type Transformer<T> = (current: T) => T
 export type NextStep<T> = T | Transformer<T>
-export type NextMessage<T> = [MessageTypes.Next, (currentState: T) => T, () => void]
+export type NextMessage<T> = [MessageTypes.Next, NextStep<T>, () => void]
 export type ErrorMessage = [MessageTypes.Error, Error, () => void]
 export type CompletionMessage = [MessageTypes.Complete, void, () => void]
 export type Message<T> =
@@ -55,7 +55,7 @@ export class BaseObservable<T> implements Observer<T> {
                 next: (nextValue: T): void => {
                     this.pushMessage([
                         MessageTypes.Next,
-                        typeof nextValue === 'function' ? nextValue : function value() { return nextValue },
+                        nextValue,
                         noop
                     ])
                 },
@@ -85,9 +85,7 @@ export class BaseObservable<T> implements Observer<T> {
     next(nextValue: NextStep<T>) {
         this.pushMessage([
             MessageTypes.Next,
-            (typeof nextValue === 'function')
-                ? (nextValue as Transformer<T>)
-                : function value() { return nextValue },
+            nextValue,
             noop
         ])
     }
@@ -164,17 +162,23 @@ export class BaseObservable<T> implements Observer<T> {
         return [null, null]
     }
 
-    private static digestNodeMessage(node: BaseObservable<any>, message: Message<any>) {
+    private static digestNodeMessage<T>(node: BaseObservable<T>, message: Message<T>) {
         const [type, , doneCallback] = message
         if (type === MessageTypes.Next) {
-            const [, getValue] = (message as NextMessage<any>)
+            const [, messageValue] = (message as NextMessage<T>)
 
-            const diagDone = (
-                diagnose.isOn &&
-                diagnose.measure(`\$> ${node.name || '[anonymous]'}.next${getValue.name ? `(${getValue.name})` : ''}`)
-            )
-            const nextValue = getValue(node.lastValue)
-            diagDone && diagDone()
+            let nextValue
+            if (typeof messageValue === 'function') {
+                const getValue = messageValue as Transformer<T>
+                const diagDone = (
+                    diagnose.isOn &&
+                    diagnose.measure(`\$> ${node.name || '[anonymous]'}.next${getValue.name ? `(${getValue.name})` : ''}`)
+                )
+                nextValue = getValue(node.lastValue)
+                diagDone && diagDone()
+            } else {
+                nextValue = messageValue as T
+            }
 
             node.lastValue = nextValue
             node.observers.forEach(
