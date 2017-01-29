@@ -41,13 +41,15 @@ export class BaseObservable<T> implements Observer<T> {
         this.observers = []
         this.priority = BaseObservable.lastObservablePriority++
 
+        if (subscriber && typeof subscriber.name === 'string' && subscriber.name.length > 0) {
+            this.name = `${subscriber.name}\$`
+        } else {
+            this.name = `${this.priority}\$`
+        }
+
         if (!subscriber) {
             this.cancelSubscriber = noop
             return
-        }
-
-        if (!!subscriber.name && this.name === undefined) {
-            this.name = `${subscriber.name}$`
         }
 
         this.cancelSubscriber = (

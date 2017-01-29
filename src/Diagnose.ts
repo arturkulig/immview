@@ -1,6 +1,3 @@
-import { dispatch } from './DispatcherInstance'
-import { DispatcherPriorities } from './DispatcherPriorities'
-
 export type DiagEntry = {
     'action name': string,
     'duration in ms': number

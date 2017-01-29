@@ -10,6 +10,7 @@
             "es2015.promise"
         ],
         "experimentalDecorators": true,
-        "alwaysStrict": true
+        "alwaysStrict": true,
+        "sourceMap": true
     }
 }
