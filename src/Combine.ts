@@ -60,5 +60,14 @@ export class Combine<V extends {}> extends Observable<V> {
                 subscriptions.forEach(subscription => subscription())
             }
         })
+
+        const names = []
+        for (let name in sources) {
+            if (!Object.prototype.hasOwnProperty.call(sources, name)) return
+            names.push(name)
+        }
+        this.name = `{${
+            names.join(', ')
+        }}`
     }
 }
