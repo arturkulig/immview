@@ -2,7 +2,7 @@
   "name": "immview",
   "version": "2.0.10",
   "description": "",
-  "main": "./dist/immview.js",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "scripts": {
     "start": "NODE_ENV=testing jest",
     "build": "rm -rf ./dist/*.js; rm -rf ./dist/*.js.map; NODE_ENV=production webpack -p; npm run declarations",
-    "declarations": "rm -rf ./dist/*.d.ts; tsc --declaration --declarationDir ./dist --outDir ./tsc_tmp_output; rm -rf ./dist/*.spec.d.ts; rm -rf ./tsc_tmp_output",
+    "declarations": "rm -rf ./dist/*.d.ts; tsc --declaration --outDir ./dist ; rm -rf ./dist/*.spec.d.ts; rm -rf ./tsc_tmp_output",
     "preversion": "npm run test && npm run build",
     "test": "tsc --noEmit && $(npm bin)/tslint --project ./tsconfig.json --config ./tslint.json --format stylish && jest",
     "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i"
