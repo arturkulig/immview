@@ -1,7 +1,7 @@
 import { Observable } from './Observable'
 
 export class Combine<V extends {}> extends Observable<V> {
-    constructor(sources: { [id in keyof V]: Observable<V[id]> }) {
+    constructor(sources: {[id in keyof V]: Observable<V[id]> }) {
         super(observer => {
             const names: string[] = []
             const initialized: string[] = []
@@ -67,7 +67,7 @@ export class Combine<V extends {}> extends Observable<V> {
             names.push(name)
         }
         this.name = `{${
-            names.join(', ')
-        }}`
+            names.map(name => ((sources[name] && !sources[name].name && sources[name].name !== name) ? `${name}: ${sources[name].name}` : name)).join(', ')
+            }}`
     }
 }
