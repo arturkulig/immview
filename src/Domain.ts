@@ -60,8 +60,9 @@ export class Domain<T> extends Observable<T> {
                     (...args) =>
                         dispatchPromise(() => {
                             const diagDone = diagnose.measure(`<\$ ${instance['name'] ? `${instance['name']}.` : ''}${currentActionName}`)
-                            actions[actionsKey].apply(instance, args)
+                            const result = actions[actionsKey].apply(instance, args)
                             diagDone && diagDone()
+                            return result
                         }, DispatcherPriorities.DOMAIN)
             }
         }
