@@ -89,9 +89,9 @@ export class Observable<T> extends BaseObservable<T> {
         return newObservable
     }
 
-    scan<U>(reductor: (accumulator: U, value: T, index: number) => U): Observable<U> {
+    scan<U>(reductor: (accumulator: U, value: T, index: number) => U, defaultValue?: U): Observable<U> {
         const newObservable = new Observable<U>(observer => {
-            let summary: U
+            let summary: U = defaultValue
             let index = 0
             const subscription = this.subscribe(
                 value => {
@@ -154,14 +154,18 @@ export class Observable<T> extends BaseObservable<T> {
         return newObservable
     }
 
-    distinct() {
+    distinct(comparator?: (prev: T, next: T) => boolean) {
         const newObservable = new Observable<T>(observer => {
             let last
             let everPushed = false
             this.subscribe({
                 start() { },
                 next(value: T) {
-                    if (everPushed && last === value) return
+                    if (comparator) {
+                        if (!comparator(last, value)) return
+                    } else {
+                        if (everPushed && last === value) return
+                    }
                     everPushed = true
                     last = value
                     observer.next(value)
@@ -170,7 +174,7 @@ export class Observable<T> extends BaseObservable<T> {
                 complete() { observer.complete() },
             })
         })
-        newObservable.name = `${this.name} !==`
+        newObservable.name = `${this.name} !==${comparator ? (!!comparator.name ? comparator.name : '') : ''}`
         return newObservable
     }
 

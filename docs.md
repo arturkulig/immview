@@ -42,11 +42,17 @@ Construct with `subscriber` function that receives `observer` object. `Observer`
 
 Function to create an `Observable` that immediately pushes values given as arguments.
 
+**Stream is immediately completed after all values are pushed.**
+If you wish to create a stream and kickstart it with a value(s), use `startWith`.
+
 ---
 ### Observable.`from`
 `(values: T[]): Observable&lt;T&gt;`
 
 Function to create an `Observable` that immediately pushes values given as an array of values.
+
+**Stream is immediately completed after all values are pushed.**
+If you wish to create a stream and kickstart it with a value(s), use `startWith`.
 
 ---
 ### Observable.prototype.`previous`
@@ -117,14 +123,14 @@ with `filter` function are going to be pushed by that derivative `Observable`.
 
 ---
 ### Observable.prototype.`scan`
-`(accumulator: (summary: U, value: T, index: number) => U): Observable&lt;U&gt;`
+`(accumulator: (summary: U, value: T, index: number) => U, defaultValue?: U): Observable&lt;U&gt;`
 
 Creates a derivative stream of values where
 on every value that parent pushes
 there is `accumulator` function called
 getting last pushed value and new value that has been pushed by parent `Observable`.
-
 Result of the function is next value of newly created `Observable`.
+First call is with summary being undefined unless `defautValue` is also passed.
 
 ---
 ### Observable.prototype.`flatten`
@@ -142,10 +148,14 @@ Creates a stream containing all values of parent and of provided in arguments st
 
 ---
 ### Observable.prototype.`distinct`
-`(): Observable&lt;T&gt;`
+`(comparator?: (prev: T, next: T) => boolean): Observable&lt;T&gt;`
 
 Creates a derivative stream of values
 but eliminates repeated subsequent value occurences.
+
+If `comparator` is passed, it is going to be used
+to determine if a value is distinct from previous one.
+Otherwise strict equal is incorporated.
 
 ---
 ### Observable.prototype.`buffer`
@@ -212,7 +222,7 @@ Class constructor alone will be only helpful when extending `Domain` class.
 
 ---
 ### Domain.create
-`( source: observable&lt;t&gt; , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain`
+`( name?: string, source?: observable&lt;t&gt;, actions: { [name: string]: () => promise&lt;any&gt; | void }, fields?: {}) => Domain`
 
 `Domain` class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of `Domain`s scope.
 For example: if you have a folder like:
