@@ -77,18 +77,35 @@ describe('Observable', () => {
         })
     })
 
-    it('can scan messages, and reduce output', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [2, 6, 12]
-        const result = []
-        Observable.from(pushValues).scan(
-            (summary: number, value) => (summary | 0) + value * 2
-        ).subscribe(value => {
-            result.push(value)
-            expect(value).toBe(expectedValues.shift())
-            if (result.length === 3) {
-                setTimeout(done)
-            }
+    describe('can scan messages, and reduce output', () => {
+        it('without default value', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [2, 6, 12]
+            const result = []
+            Observable.from(pushValues).scan(
+                (summary: number, value) => (summary | 0) + value * 2
+            ).subscribe(value => {
+                result.push(value)
+                expect(value).toBe(expectedValues.shift())
+                if (result.length === 3) {
+                    setTimeout(done)
+                }
+            })
+        })
+        it('with a default value', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [5, 9, 15]
+            const result = []
+            Observable.from(pushValues).scan(
+                (summary: number, value) => summary + value * 2,
+                3
+            ).subscribe(value => {
+                result.push(value)
+                expect(value).toBe(expectedValues.shift())
+                if (result.length === 3) {
+                    setTimeout(done)
+                }
+            })
         })
     })
 
@@ -253,18 +270,29 @@ describe('Observable', () => {
         })
     })
 
-    it('creates a stream with only distinct values', done => {
-        let values = []
-        let ref = {}
-        Observable.of<any>(1, 2, 2, 3, ref, ref, 1).distinct().subscribe(
-            v => {
-                values.push(v)
-            }
-        )
-        dispatch(() => {
-            expect(values).toEqual([1, 2, 3, ref, 1])
-            done()
-        }, TEST)
+    describe('creates a stream with only distinct values', () => {
+        it('without a comparator', done => {
+            let values = []
+            let ref = {}
+            Observable.of<any>(1, 2, 2, 3, ref, ref, 1).distinct().subscribe(v => { values.push(v) })
+            dispatch(() => {
+                expect(values).toEqual([1, 2, 3, ref, 1])
+                done()
+            }, TEST)
+        })
+
+        it('with a comparator', done => {
+            let values = []
+            let ref = {}
+            Observable
+                .of<any>(1, 2, 2, 3, ref, ref, 1)
+                .distinct((prev, next) => (typeof prev !== typeof next))
+                .subscribe(v => { values.push(v) })
+            dispatch(() => {
+                expect(values).toEqual([1, ref, 1])
+                done()
+            }, TEST)
+        })
     })
 
     it('can take buffered messages with default interval', done => {
