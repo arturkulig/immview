@@ -1,6 +1,6 @@
 import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
-import { dispatchPromise } from './DispatcherInstance'
+import { dispatchAndReturn } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
 
 export interface Actions<T> {
@@ -58,7 +58,7 @@ export class Domain<T> extends Observable<T> {
                 }
                 instance[(actionsKey as string)] =
                     (...args) =>
-                        dispatchPromise(() => {
+                        dispatchAndReturn(() => {
                             const diagDone = diagnose.measure(`<\$ ${instance['name'] ? `${instance['name']}.` : ''}${currentActionName}`)
                             const result = actions[actionsKey].apply(instance, args)
                             diagDone && diagDone()
