@@ -1,7 +1,7 @@
 import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
-const { TEST } = DispatcherPriorities
+const { ALL } = DispatcherPriorities
 
 const fail = function (done, msg): () => void {
     return (): void => {
@@ -53,7 +53,7 @@ describe('Observable', () => {
         dispatch(() => {
             expect(result).toEqual(expectedValues)
             done()
-        }, TEST)
+        }, ALL)
     })
 
     it('can create a new stream with initial, immediately released  value', done => {
@@ -64,7 +64,7 @@ describe('Observable', () => {
         dispatch(() => {
             expect(values).toEqual([1, 2, 3])
             done()
-        }, TEST)
+        }, ALL)
     })
 
     it('can filter messages', done => {
@@ -212,7 +212,7 @@ describe('Observable', () => {
         dispatch(() => {
             expect(result).toEqual(expectedValues)
             setTimeout(done)
-        }, TEST)
+        }, ALL)
     })
 
     describe('can merge', () => {
@@ -226,7 +226,7 @@ describe('Observable', () => {
                 dispatch(() => {
                     expect(values).toEqual([1, 2])
                     setTimeout(done)
-                }, TEST)
+                }, ALL)
             })
             it('one ends', done => {
                 const a = new Observable(observer => {
@@ -240,7 +240,7 @@ describe('Observable', () => {
                 dispatch(() => {
                     expect(values).toEqual([1, 2])
                     setTimeout(done)
-                }, TEST)
+                }, ALL)
             })
             it('both ends', done => {
                 const a = Observable.of(1)
@@ -251,7 +251,7 @@ describe('Observable', () => {
                 dispatch(() => {
                     expect(values).toEqual([1, 2, 'complete'])
                     setTimeout(done)
-                }, TEST)
+                }, ALL)
             })
         })
         it('many streams', done => {
@@ -266,7 +266,7 @@ describe('Observable', () => {
             dispatch(() => {
                 expect(values).toEqual([1, 2, 3, 4, 5, 'complete'])
                 setTimeout(done)
-            }, TEST)
+            }, ALL)
         })
     })
 
@@ -278,7 +278,7 @@ describe('Observable', () => {
             dispatch(() => {
                 expect(values).toEqual([1, 2, 3, ref, 1])
                 done()
-            }, TEST)
+            }, ALL)
         })
 
         it('with a comparator', done => {
@@ -291,7 +291,7 @@ describe('Observable', () => {
             dispatch(() => {
                 expect(values).toEqual([1, ref, 1])
                 done()
-            }, TEST)
+            }, ALL)
         })
     })
 

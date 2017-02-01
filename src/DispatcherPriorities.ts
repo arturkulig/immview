@@ -4,5 +4,5 @@ export enum DispatcherPriorities {
     BUFFER = 3,
     EXTERNAL = 4,
     DIAGNOSE = 5,
-    TEST = 10
+    ALL = 10
 }

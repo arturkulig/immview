@@ -1,6 +1,5 @@
-import { dispatch } from './DispatcherInstance'
+import { dispatch, flush } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
-const { TEST } = DispatcherPriorities
 
 import { Observable } from './Observable'
 import { Domain } from './Domain'
@@ -41,20 +40,18 @@ describe('Domain', () => {
         })
     })
 
-    it('allows calling actions', done => {
+    it('allows calling actions', async () => {
         let tested = false
         const TheDomain = Domain.create(
             new Observable(),
             { test() { tested = true } }
         )
-        TheDomain.test()
-        dispatch(() => {
-            expect({ tested }).toEqual({ tested: true })
-            setTimeout(done)
-        }, TEST)
+        await TheDomain.test()
+        await flush()
+        expect({ tested }).toEqual({ tested: true })
     })
 
-    it('action calls return Promises of execution', done => {
+    it('action calls return Promises of execution', async () => {
         let tested = false
         const TheDomain = Domain.create(
             new Observable(),
@@ -65,11 +62,9 @@ describe('Domain', () => {
                 }
             }
         )
-        TheDomain.test().then(result => {
-            expect(result).toBe(undefined)
-            expect({ tested }).toEqual({ tested: true })
-            setTimeout(done)
-        })
+        const result = await TheDomain.test()
+        expect(result).toBe(undefined)
+        expect({ tested }).toEqual({ tested: true })
     })
 
     it('shares same data as provided observable', done => {
@@ -97,5 +92,20 @@ describe('Domain', () => {
         expect(subject.name).toBe('Root0fAllDevil')
         await subject.test()
         expect(tested).toBe(true)
+    })
+
+    it('allows creation of tagged Domains with a stream', async () => {
+        let tested = false
+        const subjectStream = new Observable<any>()
+        const subject = Domain.create('Root0fAllDevil', subjectStream, { test() { tested = true } })
+        expect(subject.name).toBe('Root0fAllDevil')
+        await subject.test()
+        expect(tested).toBe(true)
+
+        expect(subject.previous()).toBe(undefined)
+        subject.subscribe(() => { })
+        subjectStream.next(1)
+        await flush()
+        expect(subject.previous()).toBe(1)
     })
 })

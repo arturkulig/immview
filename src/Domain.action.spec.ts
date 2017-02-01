@@ -1,6 +1,6 @@
 import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
-const { TEST } = DispatcherPriorities
+const { ALL } = DispatcherPriorities
 import { Observable } from './Observable'
 import { Domain } from './Domain'
 import { action } from './Domain.action'
@@ -26,7 +26,7 @@ describe('Domain', () => {
         dispatch(() => {
             expect(subject.tested).toBe(true)
             setTimeout(done)
-        }, TEST)
+        }, ALL)
     })
 
     it('decorated class method returns promise of execution', done => {

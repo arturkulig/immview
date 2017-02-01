@@ -1,6 +1,6 @@
 import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
-const { TEST } = DispatcherPriorities
+const { ALL } = DispatcherPriorities
 import { BaseObservable } from './BaseObservable'
 import { Observer } from './Observer'
 
@@ -73,7 +73,7 @@ describe('BaseObservable', () => {
                 expect({ o1SubHit }).toEqual({ o1SubHit: 5 })
                 expect({ o2SubHit }).toEqual({ o2SubHit: 5 })
                 setTimeout(done)
-            }, TEST)
+            }, ALL)
         })
 
         it('allowing pushing errors', done => {
@@ -156,7 +156,7 @@ describe('BaseObservable', () => {
                     'o1.2',
                 ])
                 setTimeout(done)
-            }, TEST)
+            }, ALL)
         })
     })
 
@@ -216,23 +216,23 @@ describe('BaseObservable', () => {
 
             dispatch(() => {
                 next(1)
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 expect(values).toEqual([1])
                 next(2)
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 expect(values).toEqual([1, 2])
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 subscription.unsubscribe()
                 expect(subscription.closed).toBe(true)
                 next(3)
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 expect(values).toEqual([1, 2])
                 setTimeout(done)
-            }, TEST)
+            }, ALL)
         })
 
         it('subscription gets closed on completion', done => {
@@ -253,21 +253,21 @@ describe('BaseObservable', () => {
                 expect(values).toEqual([1])
 
                 next(2)
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 expect(values).toEqual([1, 2])
 
                 complete()
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 expect(subscription.closed).toBe(true)
 
                 next(3)
-            }, TEST)
+            }, ALL)
             dispatch(() => {
                 expect(values).toEqual([1, 2])
                 setTimeout(done)
-            }, TEST)
+            }, ALL)
         })
     })
 })

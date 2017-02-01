@@ -2,12 +2,14 @@ import { Dispatcher } from './Dispatcher'
 import { DispatcherPriorities } from './DispatcherPriorities'
 
 const DispatcherInstance = new Dispatcher()
+
 const dispatch = (job: () => any, priority: DispatcherPriorities) => {
     DispatcherInstance.push(job, priority)
     DispatcherInstance.run()
 }
+const flush = () => new Promise(resolve => dispatch(resolve, DispatcherPriorities.ALL))
 
-const dispatchPromise = (job: () => any, priority: DispatcherPriorities) => {
+const dispatchAndReturn = (job: () => any, priority: DispatcherPriorities) => {
     return new Promise<void>((resolve, reject) => {
         let ok: boolean
         let result
@@ -30,5 +32,6 @@ const dispatchPromise = (job: () => any, priority: DispatcherPriorities) => {
 export {
     DispatcherInstance as dispatcher,
     dispatch,
-    dispatchPromise
+    dispatchAndReturn,
+    flush,
 }
