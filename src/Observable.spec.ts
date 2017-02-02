@@ -67,6 +67,11 @@ describe('Observable', () => {
         }, ALL)
     })
 
+    it('can release a promise of next value', async () => {
+        const val = await Observable.of(1).toPromise()
+        expect(val).toBe(1)
+    })
+
     it('can filter messages', done => {
         const pushValues = [1, 2, 3]
         Observable.from(pushValues).filter(value =>

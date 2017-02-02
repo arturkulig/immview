@@ -40,6 +40,21 @@ export class Observable<T> extends BaseObservable<T> {
         throw new Error('Observable.from incorrect input')
     }
 
+    toPromise(): Promise<T> {
+        return new Promise((resolve, reject) => {
+            const sub = this.subscribe(
+                v => {
+                    resolve(v)
+                    sub.unsubscribe()
+                },
+                e => {
+                    reject(e)
+                    sub.unsubscribe()
+                }
+            )
+        })
+    }
+
     startWith(firstValue: T) {
         const newObservable = new Observable<T>()
         newObservable.next(firstValue)
