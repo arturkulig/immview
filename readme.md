@@ -1,4 +1,4 @@
-# Immview 2
+# Immview 2 <img src="https://travis-ci.org/arturkulig/immview.svg?branch=master" />
 
 **Immview** is a library to create `Domain`s - *non-visual components* -
 similar to flux stores, exposing their **state** or emitting **signals**
