@@ -58,7 +58,7 @@ npm i immview --save
 If you are using React to create presentation layer of your app you should check [immview-react-connect](https://github.com/arturkulig/immview-react-connect)
 
 # Read more
-* [Documentation](./docs.md)
+* [Documentation](http://arturkulig.github.io/immview/)
 * [Simple usage](./usage_simple.md)
 * [Changelog](./changelog.md)
 
