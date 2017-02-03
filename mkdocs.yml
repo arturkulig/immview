@@ -1,0 +1,10 @@
+site_name: Documentation
+pages:
+    - Immview: index.md
+    - Observable: Observable.md
+    - Combine: Combine.md
+    - Domain: Domain.md
+theme: 'material'
+repo_name: https://github.com/arturkulig/immview
+docs_dir: docs_md
+site_dir: docs

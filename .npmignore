@@ -6,3 +6,5 @@ npm-debug.log
 tests/coverage
 src
 immview.png
+docs_md
+docs
