@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1
+
+- feat: `Observable::reemit`
+
 ## 2.0.0
 
 - feat: **Immview** is now written with TypeScript and exposes types declarations.

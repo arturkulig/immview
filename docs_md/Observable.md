@@ -177,6 +177,23 @@ b -----[1,2]-[3,4]-[5]|
 const a = Observable.of(1, 2, 3, 4, 5)
 const b = a.bufferCount(3, 2) // now with custom window
 
-a --1--2--3----4--5|
-b --------[1,2,3]-[3,4,5]|
+a --1--2--3-------4--5-|
+b --------[1,2,3]----[3,4,5]-|
+```
+
+---
+## Observable.prototype.*reemit*
+`(): Observable<T>`
+
+Creates a derivative stream where all values pushed by source are pushed by this node too,
+but also this new one will push at first last value that has been pushed by source in the past,
+if any was actually pushed.
+
+```javascript
+async function example() {
+    const a = new Observable().startWith(1)
+    await leThreeHoursLater()
+    const b = a.reemit()
+    console.log(await b.toPromise()) // logs '1'
+}
 ```

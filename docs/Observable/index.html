@@ -279,6 +279,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#observableprototypereemit" title="Observable.prototype.reemit" class="md-nav__link">
+    Observable.prototype.reemit
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -447,6 +454,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#observableprototypereemit" title="Observable.prototype.reemit" class="md-nav__link">
+    Observable.prototype.reemit
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -591,8 +605,22 @@ b -----[1,2]-[3,4]-[5]|
 <pre><code>const a = Observable.of(1, 2, 3, 4, 5)
 const b = a.bufferCount(3, 2) // now with custom window
 
-a --1--2--3----4--5|
-b --------[1,2,3]-[3,4,5]|
+a --1--2--3-------4--5-|
+b --------[1,2,3]----[3,4,5]-|
+</code></pre>
+
+<hr />
+<h2 id="observableprototypereemit">Observable.prototype.<em>reemit</em></h2>
+<p><code>(): Observable&lt;T&gt;</code></p>
+<p>Creates a derivative stream where all values pushed by source are pushed by this node too,
+but also this new one will push at first last value that has been pushed by source in the past,
+if any was actually pushed.</p>
+<pre><code class="javascript">async function example() {
+    const a = new Observable().startWith(1)
+    await leThreeHoursLater()
+    const b = a.reemit()
+    console.log(await b.toPromise()) // logs '1'
+}
 </code></pre>
               
             </article>
