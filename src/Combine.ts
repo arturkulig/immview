@@ -1,4 +1,5 @@
 import { Observable } from './Observable'
+import { Subscription } from './Subscription'
 
 export class Combine<V extends {}> extends Observable<V> {
     constructor(sources: {[id in keyof V]: Observable<V[id]> }) {
@@ -9,7 +10,7 @@ export class Combine<V extends {}> extends Observable<V> {
             let preinitialReceivedMessages: [string, any][] = []
             let result = ({} as V)
 
-            const subscriptions = []
+            const subscriptions: Subscription[] = []
             for (let key in sources) {
                 if (!Object.prototype.hasOwnProperty.call(sources, key)) continue
                 names.push(key)
@@ -52,12 +53,16 @@ export class Combine<V extends {}> extends Observable<V> {
                             ...(result as {}),
                             [key]: nextSourceValue
                         } as V))
+                    }, error => {
+                        observer.error(error)
+                    }, () => {
+                        observer.complete()
                     })
                 )
             }
 
             return () => {
-                subscriptions.forEach(subscription => subscription())
+                subscriptions.forEach(subscription => subscription.unsubscribe())
             }
         })
 
