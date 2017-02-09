@@ -1,4 +1,4 @@
-import { BaseObservable } from './BaseObservable'
+import { BaseObservable, NO_VALUE } from './BaseObservable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
@@ -15,7 +15,7 @@ export class Observable<T> extends BaseObservable<T> {
             const prevObservable = values[ObservableSymbol]() as Observable<T>
             const newObservable = new Observable<T>()
             prevObservable.subscribe(newObservable)
-            newObservable.name = `${this.name} >$`
+            newObservable.name = `${this.name} ✂📋`
             return newObservable
         }
 
@@ -33,7 +33,7 @@ export class Observable<T> extends BaseObservable<T> {
                 }
                 complete()
             })
-            newObservable.name = `${values[Symbol.toStringTag] || values.toString() || `#${newObservable.priority}`}$`
+            newObservable.name = `${values.toString() || values[Symbol.toStringTag] || `#${newObservable.priority}`}$`
             return newObservable
         }
 
@@ -59,7 +59,7 @@ export class Observable<T> extends BaseObservable<T> {
         const newObservable = new Observable<T>()
         newObservable.next(firstValue)
         this.subscribe(newObservable)
-        newObservable.name = `${this.name} [T, ...$]`
+        newObservable.name = `${this.name} ⏹️➕⏹️⏹️⏹️…`
         return newObservable
     }
 
@@ -81,7 +81,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        newObservable.name = `${this.name} |> ${action.name || `#${newObservable.priority}`}`
+        newObservable.name = `${this.name} ➡️ ${action.name || `#${newObservable.priority}`}`
         return newObservable
     }
 
@@ -100,7 +100,7 @@ export class Observable<T> extends BaseObservable<T> {
                 observer.complete
             )
         })
-        newObservable.name = `${this.name} $$>$`
+        newObservable.name = `${this.name} 🗜️`
         return newObservable
     }
 
@@ -122,7 +122,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        const newObservableName = `${this.name} +=${reductor.name || `#${newObservable.priority}`}`
+        const newObservableName = `${this.name} ⤵️ ${reductor.name || `#${newObservable.priority}`}`
         newObservable.name = newObservableName
         return newObservable
     }
@@ -142,7 +142,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        const newObservableName = `${this.name} ?${filter.name || `#${newObservable.priority}`}`
+        const newObservableName = `${this.name} 🔎 ${filter.name || `#${newObservable.priority}`}`
         newObservable.name = newObservableName
         return newObservable
     }
@@ -165,7 +165,7 @@ export class Observable<T> extends BaseObservable<T> {
         others.forEach(
             other => other.subscribe(subscriber)
         )
-        newObservable.name = `( ${[this, ...others].map(o => o.name).join(' + ')} )`
+        newObservable.name = `(📎 ${[this, ...others].map(o => o.name).join(' ')} )`
         return newObservable
     }
 
@@ -189,7 +189,7 @@ export class Observable<T> extends BaseObservable<T> {
                 complete() { observer.complete() },
             })
         })
-        newObservable.name = `${this.name} !==${comparator ? (!!comparator.name ? comparator.name : '') : ''}`
+        newObservable.name = `${this.name} 🆚 ${comparator ? (!!comparator.name ? comparator.name : '') : ''}`
         return newObservable
     }
 
@@ -218,7 +218,7 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        newObservable.name = `${this.name} >|>${bufferWindow},${bufferStep}`
+        newObservable.name = `${this.name} 💤${bufferWindow},${bufferStep}`
         return newObservable
     }
 
@@ -252,7 +252,18 @@ export class Observable<T> extends BaseObservable<T> {
             )
             return () => subscription.unsubscribe()
         })
-        newObservable.name = `${this.name} >|>`
+        newObservable.name = `${this.name} 💤`
+        return newObservable
+    }
+
+    reemit(): Observable<T> {
+        const newObservable = new Observable<T>(observer => {
+            if (this.lastValue !== NO_VALUE) {
+                observer.next(this.lastValue)
+            }
+        })
+        this.subscribe(newObservable)
+        newObservable.name = `${this.name} 📣`
         return newObservable
     }
 }

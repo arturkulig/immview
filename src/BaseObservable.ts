@@ -24,7 +24,7 @@ export interface ErrorListener { (err: Error): any }
 export interface CompletionListener { (): any }
 
 const noop = () => { }
-const NO_VALUE = {} as any
+export const NO_VALUE = {} as any
 
 export class BaseObservable<T> implements Observer<T> {
     static awaitingMessages: MessagesList = []

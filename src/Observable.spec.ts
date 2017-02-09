@@ -1,6 +1,6 @@
 import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
-import { dispatch } from './DispatcherInstance'
+import { dispatch, flush } from './DispatcherInstance'
 const { ALL } = DispatcherPriorities
 
 const fail = function (done, msg): () => void {
@@ -373,5 +373,19 @@ describe('Observable', () => {
                 }
             }
         )
+    })
+
+    it('should reemit last value', async () => {
+        const a = new Observable().startWith(1)
+        const a2 = a.reemit()
+        expect(a.previous()).toBeUndefined()
+        expect(a2.previous()).toBeUndefined()
+
+        expect(await a.toPromise()).toBe(1)
+        expect(await a2.toPromise()).toBe(1)
+
+        const b = a.reemit()
+        expect(b.previous()).toBeUndefined()
+        expect(await b.toPromise()).toBe(1)
     })
 })
