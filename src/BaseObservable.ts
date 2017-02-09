@@ -24,12 +24,13 @@ export interface ErrorListener { (err: Error): any }
 export interface CompletionListener { (): any }
 
 const noop = () => { }
+const NO_VALUE = {} as any
 
 export class BaseObservable<T> implements Observer<T> {
     static awaitingMessages: MessagesList = []
     static lastObservablePriority = 0
 
-    protected lastValue: T
+    protected lastValue: T = NO_VALUE
     public closed = false
     public priority: number
     public name: string
@@ -76,7 +77,9 @@ export class BaseObservable<T> implements Observer<T> {
     }
 
     previous(): T {
-        return this.lastValue
+        if (this.lastValue !== NO_VALUE) {
+            return this.lastValue
+        }
     }
 
     start() {
