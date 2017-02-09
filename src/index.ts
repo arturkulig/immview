@@ -1,8 +1,14 @@
 import { dispatcher, dispatch, flush } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
+import {
+    ValueListener,
+    ErrorListener,
+    CompletionListener
+} from './BaseObservable'
 import { Observable } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
+import { Subscription } from './Subscription'
 import { action } from './Domain.action'
 import { diagnose } from './Diagnose'
 
@@ -13,7 +19,6 @@ const dispatchExt = (job: () => any, priority = DispatcherPriorities.EXTERNAL) =
 export {
     Observable,
     Combine,
-    Combine as Merge, // remove after RC
     Domain,
 
     dispatcher,
@@ -22,5 +27,10 @@ export {
     flush,
 
     action,
-    diagnose
+    diagnose,
+
+    Subscription,
+    ValueListener,
+    ErrorListener,
+    CompletionListener
 }
