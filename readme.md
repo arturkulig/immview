@@ -20,7 +20,7 @@ before it is exposed through a `Domain`.
 **Immview** has been built with TypeScript.
 You do not have to use it, but some editors may offer better experience.
 
-<img src="https://raw.githubusercontent.com/arturkulig/immview/dev-2.0/editor.png" />
+<img src="https://raw.githubusercontent.com/arturkulig/immview/master/editor.png" />
 
 ### For RxJS users
 If you are familiar with RxJS 5, an **Immview** taste of `Observable` does not have a different meaning or role, although behaviour differs and is more similar to RxJS's `Subject`
