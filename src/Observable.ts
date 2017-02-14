@@ -5,6 +5,9 @@ import { diagnose } from './Diagnose'
 
 const ObservableSymbol = typeof Symbol !== 'undefined' ? Symbol('ObservableSymbol') : 'ObservableSymbol'
 
+export {
+    NO_VALUE
+}
 export class Observable<T> extends BaseObservable<T> {
     public static of<T>(...values: T[]): Observable<T> {
         return Observable.from<T>(values)
@@ -33,11 +36,26 @@ export class Observable<T> extends BaseObservable<T> {
                 }
                 complete()
             })
-            newObservable.name = `${values.toString() || values[Symbol.toStringTag] || `#${newObservable.priority}`}$`
+            newObservable.name = `${values.toString() || `#${newObservable.priority}`}$`
             return newObservable
         }
 
         throw new Error('Observable.from incorrect input')
+    }
+
+    public static fromPromise<T>(future: Promise<T>): Observable<T> {
+        const newObservable = new Observable<T>(observer => {
+            future
+                .then(
+                observer.next,
+                observer.error
+                )
+                .then(
+                observer.complete
+                )
+        })
+        newObservable.name = 'Promise'
+        return newObservable
     }
 
     toPromise(): Promise<T> {
@@ -258,11 +276,12 @@ export class Observable<T> extends BaseObservable<T> {
 
     reemit(): Observable<T> {
         const newObservable = new Observable<T>(observer => {
-            if (this.lastValue !== NO_VALUE) {
-                observer.next(this.lastValue)
+            const prev = this.previous()
+            if (prev !== NO_VALUE) {
+                observer.next(prev as T)
             }
+            this.subscribe(observer)
         })
-        this.subscribe(newObservable)
         newObservable.name = `${this.name} 📣`
         return newObservable
     }

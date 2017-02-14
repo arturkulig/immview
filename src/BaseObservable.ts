@@ -24,13 +24,15 @@ export interface ErrorListener { (err: Error): any }
 export interface CompletionListener { (): any }
 
 const noop = () => { }
-export const NO_VALUE = {} as any
+
+export type NO_VALUE_T = {}
+export const NO_VALUE = {} as NO_VALUE_T
 
 export class BaseObservable<T> implements Observer<T> {
     static awaitingMessages: MessagesList = []
     static lastObservablePriority = 0
 
-    protected lastValue: T = NO_VALUE
+    protected lastValue: T | NO_VALUE_T = NO_VALUE
     public closed = false
     public priority: number
     public name: string
@@ -55,6 +57,7 @@ export class BaseObservable<T> implements Observer<T> {
 
         this.cancelSubscriber = (
             subscriber({
+                start: noop,
                 next: (nextValue: T): void => {
                     this.pushMessage([
                         MessageTypes.Next,
@@ -76,10 +79,8 @@ export class BaseObservable<T> implements Observer<T> {
         )
     }
 
-    previous(): T {
-        if (this.lastValue !== NO_VALUE) {
-            return this.lastValue
-        }
+    previous(): T | NO_VALUE_T {
+        return this.lastValue
     }
 
     start() {
@@ -179,7 +180,7 @@ export class BaseObservable<T> implements Observer<T> {
                     diagnose.isOn &&
                     diagnose.measure(`\$> ${node.name || '[anonymous]'}.next${getValue.name ? `(${getValue.name})` : ''}`)
                 )
-                nextValue = getValue(node.lastValue)
+                nextValue = getValue(node.lastValue === NO_VALUE ? undefined : (node.lastValue as T))
                 diagDone && diagDone()
             } else {
                 nextValue = messageValue as T

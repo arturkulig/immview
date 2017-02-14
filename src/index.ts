@@ -5,7 +5,7 @@ import {
     ErrorListener,
     CompletionListener
 } from './BaseObservable'
-import { Observable } from './Observable'
+import { Observable, NO_VALUE } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
 import { Subscription } from './Subscription'
@@ -20,6 +20,8 @@ export {
     Observable,
     Combine,
     Domain,
+
+    NO_VALUE,
 
     dispatcher,
     dispatchExt as dispatch,

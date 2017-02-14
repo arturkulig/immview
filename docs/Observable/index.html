@@ -175,6 +175,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#observablefrompromise" title="Observable.fromPromise" class="md-nav__link">
+    Observable.fromPromise
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observableprototypeprevious" title="Observable.prototype.previous" class="md-nav__link">
     Observable.prototype.previous
   </a>
@@ -350,6 +357,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#observablefrompromise" title="Observable.fromPromise" class="md-nav__link">
+    Observable.fromPromise
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observableprototypeprevious" title="Observable.prototype.previous" class="md-nav__link">
     Observable.prototype.previous
   </a>
@@ -491,11 +505,20 @@ If you wish to create a stream and kickstart it with a value(s), use <code>start
 <p><strong>Stream is immediately completed after all values are pushed.</strong>
 If you wish to create a stream and kickstart it with a value(s), use <code>startWith</code>.</p>
 <hr />
+<h2 id="observablefrompromise">Observable.<em>fromPromise</em></h2>
+<p><code>(values: Promise&lt;T&gt;): Observable&lt;T&gt;;</code></p>
+<p>Function to create an <code>Observable</code> that pushes a value
+revealed with provided <code>Promise</code> and then completes
+as no more values to get from it.</p>
+<hr />
 <h2 id="observableprototypeprevious">Observable.prototype.<em>previous</em></h2>
-<p><code>() =&gt; T</code></p>
-<p>Returns previous <strong>value</strong> that has been pushed through the <code>Observable</code> instance.</p>
-<pre><code class="javascript">// Example
+<p><code>() =&gt; T | NO_VALUE</code></p>
+<p>Returns previous <strong>value</strong> that has been pushed through the <code>Observable</code> instance.
+If no value has been pushed yet, NO_VALUE object is released.</p>
+<pre><code class="javascript">import {Observable, NO_VALUE} from 'immview'
+// Example
 const source = new Observable(({next}) =&gt; { next(1) })
+source.previous() === NO_VALUE // true
 source.subscribe(value =&gt; {
     value === source.previous() // true
 })

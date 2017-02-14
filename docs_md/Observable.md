@@ -25,14 +25,25 @@ Function to create an `Observable` that immediately pushes values given as an ar
 If you wish to create a stream and kickstart it with a value(s), use `startWith`.
 
 ---
+## Observable.*fromPromise*
+`(values: Promise<T>): Observable<T>;`
+
+Function to create an `Observable` that pushes a value
+revealed with provided `Promise` and then completes
+as no more values to get from it.
+
+---
 ## Observable.prototype.*previous*
-`() => T`
+`() => T | NO_VALUE`
 
 Returns previous **value** that has been pushed through the `Observable` instance.
+If no value has been pushed yet, NO_VALUE object is released.
 
 ```javascript
+import {Observable, NO_VALUE} from 'immview'
 // Example
 const source = new Observable(({next}) => { next(1) })
+source.previous() === NO_VALUE // true
 source.subscribe(value => {
     value === source.previous() // true
 })

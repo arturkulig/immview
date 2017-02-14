@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2
+
+- feat: `Observable.fromPromise`
+- feat: `Observable.previous()` returns NO_VALUE (library export) when no value has been pushed yet. Previously `undefined` was returned.
+
 ## 2.1
 
 - feat: `Observable::reemit`

@@ -1,7 +1,7 @@
 import { dispatch, flush } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 
-import { Observable } from './Observable'
+import { Observable, NO_VALUE } from './Observable'
 import { Domain } from './Domain'
 
 describe('Domain', () => {
@@ -102,7 +102,7 @@ describe('Domain', () => {
         await subject.test()
         expect(tested).toBe(true)
 
-        expect(subject.previous()).toBe(undefined)
+        expect(subject.previous()).toBe(NO_VALUE)
         subject.subscribe(() => { })
         subjectStream.next(1)
         await flush()

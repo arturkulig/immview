@@ -9,9 +9,7 @@ Let's create *To do* domain. It should have it's state and best way to stream it
 ```javascript
 import { Observable, Domain } from 'immview'
 
-const ToDoDomainStream = new Observable(
-    observer => { observer.next([]) }
-)
+const ToDoDomainStream = new Observable().startWith([])
 ```
 
 That'll create a state stream. We will use it later.
@@ -65,9 +63,6 @@ const ToDoDomain = Domain.create(
 That's really all! You can now call an actions on that **Domain** like:
 
 ```javascript
-ToDoDomain.previous()
-// returns: []
-
 ToDoDomain.subscribe(v => console.log(v))
 // console: []
 

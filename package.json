@@ -31,7 +31,7 @@
     "jest": "^18.0.0",
     "ts-loader": "^2.0.0",
     "tslint": "^4.4.2",
-    "typescript": "^2.1.5",
+    "typescript": "^2.2.0",
     "webpack": "^1.14.0"
   },
   "engines": {

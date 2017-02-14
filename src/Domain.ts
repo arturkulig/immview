@@ -11,13 +11,11 @@ export class Domain<T> extends Observable<T> {
     constructor(
         stream?: Observable<T>
     ) {
+        super()
         if (!stream) {
-            super()
             return
         }
-        super(() => {
-            stream.subscribe(this)
-        })
+        stream.subscribe(this)
     }
 
     public static tagged(parts: TemplateStringsArray, ...filling: string[]) {

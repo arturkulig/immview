@@ -1,7 +1,7 @@
 import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 const { ALL } = DispatcherPriorities
-import { BaseObservable } from './BaseObservable'
+import { BaseObservable, NO_VALUE } from './BaseObservable'
 import { Observer } from './Observer'
 
 const fail = function (done, msg): () => void {
@@ -197,6 +197,7 @@ describe('BaseObservable', () => {
 
     it('has previous() equal to last pushed value', done => {
         const subject = new BaseObservable(observer => { observer.next(6) })
+        expect(subject.previous()).toBe(NO_VALUE)
         subject.subscribe(value => {
             expect(value).toEqual(subject.previous())
             done()
