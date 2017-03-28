@@ -43,6 +43,19 @@ describe('Dispatcher', () => {
         dispatcher.run()
     })
 
+    it('priorities below zero are not deferred', done => {
+        let result = 1
+        const dispatcher = new Dispatcher()
+        dispatcher.push(() => { result = 2 }, 1)
+        dispatcher.push(() => { result = 3 }, -1)
+        dispatcher.run()
+        expect(result = 3)
+        setTimeout(() => {
+            expect(result = 2)
+            done()
+        })
+    })
+
     it('will break if there is more that 1024 subsequent dispatcher actions', done => {
         let shouldFinish = false
         const dispatcher = new Dispatcher()

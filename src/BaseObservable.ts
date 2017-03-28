@@ -2,12 +2,18 @@ import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { diagnose } from './Diagnose'
 import { Subscription } from './Subscription'
-import { Observer } from './Observer'
-import { SubscriptionObserver } from './SubscriptionObserver'
+import {
+    Observer,
+    SubscriptionObserver,
+    ValueListener,
+    ErrorListener,
+    CompletionListener,
+    Subscribable,
+    Transformer,
+    Subscriber
+} from './Observer'
 
-export type Subscriber<T> = (observer: SubscriptionObserver<T>) => void | (() => void)
 export enum MessageTypes { Next, Error, Complete }
-export type Transformer<T> = (current: T) => T
 export type NextStep<T> = T | Transformer<T>
 export type NextMessage<T> = [MessageTypes.Next, NextStep<T>, () => void]
 export type ErrorMessage = [MessageTypes.Error, Error, () => void]
@@ -19,16 +25,12 @@ export type Message<T> =
 export type MessagesListEntry<T> = [BaseObservable<T>, Message<T>]
 export type MessagesList = MessagesListEntry<any>[]
 
-export interface ValueListener<T> { (nextValue: T): any }
-export interface ErrorListener { (err: Error): any }
-export interface CompletionListener { (): any }
-
 const noop = () => { }
 
 export type NO_VALUE_T = {}
 export const NO_VALUE = {} as NO_VALUE_T
 
-export class BaseObservable<T> implements Observer<T> {
+export class BaseObservable<T> implements Observer<T>, Subscribable<T> {
     static awaitingMessages: MessagesList = []
     static lastObservablePriority = 0
 
@@ -104,8 +106,6 @@ export class BaseObservable<T> implements Observer<T> {
         this.pushMessage([MessageTypes.Complete, , noop])
     }
 
-    subscribe(observer: Observer<T>): Subscription
-    subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): Subscription
     subscribe(...args): Subscription {
         if (this.closed) {
             return new Subscription(null, () => false)

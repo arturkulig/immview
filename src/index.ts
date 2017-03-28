@@ -4,7 +4,7 @@ import {
     ValueListener,
     ErrorListener,
     CompletionListener
-} from './BaseObservable'
+} from './Observer'
 import { Observable, NO_VALUE } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'

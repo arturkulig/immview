@@ -4,33 +4,39 @@ export interface Task {
 }
 
 export class Dispatcher {
-    private _isRunning = false
-    public get isRunning(): boolean {
-        return this._isRunning
-    }
+    private running = false
+    private deferred = false
     private subsequentCalls: number = 0
+
+    get isRunning(): boolean {
+        return this.running
+    }
 
     tasks: Task[] = []
 
     push(execute: () => any, priority): Dispatcher {
-        this.tasks.push({
-            priority,
-            execute,
-        })
+        this.tasks = (
+            this
+                .tasks
+                .concat({ priority, execute })
+                .sort(sortTasks)
+        )
 
         return this
     }
 
     run() {
-        if (this._isRunning) return
-        this._isRunning = true
-        Promise.resolve().then(this.loop)
+        if (this.running) return
+        this.running = true
+        this.loop()
     }
 
     loop = () => {
         const task = this.findNextTask()
+
         if (!task) {
-            this._isRunning = false
+            this.running = false
+            this.deferred = false
             this.subsequentCalls = 0
             return
         }
@@ -41,10 +47,21 @@ export class Dispatcher {
 
         this.subsequentCalls++
 
-        this.next(
-            task.execute,
-            this.loop
-        )
+        if (task.priority > 0 && !this.deferred) {
+            Promise.resolve().then((() => {
+                this.deferred = true
+                this.next(
+                    task.execute,
+                    this.loop
+                )
+            }))
+        } else {
+            this.next(
+                task.execute,
+                this.loop
+            )
+        }
+
     }
 
     tooManyCalls() {
@@ -55,17 +72,8 @@ export class Dispatcher {
     }
 
     private findNextTask() {
-        let maxPriorityJobIdx: number = null
-        for (let i = 0; i < this.tasks.length; i++) {
-            if (
-                maxPriorityJobIdx === null ||
-                this.tasks[i].priority < this.tasks[maxPriorityJobIdx].priority
-            ) {
-                maxPriorityJobIdx = i
-            }
-        }
-        if (maxPriorityJobIdx === null) return null
-        return this.tasks.splice(maxPriorityJobIdx, 1)[0]
+        if (this.tasks.length === 0) return null
+        return this.tasks.splice(0, 1)[0]
     }
 
     /*
@@ -80,4 +88,8 @@ export class Dispatcher {
         }
         next()
     }
+}
+
+function sortTasks(a: Task, b: Task) {
+    return a.priority - b.priority
 }
