@@ -24,10 +24,10 @@ export class Dispatcher {
     run() {
         if (this._isRunning) return
         this._isRunning = true
-        Promise.resolve().then(() => this.loop())
+        Promise.resolve().then(this.loop)
     }
 
-    loop() {
+    loop = () => {
         const task = this.findNextTask()
         if (!task) {
             this._isRunning = false
@@ -43,7 +43,7 @@ export class Dispatcher {
 
         this.next(
             task.execute,
-            () => this.loop()
+            this.loop
         )
     }
 
