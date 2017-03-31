@@ -1,5 +1,5 @@
 import { BaseObservable } from './BaseObservable'
-import { NO_VALUE } from './Observer'
+import { NO_VALUE } from './Types'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
@@ -25,9 +25,9 @@ export class Observable<T> extends BaseObservable<T> {
 
         if (values[Symbol.iterator]) {
             const newObservable = new Observable<T>(({ next, error, complete }) => {
-                const iterator = values[Symbol.iterator]()
+                const iterator = (values as Iterable<T>)[Symbol.iterator]()
                 for (
-                    let result: IteratorResult<T> = iterator.next();
+                    let result = iterator.next();
                     result.done === false;
                     result = iterator.next()
                 ) {
@@ -182,7 +182,9 @@ export class Observable<T> extends BaseObservable<T> {
         }
         this.subscribe(subscriber)
         others.forEach(
-            other => other.subscribe(subscriber)
+            (other, i) => {
+                other.subscribe(subscriber)
+            }
         )
         newObservable.name = `(📎 ${[this, ...others].map(o => o.name).join(' ')} )`
         return newObservable

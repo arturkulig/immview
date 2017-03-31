@@ -15,13 +15,13 @@ export class Dispatcher {
     tasks: Task[] = []
 
     push(execute: () => any, priority): Dispatcher {
-        this.tasks = (
-            this
-                .tasks
-                .concat({ priority, execute })
-                .sort(sortTasks)
-        )
-
+        for (let i = 0; i < this.tasks.length; i++) {
+            if (this.tasks[i].priority > priority) {
+                this.tasks.splice(i, 0, { execute, priority })
+                return this
+            }
+        }
+        this.tasks.push({ execute, priority })
         return this
     }
 

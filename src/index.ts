@@ -5,7 +5,7 @@ import {
     ErrorListener,
     CompletionListener,
     Subscription,
-} from './Observer'
+} from './Types'
 import { Observable, NO_VALUE } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'

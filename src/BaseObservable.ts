@@ -14,7 +14,7 @@ import {
     Subscription,
     NO_VALUE_T,
     NO_VALUE,
-} from './Observer'
+} from './Types'
 
 type NextStep<T> = T | Transformer<T>
 type Message<T> = [MessageTypes, NextStep<T> | Error | void]

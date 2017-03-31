@@ -270,7 +270,7 @@ describe('Observable', () => {
                 Observable.of(2),
                 Observable.of(3),
                 Observable.of(4),
-                Observable.of(5)
+                Observable.of(5),
             )
             const values = []
             subject.subscribe(v => values.push(v), fail('error', done), () => values.push('complete'))
