@@ -3,12 +3,12 @@ import { DispatcherPriorities } from './DispatcherPriorities'
 import {
     ValueListener,
     ErrorListener,
-    CompletionListener
+    CompletionListener,
+    Subscription,
 } from './Observer'
 import { Observable, NO_VALUE } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
-import { Subscription } from './Subscription'
 import { action } from './Domain.action'
 import { diagnose } from './Diagnose'
 

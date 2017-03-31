@@ -1,4 +1,5 @@
-import { BaseObservable, NO_VALUE } from './BaseObservable'
+import { BaseObservable } from './BaseObservable'
+import { NO_VALUE } from './Observer'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
@@ -23,7 +24,7 @@ export class Observable<T> extends BaseObservable<T> {
         }
 
         if (values[Symbol.iterator]) {
-            const newObservable = new Observable<T>(({next, error, complete}) => {
+            const newObservable = new Observable<T>(({ next, error, complete }) => {
                 const iterator = values[Symbol.iterator]()
                 for (
                     let result: IteratorResult<T> = iterator.next();

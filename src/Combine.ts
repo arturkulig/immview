@@ -1,5 +1,5 @@
 import { Observable } from './Observable'
-import { Subscription } from './Subscription'
+import { Subscription } from './Observer'
 
 export class Combine<V extends {}> extends Observable<V> {
     constructor(sources: {[id in keyof V]: Observable<V[id]> }) {

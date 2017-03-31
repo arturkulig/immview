@@ -1,8 +1,8 @@
 import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { diagnose } from './Diagnose'
-import { Subscription } from './Subscription'
 import {
+    Stream,
     Observer,
     SubscriptionObserver,
     ValueListener,
@@ -10,80 +10,95 @@ import {
     CompletionListener,
     Subscribable,
     Transformer,
-    Subscriber
+    Subscriber,
+    Subscription,
+    NO_VALUE_T,
+    NO_VALUE,
 } from './Observer'
 
-export enum MessageTypes { Next, Error, Complete }
-export type NextStep<T> = T | Transformer<T>
-export type NextMessage<T> = [MessageTypes.Next, NextStep<T>, () => void]
-export type ErrorMessage = [MessageTypes.Error, Error, () => void]
-export type CompletionMessage = [MessageTypes.Complete, void, () => void]
-export type Message<T> =
-    NextMessage<T> |
-    ErrorMessage |
-    CompletionMessage
-export type MessagesListEntry<T> = [BaseObservable<T>, Message<T>]
-export type MessagesList = MessagesListEntry<any>[]
+type NextStep<T> = T | Transformer<T>
+type Message<T> = [MessageTypes, NextStep<T> | Error | void]
+enum MessageTypes { Next, Error, Complete }
 
 const noop = () => { }
 
-export type NO_VALUE_T = {}
-export const NO_VALUE = {} as NO_VALUE_T
+const { OBSERVABLE } = DispatcherPriorities
 
-export class BaseObservable<T> implements Observer<T>, Subscribable<T> {
-    static awaitingMessages: MessagesList = []
+export class BaseObservable<T> implements Stream<T> {
     static lastObservablePriority = 0
 
-    protected lastValue: T | NO_VALUE_T = NO_VALUE
-    public closed = false
-    public priority: number
-    public name: string
-    private cancelSubscriber: () => void
-    private observers: Observer<T>[]
+    private awaitingMessages: Message<T>[] = []
+    private lastValue: T | NO_VALUE_T = NO_VALUE
+    private cancelSubscriber: () => void = noop
+
+    closed = false
+    priority: number = BaseObservable.lastObservablePriority++
+    name: string = null
+    observers: Observer<T>[] = []
 
     constructor(subscriber?: Subscriber<T>) {
-        const _this_ = this
-        this.observers = []
-        this.priority = BaseObservable.lastObservablePriority++
-
         if (subscriber && typeof subscriber.name === 'string' && subscriber.name.length > 0) {
             this.name = `${subscriber.name}\$`
         } else {
             this.name = `${this.priority}\$`
         }
 
-        if (!subscriber) {
-            this.cancelSubscriber = noop
-            return
+        if (subscriber) {
+            const node = this
+            this.cancelSubscriber = (
+                subscriber({
+                    start: this.start.bind(this),
+                    next: this.next.bind(this),
+                    error: this.error.bind(this),
+                    complete: this.complete.bind(this),
+                    get closed(): boolean {
+                        return node.observers.length > 0
+                    }
+                }) ||
+                noop
+            )
         }
-
-        this.cancelSubscriber = (
-            subscriber({
-                start: noop,
-                next: (nextValue: T): void => {
-                    this.pushMessage([
-                        MessageTypes.Next,
-                        nextValue,
-                        noop
-                    ])
-                },
-                error: (reason: Error): void => {
-                    this.pushMessage([MessageTypes.Error, reason, noop])
-                },
-                complete: (): void => {
-                    this.pushMessage([MessageTypes.Complete, , noop])
-                },
-                get closed(): boolean {
-                    return _this_.observers.length > 0
-                }
-            }) ||
-            noop
-        )
     }
 
     previous(): T | NO_VALUE_T {
         return this.lastValue
     }
+
+    // reference interface
+
+    private ref(value: T) {
+        this.lastValue = value
+        this.observers.forEach(
+            observer => observer.next(value)
+        )
+    }
+
+    deref(): T {
+        if (this.lastValue === NO_VALUE) return
+        return (this.lastValue as T)
+    }
+
+    hasRef() {
+        return this.lastValue !== NO_VALUE
+    }
+
+    throw(err: Error): void {
+        this.observers.forEach(
+            observer => observer.error(err)
+        )
+    }
+
+    destroy(): void {
+        this.closed = true
+        this.awaitingMessages.splice(0)
+        this.observers.splice(0).forEach(
+            observer => observer.complete()
+        )
+        this.cancelSubscriber()
+        this.cancelSubscriber = noop
+    }
+
+    // observer interface
 
     start() {
         // observer compat
@@ -91,24 +106,37 @@ export class BaseObservable<T> implements Observer<T>, Subscribable<T> {
     }
 
     next(nextValue: NextStep<T>) {
-        this.pushMessage([
+        this.awaitingMessages.push([
             MessageTypes.Next,
             nextValue,
-            noop
         ])
+        this.flushNode()
     }
 
-    error(error: Error) {
-        this.pushMessage([MessageTypes.Error, error, noop])
+    error(reason: Error) {
+        this.awaitingMessages.push([
+            MessageTypes.Error,
+            reason,
+        ])
+        this.flushNode()
     }
 
     complete() {
-        this.pushMessage([MessageTypes.Complete, , noop])
+        this.awaitingMessages.push([
+            MessageTypes.Complete,
+            undefined,
+        ])
+        this.flushNode()
     }
+
+    // subscribable interface
 
     subscribe(...args): Subscription {
         if (this.closed) {
-            return new Subscription(null, () => false)
+            return {
+                unsubscribe: noop,
+                closed: false
+            }
         }
 
         if (typeof args[0] !== 'object' || args[0] === null) {
@@ -121,88 +149,52 @@ export class BaseObservable<T> implements Observer<T>, Subscribable<T> {
         const observer: Observer<T> = args[0]
         this.observers.push(observer)
 
-        const subscription = new Subscription(
-            () => {
-                this.observers = this.observers.filter(
+        const node = this
+        const subscription = {
+            unsubscribe() {
+                node.observers = node.observers.filter(
                     registeredObserver => registeredObserver !== observer
                 )
             },
-            () => this.observers.indexOf(observer) > -1
-        )
+            get closed() { return node.observers.indexOf(observer) === -1 }
+        }
 
         observer.start(subscription)
-        BaseObservable.dispatchDigestMessages()
+        this.flushNode()
 
         return subscription
     }
 
-    protected pushMessage(message: Message<any>) {
-        if (this.closed) return
-        BaseObservable.awaitingMessages.push([this, message])
-        BaseObservable.dispatchDigestMessages()
-    }
-
-    protected static dispatchDigestMessages() {
-        dispatch(BaseObservable.digestAwaitingMessages, DispatcherPriorities.OBSERVABLE)
-    }
-
-    private static digestAwaitingMessages() {
-        const [node, message] = BaseObservable.popMessage()
-        if (!node || node.closed) {
-            return
-        }
-        BaseObservable.digestNodeMessage(node, message)
-        BaseObservable.dispatchDigestMessages()
-    }
-
-    private static popMessage(): [BaseObservable<any>, Message<any>] | [null, null] {
-        if (BaseObservable.awaitingMessages.length === 0) {
-            return [null, null]
-        }
-        for (let i = 0; i < BaseObservable.awaitingMessages.length; i++) {
-            const [node = null, message] = BaseObservable.awaitingMessages[i]
-            if (!node.observers.length) continue
-            BaseObservable.awaitingMessages.splice(i, 1)
-            return [node, message]
-        }
-        return [null, null]
-    }
-
-    private static digestNodeMessage<T>(node: BaseObservable<T>, message: Message<T>) {
-        const [type, , doneCallback] = message
-        if (type === MessageTypes.Next) {
-            const [, messageValue] = (message as NextMessage<T>)
-
-            let nextValue
-            if (typeof messageValue === 'function') {
-                const getValue = messageValue as Transformer<T>
-                const diagDone = (
-                    diagnose.isOn &&
-                    diagnose.measure(`\$> ${node.name || '[anonymous]'}.next${getValue.name ? `(${getValue.name})` : ''}`)
-                )
-                nextValue = getValue(node.lastValue === NO_VALUE ? undefined : (node.lastValue as T))
-                diagDone && diagDone()
-            } else {
-                nextValue = messageValue as T
-            }
-
-            node.lastValue = nextValue
-            node.observers.forEach(
-                observer => observer.next(nextValue)
-            )
-        } else if (type === MessageTypes.Error) {
-            const [, error] = (message as ErrorMessage)
-            node.observers.forEach(
-                observer => observer.error(error)
-            )
-        } else if (type === MessageTypes.Complete) {
-            node.cancelSubscriber()
-            node.cancelSubscriber = noop
-            node.closed = true
-            node.observers.splice(0).forEach(
-                observer => observer.complete()
-            )
-        }
-        dispatch(doneCallback, DispatcherPriorities.OBSERVABLE)
+    flushNode() {
+        dispatch(
+            () => {
+                if (this.closed) return
+                if (this.observers.length === 0) return
+                if (this.awaitingMessages.length === 0) return
+                const [messageType, messageValue] = this.awaitingMessages.shift()
+                switch (messageType) {
+                    case MessageTypes.Next: {
+                        const next = messageValue as NextStep<T>
+                        this.ref(
+                            (typeof next === 'function')
+                                ? next(this.deref())
+                                : next
+                        )
+                        break
+                    }
+                    case MessageTypes.Error: {
+                        const reason = messageValue as Error
+                        this.throw(reason)
+                        break
+                    }
+                    case MessageTypes.Complete: {
+                        this.destroy()
+                        break
+                    }
+                }
+                this.flushNode()
+            },
+            OBSERVABLE
+        )
     }
 }

@@ -1,8 +1,8 @@
 import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 const { ALL } = DispatcherPriorities
-import { BaseObservable, NO_VALUE } from './BaseObservable'
-import { Observer } from './Observer'
+import { BaseObservable } from './BaseObservable'
+import { Observer, NO_VALUE } from './Observer'
 
 const fail = function (done, msg): () => void {
     return (): void => {

@@ -15,7 +15,7 @@
     "build:unbundled": "tsc --declaration --outDir ./dist ; rm -rf ./dist/*.spec.d.ts",
     "preversion": "npm run test && npm run build",
     "test": "tsc --noEmit && $(npm bin)/tslint --project ./tsconfig.json --config ./tslint.json --format stylish && jest",
-    "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i"
+    "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i --runInBand"
   },
   "author": "Artur Kulig",
   "contributors": [
