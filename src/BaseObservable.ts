@@ -14,11 +14,15 @@ import {
     Subscription,
     NO_VALUE_T,
     NO_VALUE,
+    NextStep,
+    Message,
+    MessageTypes,
 } from './Types'
-
-type NextStep<T> = T | Transformer<T>
-type Message<T> = [MessageTypes, NextStep<T> | Error | void]
-enum MessageTypes { Next, Error, Complete }
+import {
+    addNodeObserver,
+    normalizeToObserver,
+    flushNode,
+} from './BaseUtils'
 
 const noop = () => { }
 
@@ -66,7 +70,7 @@ export class BaseObservable<T> implements Stream<T> {
 
     // reference interface
 
-    private ref(value: T) {
+    ref(value: T) {
         this.lastValue = value
         this.observers.forEach(
             observer => observer.next(value)
@@ -132,69 +136,13 @@ export class BaseObservable<T> implements Stream<T> {
     // subscribable interface
 
     subscribe(...args): Subscription {
-        if (this.closed) {
-            return {
-                unsubscribe: noop,
-                closed: false
-            }
-        }
-
-        if (typeof args[0] !== 'object' || args[0] === null) {
-            const [next = noop, error = noop, complete = noop] = args
-            return this.subscribe({
-                start: noop, next, error, complete,
-            })
-        }
-
-        const observer: Observer<T> = args[0]
-        this.observers.push(observer)
-
-        const node = this
-        const subscription = {
-            unsubscribe() {
-                node.observers = node.observers.filter(
-                    registeredObserver => registeredObserver !== observer
-                )
-            },
-            get closed() { return node.observers.indexOf(observer) === -1 }
-        }
-
-        observer.start(subscription)
+        const observer = normalizeToObserver(args)
+        const subscription = addNodeObserver(this, observer)
         this.flushNode()
-
         return subscription
     }
 
-    flushNode() {
-        dispatch(
-            () => {
-                if (this.closed) return
-                if (this.observers.length === 0) return
-                if (this.awaitingMessages.length === 0) return
-                const [messageType, messageValue] = this.awaitingMessages.shift()
-                switch (messageType) {
-                    case MessageTypes.Next: {
-                        const next = messageValue as NextStep<T>
-                        this.ref(
-                            (typeof next === 'function')
-                                ? next(this.deref())
-                                : next
-                        )
-                        break
-                    }
-                    case MessageTypes.Error: {
-                        const reason = messageValue as Error
-                        this.throw(reason)
-                        break
-                    }
-                    case MessageTypes.Complete: {
-                        this.destroy()
-                        break
-                    }
-                }
-                this.flushNode()
-            },
-            OBSERVABLE
-        )
+    private flushNode() {
+        flushNode(this, this.awaitingMessages, OBSERVABLE)
     }
 }

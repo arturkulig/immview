@@ -35,16 +35,13 @@ export interface Subscribable<T> {
     subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): Subscription
 }
 
-export interface ContainingReference<T> {
+export interface Receiver<T> {
+    ref(reference: T): void
     deref(): T
     hasRef(): boolean
+    throw(reason: Error): void
+    destroy(): void
 }
-
-export type Reference<T> =
-    {
-        ref(reference: T): void
-    } &
-    ContainingReference<T>
 
 export interface Named {
     name: string
@@ -55,7 +52,11 @@ export type Stream<T> =
     Closeable &
     Subscribable<T> &
     Named &
-    ContainingReference<T>
+    Receiver<T>
 
 export type NO_VALUE_T = {}
 export const NO_VALUE = {} as NO_VALUE_T
+
+export type NextStep<T> = T | Transformer<T>
+export type Message<T> = [MessageTypes, NextStep<T> | Error | void]
+export enum MessageTypes { Next, Error, Complete }
