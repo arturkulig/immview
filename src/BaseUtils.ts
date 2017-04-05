@@ -34,8 +34,6 @@ export function addNodeObserver<T>(this: void, node: Stream<T>, observer: Observ
         get closed() { return node.observers.indexOf(observer) === -1 }
     }
 
-    observer.start(subscription)
-
     return subscription
 }
 
@@ -80,4 +78,10 @@ export function flushNode<T>(this: void, node: Stream<T>, messages: Message<T>[]
         },
         priority
     )
+}
+
+let lastID = 0
+
+export function ID(): number {
+    return ++lastID
 }

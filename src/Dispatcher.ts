@@ -80,13 +80,13 @@ export class Dispatcher {
      * Function can be replaced with a custom implementation
      * for integrating different scheduling strategy
      */
-    next(job: () => void, next: () => void) {
+    next(job: () => void, nextJob: () => void) {
         try {
             job()
         } catch (e) {
             console.error(e.stack || e.message || e)
         }
-        next()
+        nextJob()
     }
 }
 

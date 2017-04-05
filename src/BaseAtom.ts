@@ -27,44 +27,20 @@ import {
 
 const noop = () => { }
 
-const { OBSERVABLE } = DispatcherPriorities
+const { ATOM } = DispatcherPriorities
 
-export class BaseObservable<T> implements Stream<T> {
+export class BaseAtom<T> implements Stream<T> {
     private awaitingMessages: Message<T>[] = []
-    private lastValue: T | NO_VALUE_T = NO_VALUE
-    private cancelSubscriber: () => void = noop
+    private lastValue: T
 
     closed = false
     priority: number = ID()
     name: string = null
     observers: Observer<T>[] = []
 
-    constructor(subscriber?: Subscriber<T>) {
-        if (subscriber && typeof subscriber.name === 'string' && subscriber.name.length > 0) {
-            this.name = `${subscriber.name}\$`
-        } else {
-            this.name = `${this.priority}\$`
-        }
-
-        if (subscriber) {
-            const node = this
-            this.cancelSubscriber = (
-                subscriber({
-                    start: this.start.bind(this),
-                    next: this.next.bind(this),
-                    error: this.error.bind(this),
-                    complete: this.complete.bind(this),
-                    get closed(): boolean {
-                        return node.observers.length > 0
-                    }
-                }) ||
-                noop
-            )
-        }
-    }
-
-    previous(): T | NO_VALUE_T {
-        return this.lastValue
+    constructor(initialValue: T) {
+        this.name = `${this.priority}\$`
+        this.lastValue = initialValue
     }
 
     // reference interface
@@ -77,12 +53,11 @@ export class BaseObservable<T> implements Stream<T> {
     }
 
     deref(): T {
-        if (this.lastValue === NO_VALUE) return null
-        return (this.lastValue as T)
+        return this.lastValue
     }
 
     hasRef() {
-        return this.lastValue !== NO_VALUE
+        return true
     }
 
     throw(err: Error): void {
@@ -97,8 +72,6 @@ export class BaseObservable<T> implements Stream<T> {
         this.observers.splice(0).forEach(
             observer => observer.complete()
         )
-        this.cancelSubscriber()
-        this.cancelSubscriber = noop
     }
 
     // observer interface
@@ -138,11 +111,12 @@ export class BaseObservable<T> implements Stream<T> {
         const observer = normalizeToObserver(args)
         const subscription = addNodeObserver(this, observer)
         observer.start(subscription)
+        observer.next(this.deref())
         this.flushNode()
         return subscription
     }
 
     private flushNode() {
-        flushNode(this, this.awaitingMessages, OBSERVABLE)
+        flushNode(this, this.awaitingMessages, ATOM)
     }
 }
