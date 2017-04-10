@@ -19,104 +19,31 @@ import {
     MessageTypes,
 } from './Types'
 import {
-    addNodeObserver,
+    Base,
     normalizeToObserver,
-    flushNode,
-    ID,
-} from './BaseUtils'
+} from './Base'
 
 const noop = () => { }
 
-const { ATOM } = DispatcherPriorities
+const dispatchAtom = job => dispatch(job, DispatcherPriorities.ATOM)
 
-export class BaseAtom<T> implements Stream<T> {
-    private awaitingMessages: Message<T>[] = []
-    private lastValue: T
-
-    closed = false
-    priority: number = ID()
-    name: string = null
-    observers: Observer<T>[] = []
-
+export class BaseAtom<T> extends Base<T> {
     constructor(initialValue: T) {
+        super(dispatchAtom)
         this.name = `${this.priority}\$`
-        this.lastValue = initialValue
+        this.ref(initialValue)
     }
-
-    // reference interface
-
-    ref(value: T) {
-        this.lastValue = value
-        this.observers.forEach(
-            observer => observer.next(value)
-        )
-    }
-
-    deref(): T {
-        return this.lastValue
-    }
-
-    hasRef() {
-        return true
-    }
-
-    throw(err: Error): void {
-        this.observers.forEach(
-            observer => observer.error(err)
-        )
-    }
-
-    destroy(): void {
-        this.closed = true
-        this.awaitingMessages.splice(0)
-        this.observers.splice(0).forEach(
-            observer => observer.complete()
-        )
-    }
-
-    // observer interface
-
-    start() {
-        // observer compat
-        // noop on purpose
-    }
-
-    next(nextValue: NextStep<T>) {
-        this.awaitingMessages.push([
-            MessageTypes.Next,
-            nextValue,
-        ])
-        this.flushNode()
-    }
-
-    error(reason: Error) {
-        this.awaitingMessages.push([
-            MessageTypes.Error,
-            reason,
-        ])
-        this.flushNode()
-    }
-
-    complete() {
-        this.awaitingMessages.push([
-            MessageTypes.Complete,
-            undefined,
-        ])
-        this.flushNode()
-    }
-
-    // subscribable interface
 
     subscribe(...args): Subscription {
         const observer = normalizeToObserver(args)
-        const subscription = addNodeObserver(this, observer)
-        observer.start(subscription)
-        observer.next(this.deref())
-        this.flushNode()
-        return subscription
-    }
 
-    private flushNode() {
-        flushNode(this, this.awaitingMessages, ATOM)
+        const subscription = this.addSubscription(observer)
+
+        if (!subscription.closed) {
+            observer.start(subscription)
+            observer.next(this.deref())
+        }
+
+        return subscription
     }
 }
