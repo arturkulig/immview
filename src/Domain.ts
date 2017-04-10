@@ -61,7 +61,7 @@ export class Domain<T> extends Observable<T> {
                             const result = actions[actionsKey].apply(instance, args)
                             diagDone && diagDone()
                             return result
-                        }, DispatcherPriorities.DOMAIN)
+                        }, DispatcherPriorities.ACTION)
             }
         }
         if (fields) {

@@ -12,7 +12,7 @@ export function action(target, propertyKey: string, descriptor: PropertyDescript
                 diagDone && diagDone()
                 return result
             },
-            DispatcherPriorities.DOMAIN
+            DispatcherPriorities.ACTION
         )
     }
 }

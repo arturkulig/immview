@@ -54,6 +54,20 @@ export type Stream<T> =
     Named &
     Receiver<T>
 
+export type OpStream<T> =
+    Stream<T> &
+    {
+        toPromise(): Promise<T>
+        map<U>(action: (value: T) => U): OpStream<U>
+        flatten<U>(this: OpStream<OpStream<U>>): OpStream<U>
+        scan<U>(reductor: (accumulator: U, value: T, index: number) => U, defaultValue?: U): OpStream<U>
+        filter(filter: (value: T) => boolean): OpStream<T>
+        merge(...others: OpStream<T>[]): OpStream<T>
+        distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T>
+        bufferCount(bufferWindow: number, customBufferStep?: number): OpStream<T[]>
+        buffer(maxLastValues: number): OpStream<T[]>
+    }
+
 export type NO_VALUE_T = {}
 export const NO_VALUE = {} as NO_VALUE_T
 

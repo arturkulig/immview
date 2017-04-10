@@ -2,21 +2,10 @@ import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { diagnose } from './Diagnose'
 import {
-    Stream,
-    Observer,
-    SubscriptionObserver,
-    ValueListener,
-    ErrorListener,
-    CompletionListener,
-    Subscribable,
-    Transformer,
     Subscriber,
     Subscription,
     NO_VALUE_T,
     NO_VALUE,
-    NextStep,
-    Message,
-    MessageTypes,
 } from './Types'
 import {
     Base,
@@ -43,10 +32,10 @@ export class BaseObservable<T> extends Base<T> {
             const node = this
             this.cancelSubscriber = (
                 subscriber({
-                    start: this.start.bind(this),
-                    next: this.next.bind(this),
-                    error: this.error.bind(this),
-                    complete: this.complete.bind(this),
+                    start: node.start.bind(node),
+                    next: node.next.bind(node),
+                    error: node.error.bind(node),
+                    complete: node.complete.bind(node),
                     get closed(): boolean {
                         return node.observers.length > 0
                     }
@@ -57,6 +46,7 @@ export class BaseObservable<T> extends Base<T> {
     }
 
     previous(): T | NO_VALUE_T {
+        console.log('Observable#previous is deprecated! Use Observable#hasRef and Observable#deref.')
         if (!this.hasRef()) return NO_VALUE
         return this.deref()
     }
