@@ -20,15 +20,15 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
 
     public static from<T>(values: Observable<T> | Iterable<T>): Observable<T> {
         if (values[ObservableSymbol]) {
-            const prevObservable = values[ObservableSymbol]() as Observable<T>
-            const newObservable = new Observable<T>()
-            prevObservable.subscribe(newObservable)
-            newObservable.name = `${this.name} ✂📋`
-            return newObservable
+            const former$ = values[ObservableSymbol]() as Observable<T>
+            const latter$ = new Observable<T>()
+            former$.subscribe(latter$)
+            latter$.name = `${this.name} ✂📋`
+            return latter$
         }
 
         if (values[Symbol.iterator]) {
-            const newObservable = new Observable<T>(({ next, error, complete }) => {
+            const latter$ = new Observable<T>(({ next, error, complete }) => {
                 const iterator = (values as Iterable<T>)[Symbol.iterator]()
                 for (
                     let result = iterator.next();
@@ -41,15 +41,15 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
                 }
                 complete()
             })
-            newObservable.name = `${values.toString() || `#${newObservable.priority}`}$`
-            return newObservable
+            latter$.name = `${values.toString() || `#${latter$.priority}`}$`
+            return latter$
         }
 
         throw new Error('Observable.from incorrect input')
     }
 
     public static fromPromise<T>(future: Promise<T>): Observable<T> {
-        const newObservable = new Observable<T>(observer => {
+        const latter$ = new Observable<T>(observer => {
             future
                 .then(
                 observer.next,
@@ -59,29 +59,26 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
                 observer.complete
                 )
         })
-        newObservable.name = 'Promise'
-        return newObservable
+        latter$.name = 'Promise'
+        return latter$
     }
 
     startWith(firstValue: T) {
-        const newObservable = new Observable<T>()
-        newObservable.next(firstValue)
-        this.subscribe(newObservable)
-        newObservable.name = `${this.name} ⏹️➕⏹️⏹️⏹️…`
-        return newObservable
+        const latter$ = new Observable<T>()
+        latter$.next(firstValue)
+        this.subscribe(latter$)
+        latter$.name = `${this.name} ⏹️➕⏹️⏹️⏹️…`
+        return latter$
     }
 
     reemit(): Observable<T> {
-        console.log('Observable#reemit is deprecated! Use Atom.')
-        const newObservable = new Observable<T>(observer => {
-            const prev = this.previous()
-            if (prev !== NO_VALUE) {
-                observer.next(prev as T)
-            }
-            this.subscribe(observer)
-        })
-        newObservable.name = `${this.name} 📣`
-        return newObservable
+        const latter$ = new Observable<T>()
+        if (this.hasRef()) {
+            latter$.next(this.deref())
+        }
+        this.subscribe(latter$)
+        latter$.name = `${this.name} 📣`
+        return latter$
     }
 
     toPromise(): Promise<T> {
@@ -94,7 +91,7 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
         return latter$
     }
 
-    flatten<U>(this: Observable<Observable<U>>): Observable<U> {
+    flatten<U>(this: OpStream<Observable<U>>): Observable<U> {
         const latter$ = new Observable<U>()
         ops.flatten(this, latter$)
         return latter$
@@ -136,4 +133,5 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
         return latter$
     }
 }
+
 Observable.prototype[ObservableSymbol] = function () { return this }

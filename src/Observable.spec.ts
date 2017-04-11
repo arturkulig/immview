@@ -11,52 +11,65 @@ const fail = function (done, msg): () => void {
 }
 
 describe('Observable', () => {
-    it('can be created with array', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [...pushValues]
-        const result = []
-        Observable.from(pushValues).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toBe(expectedValues.shift())
-                if (result.length === 3) {
-                    setTimeout(done)
+    describe('.from', () => {
+        it('can be created with array', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [...pushValues]
+            const result = []
+            Observable.from(pushValues).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toBe(expectedValues.shift())
+                    if (result.length === 3) {
+                        setTimeout(done)
+                    }
                 }
-            }
-        )
-    })
+            )
+        })
 
-    it('can be created from other Observable', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [...pushValues]
-        const result = []
-        Observable.from(Observable.from(pushValues)).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toBe(expectedValues.shift())
-                if (result.length === 3) {
-                    setTimeout(done)
+        it('can be created from other Observable', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [...pushValues]
+            const result = []
+            Observable.from(Observable.from(pushValues)).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toBe(expectedValues.shift())
+                    if (result.length === 3) {
+                        setTimeout(done)
+                    }
                 }
-            }
-        )
+            )
+        })
+
+        it('can be create listing future values', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [...pushValues]
+            const result = []
+            Observable.from(pushValues).subscribe(
+                value => {
+                    result.push(value)
+                }
+            )
+            dispatch(() => {
+                expect(result).toEqual(expectedValues)
+                done()
+            }, ALL)
+        })
     })
 
-    it('can be create listing future values', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [...pushValues]
-        const result = []
-        Observable.from(pushValues).subscribe(
-            value => {
-                result.push(value)
-            }
-        )
-        dispatch(() => {
-            expect(result).toEqual(expectedValues)
-            done()
-        }, ALL)
+    it('.of - can release a promise of next value', async () => {
+        const val = await Observable.of(1).toPromise()
+        expect(val).toBe(1)
     })
 
-    it('can create a new stream with initial, immediately released  value', done => {
+    it('.fromPromise - can create stream from a promise', async () => {
+        expect(
+            await Observable.fromPromise(Promise.resolve(6)).toPromise()
+        ).toBe(6)
+    })
+
+    it('::startWith - can create a new stream with initial, immediately released  value', done => {
         let values = []
         Observable.of(2, 3).startWith(1).subscribe(v => {
             values.push(v)
@@ -67,18 +80,7 @@ describe('Observable', () => {
         }, ALL)
     })
 
-    it('can release a promise of next value', async () => {
-        const val = await Observable.of(1).toPromise()
-        expect(val).toBe(1)
-    })
-
-    it('can create stream from a promise', async () => {
-        expect(
-            await Observable.fromPromise(Promise.resolve(6)).toPromise()
-        ).toBe(6)
-    })
-
-    it('can filter messages', done => {
+    it('::filter can filter messages', done => {
         const pushValues = [1, 2, 3]
         Observable.from(pushValues).filter(value =>
             value > 2
@@ -88,7 +90,7 @@ describe('Observable', () => {
         })
     })
 
-    describe('can scan messages, and reduce output', () => {
+    describe('::scan - can scan messages, and reduce output', () => {
         it('without default value', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [2, 6, 12]
@@ -120,7 +122,7 @@ describe('Observable', () => {
         })
     })
 
-    it('can map messages', done => {
+    it('::map - can map messages', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [5, 10, 15]
         const result = []
@@ -135,7 +137,7 @@ describe('Observable', () => {
         })
     })
 
-    describe('can create sliding buffer', () => {
+    describe('::buffer - can create sliding buffer', () => {
         it('without specified window length', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [[1, 2, 3]]
@@ -170,9 +172,7 @@ describe('Observable', () => {
             const expectedValues = [[2, 3]]
             const result = []
             Observable.from(pushValues).buffer(2).subscribe(
-                value => {
-                    result.push(value)
-                }
+                value => { result.push(value) }
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
@@ -185,9 +185,7 @@ describe('Observable', () => {
             const expectedValues = [[1, 2, 3]]
             const result = []
             Observable.from(pushValues).buffer(3).subscribe(
-                value => {
-                    result.push(value)
-                }
+                value => { result.push(value) }
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
@@ -200,9 +198,7 @@ describe('Observable', () => {
             const expectedValues = [[1, 2, 3]]
             const result = []
             Observable.from(pushValues).buffer(4).subscribe(
-                value => {
-                    result.push(value)
-                }
+                value => { result.push(value) }
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
@@ -211,7 +207,7 @@ describe('Observable', () => {
         })
     })
 
-    it('can flatten observable values', done => {
+    it('::flatten - can flatten observable values', done => {
         const pushValues = [1, 2, 3]
         const expectedValues = [...pushValues]
         const result = []
@@ -226,7 +222,7 @@ describe('Observable', () => {
         }, ALL)
     })
 
-    describe('can merge', () => {
+    describe('::merge - can merge', () => {
         describe('two streams', () => {
             it('none ends', done => {
                 const a = new Observable(observer => { observer.next(1) })
@@ -281,7 +277,7 @@ describe('Observable', () => {
         })
     })
 
-    describe('creates a stream with only distinct values', () => {
+    describe('::distinct - creates a stream with only distinct values', () => {
         it('without a comparator', done => {
             let values = []
             let ref = {}
@@ -306,82 +302,84 @@ describe('Observable', () => {
         })
     })
 
-    it('can take buffered messages with default interval', done => {
-        const pushValues = [1, 2, 3, 4]
-        const expectedValues = [[1, 2], [3, 4]]
-        let result = []
-        Observable.from(pushValues).bufferCount(2).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toEqual(expectedValues.shift())
-                if (result.length === 2) {
-                    setTimeout(done)
+    describe('::bufferCount', () => {
+        it('can take buffered messages with default interval', done => {
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1, 2], [3, 4]]
+            let result = []
+            Observable.from(pushValues).bufferCount(2).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toEqual(expectedValues.shift())
+                    if (result.length === 2) {
+                        setTimeout(done)
+                    }
                 }
-            }
-        )
+            )
+        })
+
+        it('can take buffered messages with set interval', done => {
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1, 2, 3], [2, 3, 4]]
+            let result = []
+            Observable.from(pushValues).bufferCount(3, 1).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toEqual(expectedValues.shift())
+                    if (result.length === 2) {
+                        setTimeout(done)
+                    }
+                }
+            )
+        })
+
+        it('should emit partial buffers if reaches end', done => {
+            const pushValues = [1, 2, 3]
+            const expectedValues = [[1, 2, 3]]
+            let result = []
+            Observable.from(pushValues).bufferCount(4).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toEqual(expectedValues.shift())
+                    if (result.length === 1) {
+                        setTimeout(done)
+                    }
+                }
+            )
+        })
+
+        it('should emit full buffers then partial buffer if reaches end', done => {
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1, 2, 3], [4]]
+            let result = []
+            Observable.from(pushValues).bufferCount(3).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toEqual(expectedValues.shift())
+                    if (result.length === 2) {
+                        setTimeout(done)
+                    }
+                }
+            )
+        })
+
+        it('should emit full buffers then partial buffer with old values if reaches end', done => {
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1, 2, 3], [3, 4]]
+            let result = []
+            Observable.from(pushValues).bufferCount(3, 2).subscribe(
+                value => {
+                    result.push(value)
+                    expect(value).toEqual(expectedValues.shift())
+                    if (result.length === 2) {
+                        setTimeout(done)
+                    }
+                }
+            )
+        })
     })
 
-    it('can take buffered messages with set interval', done => {
-        const pushValues = [1, 2, 3, 4]
-        const expectedValues = [[1, 2, 3], [2, 3, 4]]
-        let result = []
-        Observable.from(pushValues).bufferCount(3, 1).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toEqual(expectedValues.shift())
-                if (result.length === 2) {
-                    setTimeout(done)
-                }
-            }
-        )
-    })
-
-    it('should emit partial buffers if reaches end', done => {
-        const pushValues = [1, 2, 3]
-        const expectedValues = [[1, 2, 3]]
-        let result = []
-        Observable.from(pushValues).bufferCount(4).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toEqual(expectedValues.shift())
-                if (result.length === 1) {
-                    setTimeout(done)
-                }
-            }
-        )
-    })
-
-    it('should emit full buffers then partial buffer if reaches end', done => {
-        const pushValues = [1, 2, 3, 4]
-        const expectedValues = [[1, 2, 3], [4]]
-        let result = []
-        Observable.from(pushValues).bufferCount(3).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toEqual(expectedValues.shift())
-                if (result.length === 2) {
-                    setTimeout(done)
-                }
-            }
-        )
-    })
-
-    it('should emit full buffers then partial buffer with old values if reaches end', done => {
-        const pushValues = [1, 2, 3, 4]
-        const expectedValues = [[1, 2, 3], [3, 4]]
-        let result = []
-        Observable.from(pushValues).bufferCount(3, 2).subscribe(
-            value => {
-                result.push(value)
-                expect(value).toEqual(expectedValues.shift())
-                if (result.length === 2) {
-                    setTimeout(done)
-                }
-            }
-        )
-    })
-
-    it('should reemit last value', async () => {
+    it('::reemit - should reemit last value', async () => {
         const a = new Observable().startWith(1)
         const a2 = a.reemit()
         expect(a.previous()).toBe(NO_VALUE)

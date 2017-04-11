@@ -64,7 +64,6 @@ export type OpStream<T> =
         filter(filter: (value: T) => boolean): OpStream<T>
         merge(...others: OpStream<T>[]): OpStream<T>
         distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T>
-        bufferCount(bufferWindow: number, customBufferStep?: number): OpStream<T[]>
         buffer(maxLastValues: number): OpStream<T[]>
     }
 

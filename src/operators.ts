@@ -6,9 +6,9 @@ import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
 function noop() { }
 
-export function toPromise<T>(this: void, n1: Stream<T>): Promise<T> {
+export function toPromise<T>(this: void, former$: Stream<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-        n1.subscribe(resolve, reject)
+        former$.subscribe(resolve, reject)
     })
 }
 
@@ -55,7 +55,7 @@ export function flatten<T>(this: void, former$: Stream<Stream<T>>, latter$: Stre
 export function scan<T, U>(
     this: void, former$: Stream<T>, latter$: Stream<U>,
     reductor: (accumulator: U, value: T, index: number) => U,
-    defaultValue?: U
+    defaultValue?: U,
 ) {
     let summary: U = defaultValue
     let index = 0
@@ -105,11 +105,9 @@ export function merge<T>(this: void, sources: Stream<T>[], latter$: Stream<T>) {
             }
         },
     }
-    sources.forEach(
-        (other, i) => {
-            other.subscribe(subscriber)
-        }
-    )
+    for (let source of sources) {
+        source.subscribe(subscriber)
+    }
     latter$.name = `(📎 ${sources.map(o => o.name).join(' ')} )`
 }
 

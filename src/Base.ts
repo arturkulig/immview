@@ -65,7 +65,7 @@ export abstract class Base<T> implements Stream<T> {
 
     // observer interface
 
-    start() {
+    start(subscription: Subscription) {
         // observer compat
         // noop on purpose
     }
