@@ -35,7 +35,7 @@ export class BaseAtom<T> extends Base<T> {
     }
 
     subscribe(...args): Subscription {
-        const observer = normalizeToObserver(args)
+        const observer = normalizeToObserver<T>(args)
 
         const subscription = this.addSubscription(observer)
 
