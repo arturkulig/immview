@@ -57,6 +57,15 @@ export class BaseObservable<T> extends Base<T> {
         this.cancelSubscriber = noop
     }
 
+    protected flush = () => {
+        if (this.closed) return
+        if (this.awaitingMessages.length === 0) return
+        if (this.observers.length === 0) return
+        const [messageType, messageValue] = this.awaitingMessages.shift()
+        this.swallow(messageType, messageValue)
+        this.dispatch(this.flush)
+    }
+
     subscribe(...args): Subscription {
         const observer = normalizeToObserver(args)
 

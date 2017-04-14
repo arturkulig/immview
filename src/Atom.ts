@@ -23,6 +23,7 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
         if (values[AtomSymbol]) {
             const former$: Stream<T> = values[AtomSymbol]()
             const latter$ = new Atom(former$.deref())
+            former$.subscribe(latter$)
             latter$.name = `${this.name} ✂📋`
             return latter$
         }

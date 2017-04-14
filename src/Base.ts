@@ -14,7 +14,7 @@ import {
 } from './Types'
 
 export abstract class Base<T> implements Stream<T> {
-    private awaitingMessages: Message<T>[]
+    protected awaitingMessages: Message<T>[]
     private lastValue: T
 
     closed: boolean
@@ -121,11 +121,9 @@ export abstract class Base<T> implements Stream<T> {
         }
     }
 
-    protected flush = () => {
-        if (this.closed) return
-        if (this.observers.length === 0) return
-        if (this.awaitingMessages.length === 0) return
-        const [messageType, messageValue] = this.awaitingMessages.shift()
+    protected abstract flush: () => void
+
+    protected swallow(messageType: MessageTypes, messageValue: NextStep<T> | Error | void) {
         switch (messageType) {
             case MessageTypes.Next: {
                 const next = messageValue as NextStep<T>
@@ -146,7 +144,6 @@ export abstract class Base<T> implements Stream<T> {
                 break
             }
         }
-        this.dispatch(this.flush)
     }
 }
 

@@ -108,7 +108,7 @@ export function merge<T>(this: void, sources: Stream<T>[], latter$: Stream<T>) {
     for (let source of sources) {
         source.subscribe(subscriber)
     }
-    latter$.name = `(📎 ${sources.map(o => o.name).join(' ')} )`
+    latter$.name = `(📎 ${sources.map(o => o.name).join(',')} )`
 }
 
 export function distinct<T>(

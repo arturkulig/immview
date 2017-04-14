@@ -34,6 +34,14 @@ export class BaseAtom<T> extends Base<T> {
         this.ref(initialValue)
     }
 
+    flush = () => {
+        if (this.closed) return
+        if (this.awaitingMessages.length === 0) return
+        const [messageType, messageValue] = this.awaitingMessages.shift()
+        this.swallow(messageType, messageValue)
+        this.dispatch(this.flush)
+    }
+
     subscribe(...args): Subscription {
         const observer = normalizeToObserver<T>(args)
 

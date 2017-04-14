@@ -67,14 +67,17 @@ describe('Atom', () => {
 
     it('::filter can filter messages', done => {
         const pushValues = [1, 2, 3]
+        const expectedValues = [1, 3]
+        const result = []
         const subject = new Atom(pushValues[0])
-        subject.filter(value =>
-            value > 2
-        ).subscribe(value => {
-            expect(value).toBe(3)
+        subject
+            .filter(value => value > 2)
+            .subscribe(value => { result.push(value) })
+        pushValues.slice(1).forEach(v => subject.next(v))
+        setTimeout(() => {
+            expect(result).toEqual(expectedValues)
             setTimeout(done)
         })
-        pushValues.slice(1).forEach(v => subject.next(v))
     })
 
     describe('::scan - can scan messages, and reduce output', () => {
@@ -133,7 +136,7 @@ describe('Atom', () => {
     describe('::buffer - can create sliding buffer', () => {
         it('without specified window length', done => {
             const pushValues = [1, 2, 3]
-            const expectedValues = [[1], [1, 2, 3]]
+            const expectedValues = [[1], [2, 3]]
             const result = []
             const subject = new Atom(pushValues[0])
             subject.buffer().subscribe(
@@ -165,8 +168,8 @@ describe('Atom', () => {
         })
 
         it('with window length 2', done => {
-            const pushValues = [1, 2, 3]
-            const expectedValues = [[2, 3]]
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1], [3, 4]]
             const result = []
             const subject = new Atom(pushValues[0])
             subject.buffer(2).subscribe(
@@ -182,8 +185,8 @@ describe('Atom', () => {
         })
 
         it('with window length 3', done => {
-            const pushValues = [1, 2, 3]
-            const expectedValues = [[1, 2, 3]]
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1], [2, 3, 4]]
             const result = []
             const subject = new Atom(pushValues[0])
             subject.buffer(3).subscribe(
@@ -199,8 +202,8 @@ describe('Atom', () => {
         })
 
         it('with window length longer than stream', done => {
-            const pushValues = [1, 2, 3]
-            const expectedValues = [[1, 2, 3]]
+            const pushValues = [1, 2, 3, 4]
+            const expectedValues = [[1], [2, 3, 4]]
             const result = []
             const subject = new Atom(pushValues[0])
             subject.buffer(4).subscribe(
@@ -208,6 +211,7 @@ describe('Atom', () => {
             )
             dispatch(() => {
                 pushValues.slice(1).forEach(v => subject.next(v))
+                subject.complete()
             }, ALL)
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
@@ -240,7 +244,7 @@ describe('Atom', () => {
                 const values = []
                 c.subscribe(value => { values.push(value) }, fail('error', done), fail('completion', done))
                 dispatch(() => {
-                    expect(values).toEqual([1, 2])
+                    expect(values).toEqual([2])
                     setTimeout(done)
                 }, ALL)
             })
@@ -252,7 +256,7 @@ describe('Atom', () => {
                 c.subscribe(value => { values.push(value) }, fail('error', done), fail('completion', done))
                 a.complete()
                 dispatch(() => {
-                    expect(values).toEqual([1, 2])
+                    expect(values).toEqual([2])
                     setTimeout(done)
                 }, ALL)
             })
@@ -262,27 +266,31 @@ describe('Atom', () => {
                 const c = a.merge(b)
                 const values = []
                 c.subscribe(value => { values.push(value) }, fail('error', done), () => { values.push('complete') })
+                b.next(3)
                 a.complete()
                 b.complete()
                 dispatch(() => {
-                    expect(values).toEqual([1, 2, 'complete'])
+                    expect(values).toEqual([2, 3, 'complete'])
                     setTimeout(done)
                 }, ALL)
             })
         })
         it('many streams', done => {
-            const subject = (
-                new Atom(1).merge(
-                    new Atom(2),
-                    new Atom(3),
-                    new Atom(4),
-                    new Atom(5),
-                )
-            )
             const values = []
+            const others = [
+                new Atom(2),
+                new Atom(3),
+                new Atom(4),
+                new Atom(5),
+            ]
+            const starter = new Atom(1)
+            const all = [starter, ...others]
+            const subject = starter.merge(...others)
             subject.subscribe(v => values.push(v), fail('error', done), () => values.push('complete'))
+            others.forEach(o => o.next(o.deref()))
+            all.forEach(o => o.complete())
             dispatch(() => {
-                expect(values).toEqual([1, 2, 3, 4, 5, 'complete'])
+                expect(values).toEqual([5, 2, 3, 4, 5, 'complete'])
                 setTimeout(done)
             }, ALL)
         })
@@ -298,7 +306,7 @@ describe('Atom', () => {
             pushValues.forEach(v => subject.next(v))
             dispatch(() => {
                 expect(values).toEqual([1, 2, 3, ref, 1])
-                done()
+                setTimeout(done)
             }, ALL)
         })
 
@@ -313,7 +321,7 @@ describe('Atom', () => {
             pushValues.slice(1).forEach(v => subject.next(v))
             dispatch(() => {
                 expect(values).toEqual([1, ref, 1])
-                done()
+                setTimeout(done)
             }, ALL)
         })
     })
