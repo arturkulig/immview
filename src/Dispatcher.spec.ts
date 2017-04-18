@@ -17,16 +17,18 @@ describe('Dispatcher', () => {
     })
 
     it('can perform many jobs', done => {
-        let counter = 0
-        let expectedCounter = 100
-        const tester = () => {
-            counter++
-            if (counter === expectedCounter) setTimeout(done)
-        }
+        const result = []
+        let values = [1, 2, 3, 4, 5]
         const dispatcher = new Dispatcher()
-        for (let i = 0; i < expectedCounter; i++) {
-            dispatcher.push(tester, 0)
-        }
+        values.forEach(value => {
+            dispatcher.push(() => {
+                result.push(value)
+            }, 0)
+        })
+        dispatcher.push(() => {
+            expect(result).toEqual(values)
+            setTimeout(done)
+        }, 0)
         dispatcher.run()
     })
 

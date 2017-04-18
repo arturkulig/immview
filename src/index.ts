@@ -5,8 +5,9 @@ import {
     ErrorListener,
     CompletionListener,
     Subscription,
+    NO_VALUE,
 } from './Types'
-import { Observable, NO_VALUE } from './Observable'
+import { Observable } from './Observable'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
 import { action } from './Domain.action'

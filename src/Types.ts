@@ -1,3 +1,6 @@
+import { Atom } from './Atom'
+import { Observable } from './Observable'
+
 export interface Subscription {
     closed: boolean
     unsubscribe(): void
@@ -65,6 +68,7 @@ export type OpStream<T> =
         merge(...others: OpStream<T>[]): OpStream<T>
         distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T>
         buffer(maxLastValues: number): OpStream<T[]>
+        materialize(initialState: T): Atom<T>
     }
 
 export type NO_VALUE_T = {}

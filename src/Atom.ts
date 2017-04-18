@@ -1,6 +1,5 @@
 import { BaseAtom } from './BaseAtom'
 import {
-    NO_VALUE,
     OpStream,
     Stream,
 } from './Types'
@@ -11,9 +10,6 @@ import * as ops from './operators'
 
 const AtomSymbol = typeof Symbol !== 'undefined' ? Symbol('AtomSymbol') : 'AtomSymbol'
 
-export {
-    NO_VALUE
-}
 export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
     public static of<T>(...values: T[]): Atom<T> {
         return Atom.from<T>(values)
@@ -91,6 +87,10 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
         const latter$ = new Atom<T[]>([this.deref()])
         ops.buffer(this, latter$, DispatcherPriorities.ATOM_BUFFER, maxLastValues)
         return latter$
+    }
+
+    materialize() {
+        return this
     }
 }
 

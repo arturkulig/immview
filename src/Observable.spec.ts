@@ -1,4 +1,5 @@
-import { Observable, NO_VALUE } from './Observable'
+import { Observable } from './Observable'
+import { NO_VALUE } from './Types'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch, flush } from './DispatcherInstance'
 const { ALL } = DispatcherPriorities

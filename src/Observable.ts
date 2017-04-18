@@ -1,8 +1,8 @@
 import { BaseObservable } from './BaseObservable'
 import {
-    NO_VALUE,
     OpStream
 } from './Types'
+import { Atom } from './Atom'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
@@ -10,15 +10,12 @@ import * as ops from './operators'
 
 const ObservableSymbol = typeof Symbol !== 'undefined' ? Symbol('ObservableSymbol') : 'ObservableSymbol'
 
-export {
-    NO_VALUE
-}
 export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
-    public static of<T>(...values: T[]): Observable<T> {
+    static of<T>(...values: T[]): Observable<T> {
         return Observable.from<T>(values)
     }
 
-    public static from<T>(values: Observable<T> | Iterable<T>): Observable<T> {
+    static from<T>(values: Observable<T> | Iterable<T>): Observable<T> {
         if (values[ObservableSymbol]) {
             const former$ = values[ObservableSymbol]() as Observable<T>
             const latter$ = new Observable<T>()
@@ -48,7 +45,7 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
         throw new Error('Observable.from incorrect input')
     }
 
-    public static fromPromise<T>(future: Promise<T>): Observable<T> {
+    static fromPromise<T>(future: Promise<T>): Observable<T> {
         const latter$ = new Observable<T>(observer => {
             future
                 .then(
@@ -130,6 +127,13 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
     buffer(maxLastValues?: number): Observable<T[]> {
         const latter$ = new Observable<T[]>()
         ops.buffer(this, latter$, DispatcherPriorities.OBSERVABLE_BUFFER, maxLastValues)
+        return latter$
+    }
+
+    materialize(initialState: T) {
+        const latter$ = new Atom(initialState)
+        this.subscribe(latter$)
+        latter$.name = `${this.name} ⚛️`
         return latter$
     }
 }

@@ -1,7 +1,8 @@
 import { dispatch, flush } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 
-import { Observable, NO_VALUE } from './Observable'
+import { Observable } from './Observable'
+import { NO_VALUE } from './Types'
 import { Domain } from './Domain'
 
 describe('Domain', () => {
