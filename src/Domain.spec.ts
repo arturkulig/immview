@@ -2,21 +2,29 @@ import { dispatch, flush } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 
 import { Observable } from './Observable'
+import { Atom } from './Atom'
 import { NO_VALUE } from './Types'
 import { Domain } from './Domain'
 
 describe('Domain', () => {
     describe('allows creation', () => {
-        it('with constructor', () => {
-            expect(() => {
-                new Domain(new Observable())
-            }).not.toThrow()
+        describe('with constructor', () => {
+            it('with Observable', () => {
+                expect(() => {
+                    new Domain(new Observable())
+                }).not.toThrow()
+            })
+            it('with Observable', () => {
+                expect(() => {
+                    new Domain(new Atom(null))
+                }).not.toThrow()
+            })
         })
 
         it('with actions', () => {
             expect(() => {
                 Domain.create(
-                    new Observable<{}>(),
+                    new Observable(),
                     {
                         test(v: number) {
                             // noop, just for types check
@@ -26,18 +34,11 @@ describe('Domain', () => {
             }).not.toThrow()
         })
 
-        it('with null source Observable for small Domains', () => {
+        it('cannot create a Domain without a provided source', () => {
             expect(() => {
                 new Domain(null).next(null)
                 Domain.create(null, { test() { } }).test()
-            }).not.toThrow()
-        })
-
-        it('with no source Observable for small Domains', () => {
-            expect(() => {
-                new Domain().next(null)
-                Domain.create({ test() { } }).test()
-            }).not.toThrow()
+            }).toThrow()
         })
     })
 
@@ -81,7 +82,7 @@ describe('Domain', () => {
 
     it('allows creation of tagged Domains', async () => {
         let tested = false
-        const subject = Domain.tagged`Root${'0'}fAllDevil`({ test() { tested = true } })
+        const subject = Domain.tagged`Root${'0'}fAllDevil`(new Observable(), { test() { tested = true } })
         expect(subject.name).toBe('Root0fAllDevil')
         await subject.test()
         expect(tested).toBe(true)
@@ -89,7 +90,7 @@ describe('Domain', () => {
 
     it('allows creation of tagged Domains', async () => {
         let tested = false
-        const subject = Domain.create('Root0fAllDevil', { test() { tested = true } })
+        const subject = Domain.create('Root0fAllDevil', new Observable(), { test() { tested = true } })
         expect(subject.name).toBe('Root0fAllDevil')
         await subject.test()
         expect(tested).toBe(true)
@@ -103,10 +104,10 @@ describe('Domain', () => {
         await subject.test()
         expect(tested).toBe(true)
 
-        expect(subject.previous()).toBe(NO_VALUE)
+        expect(subject.hasRef()).toBe(false)
         subject.subscribe(() => { })
         subjectStream.next(1)
         await flush()
-        expect(subject.previous()).toBe(1)
+        expect(subject.deref()).toBe(1)
     })
 })
