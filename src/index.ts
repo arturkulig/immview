@@ -6,8 +6,11 @@ import {
     CompletionListener,
     Subscription,
     NO_VALUE,
+    Stream,
+    OpStream,
 } from './Types'
 import { Observable } from './Observable'
+import { Atom } from './Atom'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
 import { action } from './Domain.action'
@@ -21,6 +24,9 @@ export {
     Observable,
     Combine,
     Domain,
+    Atom,
+    Stream,
+    OpStream,
 
     NO_VALUE,
 
