@@ -34,7 +34,7 @@ export class BaseAtom<T> extends Base<T> {
         this.ref(initialValue)
     }
 
-    flush = () => {
+    protected flush = () => {
         if (this.closed) return
         if (this.awaitingMessages.length === 0) return
         const [messageType, messageValue] = this.awaitingMessages.shift()
