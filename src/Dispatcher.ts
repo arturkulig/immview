@@ -43,6 +43,7 @@ export class Dispatcher {
 
         if (this.subsequentCalls > 1024) {
             this.tooManyCalls()
+            this.subsequentCalls = 0
         }
 
         this.subsequentCalls++
@@ -50,24 +51,26 @@ export class Dispatcher {
         if (task.priority > 0 && !this.deferred) {
             Promise.resolve().then((() => {
                 this.deferred = true
-                this.next(
-                    task.execute,
-                    this.loop
-                )
+                this.execute(task.execute)
             }))
         } else {
-            this.next(
-                task.execute,
-                this.loop
-            )
+            this.execute(task.execute)
         }
+    }
 
+    execute(task) {
+        try {
+            this.next(task, this.loop)
+        } catch (e) {
+            console.error(e.stack || e.message || e)
+        }
     }
 
     tooManyCalls() {
-        'If you see this, that means your code sent too many subsequent messages.'
-        'This situation is considered harmful, as it may introduce serious lag of your app.'
-        'Please handle this situation and limit how many messages are pushed at once.'
+        'If you see this, that means your code streamed many subsequent messages.'
+        'This situation might be harmful, as it may introduce serious lag of your app.'
+        'This is just a warning and a way to introduce a break, so you won\'t end up with unresponsive app'
+        'Please handle this situation and limit how many messages are pushed at once if possible.'
         debugger
     }
 
@@ -77,19 +80,11 @@ export class Dispatcher {
     }
 
     /*
-     * Function can be replaced with a custom implementation
-     * for integrating different scheduling strategy
+     * Function can be replaced with a user implementation
+     * for introducing custom scheduling strategy
      */
     next(job: () => void, nextJob: () => void) {
-        try {
-            job()
-        } catch (e) {
-            console.error(e.stack || e.message || e)
-        }
+        job()
         nextJob()
     }
-}
-
-function sortTasks(a: Task, b: Task) {
-    return a.priority - b.priority
 }
