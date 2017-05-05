@@ -7,7 +7,7 @@ Construct with `subscriber` function that receives `observer` object. `Observer`
 `Subscriber` function may return function that should be called if `Observable` receives `complete` signal or is cancelled.
 
 ---
-## Observable.*of*
+## static *of*
 `(...args: T[]): Observable<T>;`
 
 Function to create an `Observable` that immediately pushes values given as arguments.
@@ -16,7 +16,7 @@ Function to create an `Observable` that immediately pushes values given as argum
 If you wish to create a stream and kickstart it with a value(s), use `startWith`.
 
 ---
-## Observable.*from*
+## static *from*
 `(values: T[]): Observable<T>;`
 
 Function to create an `Observable` that immediately pushes values given as an array of values.
@@ -25,15 +25,41 @@ Function to create an `Observable` that immediately pushes values given as an ar
 If you wish to create a stream and kickstart it with a value(s), use `startWith`.
 
 ---
-## Observable.*fromPromise*
+## static *fromPromise*
 `(values: Promise<T>): Observable<T>;`
 
 Function to create an `Observable` that pushes a value
 revealed with provided `Promise` and then completes
 as no more values to get from it.
 
+# Subscribable interface
+
 ---
-## Observable.prototype.*previous*
+## subscribe
+`( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => { unsubscribe(): void }`
+
+`( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => { unsubscribe(): void }`
+
+Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
+
+Returns a function to unregister the subscription.
+
+---
+## toPromise
+`() => T`
+
+Returns next **value** that's going to be pushed through the `Observable` instance.
+
+```javascript
+// Example
+const source = new Observable()
+setTimeout(() => source.next(1), 100)
+const value = await source.toPromise()
+```
+
+---
+## previous
+### DEPRECATED - use deref and hasRef
 `() => T | NO_VALUE`
 
 Returns previous **value** that has been pushed through the `Observable` instance.
@@ -49,49 +75,30 @@ source.subscribe(value => {
 })
 ```
 
----
-## Observable.prototype.*toPromise*
-`() => T`
-
-Returns next **value** that's going to be pushed through the `Observable` instance.
-
-```javascript
-// Example
-const source = new Observable()
-setTimeout(() => source.next(1), 100)
-const value = await source.toPromise()
-```
+# Observer interface
 
 ---
-## Observable.prototype.*next*
+## next
 `(nextValue: T) => void`
 
 Sends value signal through the `Observable` instance. Values can be received, by `Observable.prototype.subscribe` method or `Observable.prototype.previous`.
 
 ---
-## Observable.prototype.*error*
+## error
 `(error: Error) => void`
 
 Sends error signal through the `Observable` instance. Errors can be received, with `Observable.prototype.subscribe` method.
 
 ---
-## Observable.prototype.*complete*
+## complete
 `() => void`
 
 Sends `complete` signal through the `Observable` instance. Completion can be handled, with `Observable.prototype.subscribe` method.
 
----
-## Observable.prototype.*subscribe*
-`( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => { unsubscribe(): void }`
-
-`( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => { unsubscribe(): void }`
-
-Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
-
-Returns a function to unregister the subscription.
+# Operators - common
 
 ---
-## Observable.prototype.*map*
+## map
 `(action: (value: T) => U): Observable<U>`
 
 Creates a derivative stream of values where
@@ -99,16 +106,7 @@ every value pushed by a parent is transformed with `action` function and push fu
 result of this function call.
 
 ---
-## Observable.prototype.*startWith*
-`(firstValue: T): Observable<T>;`
-
-Creates a derivative stream of values where
-it has all values of parent stream, but these are preceeded
-with `firstValue` that is immediately shared with all other nodes
-that subscribed to the newly created stream.
-
----
-## Observable.prototype.*filter*
+## filter
 `(filter: (value: T) => boolean): Observable<T>;`
 
 Creates a derivative stream of values where
@@ -116,7 +114,7 @@ only those values that meet requirements formulated
 with `filter` function are going to be pushed by that derivative `Observable`.
 
 ---
-## Observable.prototype.*scan*
+## scan
 `(accumulator: (summary: U, value: T, index: number) => U, defaultValue?: U): Observable<U>`
 
 Creates a derivative stream of values where
@@ -127,7 +125,7 @@ Result of the function is next value of newly created `Observable`.
 First call is with summary being undefined unless `defautValue` is also passed.
 
 ---
-## Observable.prototype.*flatten*
+## flatten
 `(): Observable<U>`
 
 When parent `Observable` is releasing other `Observable`s as values
@@ -135,13 +133,13 @@ use `flatten` to create a derivative stream that consists only of values
 that are released by these "observable values".
 
 ---
-## Observable.prototype.*merge*
+## merge
 `(...args: Observable<T>;[]): Observable<T>;
 
 Creates a stream containing all values of parent and of provided in arguments streams.
 
 ---
-## Observable.prototype.*distinct*
+## distinct
 `(comparator?: (prev: T, next: T) => boolean): Observable<T>;`
 
 Creates a derivative stream of values
@@ -152,7 +150,7 @@ to determine if a value is distinct from previous one.
 Otherwise strict equal is incorporated.
 
 ---
-## Observable.prototype.*buffer*
+## buffer
 `(maxLastValues: number = 0): Observable<T[]>`
 
 Creates a derivative stream of parent `Observable` values gathered in array.
@@ -162,7 +160,33 @@ and all `Domain` actions being called.
 You can specify how many of there messages has to be remembered.
 
 ---
-## Observable.prototype.*bufferCount*
+## materialize
+`(defaultState: T): Atom<T>`
+
+Creates a derivative stream with an `Atom` where all values pushed by source are pushed by this node too.
+Resulting `Atom` will start with `defaultState` state value.
+
+```javascript
+async function example() {
+    const a = new Observable().materialize(1)
+    await leThreeHoursLater()
+    console.log(a.deref()) // logs '1'
+}
+```
+
+# Operators - specific
+
+---
+## startWith
+`(firstValue: T): Observable<T>;`
+
+Creates a derivative stream of values where
+it has all values of parent stream, but these are preceeded
+with `firstValue` that is immediately shared with all other nodes
+that subscribed to the newly created stream.
+
+---
+## bufferCount
 `(bufferSize: number, customBufferCount: number = null): Observable<T[]>`
 
 Creates a derivative stream containing parent `Observable` values
@@ -193,7 +217,7 @@ b --------[1,2,3]----[3,4,5]-|
 ```
 
 ---
-## Observable.prototype.*reemit*
+## reemit
 `(): Observable<T>`
 
 Creates a derivative stream where all values pushed by source are pushed by this node too,

@@ -7,7 +7,7 @@
         }, 
         {
             "location": "/Observable/", 
-            "text": "class \nObservable\nT\n\n\n(subscriber: (observer: {next: (value: T) =\n void, error: (err: Error) =\n void, complete: () =\n void}) =\n void | () =\n void)\n\n\nConstruct with \nsubscriber\n function that receives \nobserver\n object. \nObserver\n is for pushing values, errors and completion signal.\n\n\nSubscriber\n function may return function that should be called if \nObservable\n receives \ncomplete\n signal or is cancelled.\n\n\n\n\nObservable.\nof\n\n\n(...args: T[]): Observable\nT\n;\n\n\nFunction to create an \nObservable\n that immediately pushes values given as arguments.\n\n\nStream is immediately completed after all values are pushed.\n\nIf you wish to create a stream and kickstart it with a value(s), use \nstartWith\n.\n\n\n\n\nObservable.\nfrom\n\n\n(values: T[]): Observable\nT\n;\n\n\nFunction to create an \nObservable\n that immediately pushes values given as an array of values.\n\n\nStream is immediately completed after all values are pushed.\n\nIf you wish to create a stream and kickstart it with a value(s), use \nstartWith\n.\n\n\n\n\nObservable.\nfromPromise\n\n\n(values: Promise\nT\n): Observable\nT\n;\n\n\nFunction to create an \nObservable\n that pushes a value\nrevealed with provided \nPromise\n and then completes\nas no more values to get from it.\n\n\n\n\nObservable.prototype.\nprevious\n\n\n() =\n T | NO_VALUE\n\n\nReturns previous \nvalue\n that has been pushed through the \nObservable\n instance.\nIf no value has been pushed yet, NO_VALUE object is released.\n\n\nimport {Observable, NO_VALUE} from 'immview'\n// Example\nconst source = new Observable(({next}) =\n { next(1) })\nsource.previous() === NO_VALUE // true\nsource.subscribe(value =\n {\n    value === source.previous() // true\n})\n\n\n\n\n\n\nObservable.prototype.\ntoPromise\n\n\n() =\n T\n\n\nReturns next \nvalue\n that's going to be pushed through the \nObservable\n instance.\n\n\n// Example\nconst source = new Observable()\nsetTimeout(() =\n source.next(1), 100)\nconst value = await source.toPromise()\n\n\n\n\n\n\nObservable.prototype.\nnext\n\n\n(nextValue: T) =\n void\n\n\nSends value signal through the \nObservable\n instance. Values can be received, by \nObservable.prototype.subscribe\n method or \nObservable.prototype.previous\n.\n\n\n\n\nObservable.prototype.\nerror\n\n\n(error: Error) =\n void\n\n\nSends error signal through the \nObservable\n instance. Errors can be received, with \nObservable.prototype.subscribe\n method.\n\n\n\n\nObservable.prototype.\ncomplete\n\n\n() =\n void\n\n\nSends \ncomplete\n signal through the \nObservable\n instance. Completion can be handled, with \nObservable.prototype.subscribe\n method.\n\n\n\n\nObservable.prototype.\nsubscribe\n\n\n( { start: (sub: Subscription) =\n void, next: (value: T) =\n void, error: (err: Error) =\n void, complete: () =\n void } ) =\n { unsubscribe(): void }\n\n\n( onNext?: (value: T) =\n void, onError?: (err: Error) =\n void, onCompletion?: () =\n void ) =\n { unsubscribe(): void }\n\n\nRegisters a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.\n\n\nReturns a function to unregister the subscription.\n\n\n\n\nObservable.prototype.\nmap\n\n\n(action: (value: T) =\n U): Observable\nU\n\n\nCreates a derivative stream of values where\nevery value pushed by a parent is transformed with \naction\n function and push further by \nObservable\n -\nresult of this function call.\n\n\n\n\nObservable.prototype.\nstartWith\n\n\n(firstValue: T): Observable\nT\n;\n\n\nCreates a derivative stream of values where\nit has all values of parent stream, but these are preceeded\nwith \nfirstValue\n that is immediately shared with all other nodes\nthat subscribed to the newly created stream.\n\n\n\n\nObservable.prototype.\nfilter\n\n\n(filter: (value: T) =\n boolean): Observable\nT\n;\n\n\nCreates a derivative stream of values where\nonly those values that meet requirements formulated\nwith \nfilter\n function are going to be pushed by that derivative \nObservable\n.\n\n\n\n\nObservable.prototype.\nscan\n\n\n(accumulator: (summary: U, value: T, index: number) =\n U, defaultValue?: U): Observable\nU\n\n\nCreates a derivative stream of values where\non every value that parent pushes\nthere is \naccumulator\n function called\ngetting last pushed value and new value that has been pushed by parent \nObservable\n.\nResult of the function is next value of newly created \nObservable\n.\nFirst call is with summary being undefined unless \ndefautValue\n is also passed.\n\n\n\n\nObservable.prototype.\nflatten\n\n\n(): Observable\nU\n\n\nWhen parent \nObservable\n is releasing other \nObservable\ns as values\nuse \nflatten\n to create a derivative stream that consists only of values\nthat are released by these \"observable values\".\n\n\n\n\nObservable.prototype.\nmerge\n\n\n`(...args: Observable\n;[]): Observable\n;\n\n\nCreates a stream containing all values of parent and of provided in arguments streams.\n\n\n\n\nObservable.prototype.\ndistinct\n\n\n(comparator?: (prev: T, next: T) =\n boolean): Observable\nT\n;\n\n\nCreates a derivative stream of values\nbut eliminates repeated subsequent value occurences.\n\n\nIf \ncomparator\n is passed, it is going to be used\nto determine if a value is distinct from previous one.\nOtherwise strict equal is incorporated.\n\n\n\n\nObservable.prototype.\nbuffer\n\n\n(maxLastValues: number = 0): Observable\nT[]\n\n\nCreates a derivative stream of parent \nObservable\n values gathered in array.\nNew values set is released after\nall other \nObservable\ns values are pushed through\nand all \nDomain\n actions being called.\nYou can specify how many of there messages has to be remembered.\n\n\n\n\nObservable.prototype.\nbufferCount\n\n\n(bufferSize: number, customBufferCount: number = null): Observable\nT[]\n\n\nCreates a derivative stream containing parent \nObservable\n values\ngathered in an Array.\nNew values set is released\nevery \nbufferSize\n-th parent \nObservable\n value or\nevery \ncustomBufferCount\n-th parent \nObservable\n value\nif second argument is present.\n\n\nAs it might be still mysterious how it works\nconsider these graphical representations\nof how values are pushed in time:\n\n\nconst a = Observable.of(1, 2, 3, 4, 5)\nconst b = a.bufferCount(2)\n\na --1--2--3--4--5--|\nb -----[1,2]-[3,4]-[5]|\n\n\n\n\nconst a = Observable.of(1, 2, 3, 4, 5)\nconst b = a.bufferCount(3, 2) // now with custom window\n\na --1--2--3-------4--5-|\nb --------[1,2,3]----[3,4,5]-|\n\n\n\n\n\n\nObservable.prototype.\nreemit\n\n\n(): Observable\nT\n\n\nCreates a derivative stream where all values pushed by source are pushed by this node too,\nbut also this new one will push at first last value that has been pushed by source in the past,\nif any was actually pushed.\n\n\nasync function example() {\n    const a = new Observable().startWith(1)\n    await leThreeHoursLater()\n    const b = a.reemit()\n    console.log(await b.toPromise()) // logs '1'\n}", 
+            "text": "class \nObservable\nT\n\n\n(subscriber: (observer: {next: (value: T) =\n void, error: (err: Error) =\n void, complete: () =\n void}) =\n void | () =\n void)\n\n\nConstruct with \nsubscriber\n function that receives \nobserver\n object. \nObserver\n is for pushing values, errors and completion signal.\n\n\nSubscriber\n function may return function that should be called if \nObservable\n receives \ncomplete\n signal or is cancelled.\n\n\n\n\nstatic \nof\n\n\n(...args: T[]): Observable\nT\n;\n\n\nFunction to create an \nObservable\n that immediately pushes values given as arguments.\n\n\nStream is immediately completed after all values are pushed.\n\nIf you wish to create a stream and kickstart it with a value(s), use \nstartWith\n.\n\n\n\n\nstatic \nfrom\n\n\n(values: T[]): Observable\nT\n;\n\n\nFunction to create an \nObservable\n that immediately pushes values given as an array of values.\n\n\nStream is immediately completed after all values are pushed.\n\nIf you wish to create a stream and kickstart it with a value(s), use \nstartWith\n.\n\n\n\n\nstatic \nfromPromise\n\n\n(values: Promise\nT\n): Observable\nT\n;\n\n\nFunction to create an \nObservable\n that pushes a value\nrevealed with provided \nPromise\n and then completes\nas no more values to get from it.\n\n\nSubscribable interface\n\n\n\n\nsubscribe\n\n\n( { start: (sub: Subscription) =\n void, next: (value: T) =\n void, error: (err: Error) =\n void, complete: () =\n void } ) =\n { unsubscribe(): void }\n\n\n( onNext?: (value: T) =\n void, onError?: (err: Error) =\n void, onCompletion?: () =\n void ) =\n { unsubscribe(): void }\n\n\nRegisters a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.\n\n\nReturns a function to unregister the subscription.\n\n\n\n\ntoPromise\n\n\n() =\n T\n\n\nReturns next \nvalue\n that's going to be pushed through the \nObservable\n instance.\n\n\n// Example\nconst source = new Observable()\nsetTimeout(() =\n source.next(1), 100)\nconst value = await source.toPromise()\n\n\n\n\n\n\nprevious\n\n\nDEPRECATED - use deref and hasRef\n\n\n() =\n T | NO_VALUE\n\n\nReturns previous \nvalue\n that has been pushed through the \nObservable\n instance.\nIf no value has been pushed yet, NO_VALUE object is released.\n\n\nimport {Observable, NO_VALUE} from 'immview'\n// Example\nconst source = new Observable(({next}) =\n { next(1) })\nsource.previous() === NO_VALUE // true\nsource.subscribe(value =\n {\n    value === source.previous() // true\n})\n\n\n\n\nObserver interface\n\n\n\n\nnext\n\n\n(nextValue: T) =\n void\n\n\nSends value signal through the \nObservable\n instance. Values can be received, by \nObservable.prototype.subscribe\n method or \nObservable.prototype.previous\n.\n\n\n\n\nerror\n\n\n(error: Error) =\n void\n\n\nSends error signal through the \nObservable\n instance. Errors can be received, with \nObservable.prototype.subscribe\n method.\n\n\n\n\ncomplete\n\n\n() =\n void\n\n\nSends \ncomplete\n signal through the \nObservable\n instance. Completion can be handled, with \nObservable.prototype.subscribe\n method.\n\n\nOperators - common\n\n\n\n\nmap\n\n\n(action: (value: T) =\n U): Observable\nU\n\n\nCreates a derivative stream of values where\nevery value pushed by a parent is transformed with \naction\n function and push further by \nObservable\n -\nresult of this function call.\n\n\n\n\nfilter\n\n\n(filter: (value: T) =\n boolean): Observable\nT\n;\n\n\nCreates a derivative stream of values where\nonly those values that meet requirements formulated\nwith \nfilter\n function are going to be pushed by that derivative \nObservable\n.\n\n\n\n\nscan\n\n\n(accumulator: (summary: U, value: T, index: number) =\n U, defaultValue?: U): Observable\nU\n\n\nCreates a derivative stream of values where\non every value that parent pushes\nthere is \naccumulator\n function called\ngetting last pushed value and new value that has been pushed by parent \nObservable\n.\nResult of the function is next value of newly created \nObservable\n.\nFirst call is with summary being undefined unless \ndefautValue\n is also passed.\n\n\n\n\nflatten\n\n\n(): Observable\nU\n\n\nWhen parent \nObservable\n is releasing other \nObservable\ns as values\nuse \nflatten\n to create a derivative stream that consists only of values\nthat are released by these \"observable values\".\n\n\n\n\nmerge\n\n\n`(...args: Observable\n;[]): Observable\n;\n\n\nCreates a stream containing all values of parent and of provided in arguments streams.\n\n\n\n\ndistinct\n\n\n(comparator?: (prev: T, next: T) =\n boolean): Observable\nT\n;\n\n\nCreates a derivative stream of values\nbut eliminates repeated subsequent value occurences.\n\n\nIf \ncomparator\n is passed, it is going to be used\nto determine if a value is distinct from previous one.\nOtherwise strict equal is incorporated.\n\n\n\n\nbuffer\n\n\n(maxLastValues: number = 0): Observable\nT[]\n\n\nCreates a derivative stream of parent \nObservable\n values gathered in array.\nNew values set is released after\nall other \nObservable\ns values are pushed through\nand all \nDomain\n actions being called.\nYou can specify how many of there messages has to be remembered.\n\n\n\n\nmaterialize\n\n\n(defaultState: T): Atom\nT\n\n\nCreates a derivative stream with an \nAtom\n where all values pushed by source are pushed by this node too.\nResulting \nAtom\n will start with \ndefaultState\n state value.\n\n\nasync function example() {\n    const a = new Observable().materialize(1)\n    await leThreeHoursLater()\n    console.log(a.deref()) // logs '1'\n}\n\n\n\n\nOperators - specific\n\n\n\n\nstartWith\n\n\n(firstValue: T): Observable\nT\n;\n\n\nCreates a derivative stream of values where\nit has all values of parent stream, but these are preceeded\nwith \nfirstValue\n that is immediately shared with all other nodes\nthat subscribed to the newly created stream.\n\n\n\n\nbufferCount\n\n\n(bufferSize: number, customBufferCount: number = null): Observable\nT[]\n\n\nCreates a derivative stream containing parent \nObservable\n values\ngathered in an Array.\nNew values set is released\nevery \nbufferSize\n-th parent \nObservable\n value or\nevery \ncustomBufferCount\n-th parent \nObservable\n value\nif second argument is present.\n\n\nAs it might be still mysterious how it works\nconsider these graphical representations\nof how values are pushed in time:\n\n\nconst a = Observable.of(1, 2, 3, 4, 5)\nconst b = a.bufferCount(2)\n\na --1--2--3--4--5--|\nb -----[1,2]-[3,4]-[5]|\n\n\n\n\nconst a = Observable.of(1, 2, 3, 4, 5)\nconst b = a.bufferCount(3, 2) // now with custom window\n\na --1--2--3-------4--5-|\nb --------[1,2,3]----[3,4,5]-|\n\n\n\n\n\n\nreemit\n\n\n(): Observable\nT\n\n\nCreates a derivative stream where all values pushed by source are pushed by this node too,\nbut also this new one will push at first last value that has been pushed by source in the past,\nif any was actually pushed.\n\n\nasync function example() {\n    const a = new Observable().startWith(1)\n    await leThreeHoursLater()\n    const b = a.reemit()\n    console.log(await b.toPromise()) // logs '1'\n}", 
             "title": "Observable"
         }, 
         {
@@ -16,99 +16,229 @@
             "title": "class Observable&lt;T&gt;"
         }, 
         {
-            "location": "/Observable/#observableof", 
+            "location": "/Observable/#static-of", 
             "text": "(...args: T[]): Observable T ;  Function to create an  Observable  that immediately pushes values given as arguments.  Stream is immediately completed after all values are pushed. \nIf you wish to create a stream and kickstart it with a value(s), use  startWith .", 
-            "title": "Observable.of"
+            "title": "static of"
         }, 
         {
-            "location": "/Observable/#observablefrom", 
+            "location": "/Observable/#static-from", 
             "text": "(values: T[]): Observable T ;  Function to create an  Observable  that immediately pushes values given as an array of values.  Stream is immediately completed after all values are pushed. \nIf you wish to create a stream and kickstart it with a value(s), use  startWith .", 
-            "title": "Observable.from"
+            "title": "static from"
         }, 
         {
-            "location": "/Observable/#observablefrompromise", 
+            "location": "/Observable/#static-frompromise", 
             "text": "(values: Promise T ): Observable T ;  Function to create an  Observable  that pushes a value\nrevealed with provided  Promise  and then completes\nas no more values to get from it.", 
-            "title": "Observable.fromPromise"
+            "title": "static fromPromise"
         }, 
         {
-            "location": "/Observable/#observableprototypeprevious", 
-            "text": "() =  T | NO_VALUE  Returns previous  value  that has been pushed through the  Observable  instance.\nIf no value has been pushed yet, NO_VALUE object is released.  import {Observable, NO_VALUE} from 'immview'\n// Example\nconst source = new Observable(({next}) =  { next(1) })\nsource.previous() === NO_VALUE // true\nsource.subscribe(value =  {\n    value === source.previous() // true\n})", 
-            "title": "Observable.prototype.previous"
+            "location": "/Observable/#subscribable-interface", 
+            "text": "", 
+            "title": "Subscribable interface"
         }, 
         {
-            "location": "/Observable/#observableprototypetopromise", 
-            "text": "() =  T  Returns next  value  that's going to be pushed through the  Observable  instance.  // Example\nconst source = new Observable()\nsetTimeout(() =  source.next(1), 100)\nconst value = await source.toPromise()", 
-            "title": "Observable.prototype.toPromise"
-        }, 
-        {
-            "location": "/Observable/#observableprototypenext", 
-            "text": "(nextValue: T) =  void  Sends value signal through the  Observable  instance. Values can be received, by  Observable.prototype.subscribe  method or  Observable.prototype.previous .", 
-            "title": "Observable.prototype.next"
-        }, 
-        {
-            "location": "/Observable/#observableprototypeerror", 
-            "text": "(error: Error) =  void  Sends error signal through the  Observable  instance. Errors can be received, with  Observable.prototype.subscribe  method.", 
-            "title": "Observable.prototype.error"
-        }, 
-        {
-            "location": "/Observable/#observableprototypecomplete", 
-            "text": "() =  void  Sends  complete  signal through the  Observable  instance. Completion can be handled, with  Observable.prototype.subscribe  method.", 
-            "title": "Observable.prototype.complete"
-        }, 
-        {
-            "location": "/Observable/#observableprototypesubscribe", 
+            "location": "/Observable/#subscribe", 
             "text": "( { start: (sub: Subscription) =  void, next: (value: T) =  void, error: (err: Error) =  void, complete: () =  void } ) =  { unsubscribe(): void }  ( onNext?: (value: T) =  void, onError?: (err: Error) =  void, onCompletion?: () =  void ) =  { unsubscribe(): void }  Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.  Returns a function to unregister the subscription.", 
-            "title": "Observable.prototype.subscribe"
+            "title": "subscribe"
         }, 
         {
-            "location": "/Observable/#observableprototypemap", 
+            "location": "/Observable/#topromise", 
+            "text": "() =  T  Returns next  value  that's going to be pushed through the  Observable  instance.  // Example\nconst source = new Observable()\nsetTimeout(() =  source.next(1), 100)\nconst value = await source.toPromise()", 
+            "title": "toPromise"
+        }, 
+        {
+            "location": "/Observable/#previous", 
+            "text": "", 
+            "title": "previous"
+        }, 
+        {
+            "location": "/Observable/#deprecated-use-deref-and-hasref", 
+            "text": "() =  T | NO_VALUE  Returns previous  value  that has been pushed through the  Observable  instance.\nIf no value has been pushed yet, NO_VALUE object is released.  import {Observable, NO_VALUE} from 'immview'\n// Example\nconst source = new Observable(({next}) =  { next(1) })\nsource.previous() === NO_VALUE // true\nsource.subscribe(value =  {\n    value === source.previous() // true\n})", 
+            "title": "DEPRECATED - use deref and hasRef"
+        }, 
+        {
+            "location": "/Observable/#observer-interface", 
+            "text": "", 
+            "title": "Observer interface"
+        }, 
+        {
+            "location": "/Observable/#next", 
+            "text": "(nextValue: T) =  void  Sends value signal through the  Observable  instance. Values can be received, by  Observable.prototype.subscribe  method or  Observable.prototype.previous .", 
+            "title": "next"
+        }, 
+        {
+            "location": "/Observable/#error", 
+            "text": "(error: Error) =  void  Sends error signal through the  Observable  instance. Errors can be received, with  Observable.prototype.subscribe  method.", 
+            "title": "error"
+        }, 
+        {
+            "location": "/Observable/#complete", 
+            "text": "() =  void  Sends  complete  signal through the  Observable  instance. Completion can be handled, with  Observable.prototype.subscribe  method.", 
+            "title": "complete"
+        }, 
+        {
+            "location": "/Observable/#operators-common", 
+            "text": "", 
+            "title": "Operators - common"
+        }, 
+        {
+            "location": "/Observable/#map", 
             "text": "(action: (value: T) =  U): Observable U  Creates a derivative stream of values where\nevery value pushed by a parent is transformed with  action  function and push further by  Observable  -\nresult of this function call.", 
-            "title": "Observable.prototype.map"
+            "title": "map"
         }, 
         {
-            "location": "/Observable/#observableprototypestartwith", 
-            "text": "(firstValue: T): Observable T ;  Creates a derivative stream of values where\nit has all values of parent stream, but these are preceeded\nwith  firstValue  that is immediately shared with all other nodes\nthat subscribed to the newly created stream.", 
-            "title": "Observable.prototype.startWith"
-        }, 
-        {
-            "location": "/Observable/#observableprototypefilter", 
+            "location": "/Observable/#filter", 
             "text": "(filter: (value: T) =  boolean): Observable T ;  Creates a derivative stream of values where\nonly those values that meet requirements formulated\nwith  filter  function are going to be pushed by that derivative  Observable .", 
-            "title": "Observable.prototype.filter"
+            "title": "filter"
         }, 
         {
-            "location": "/Observable/#observableprototypescan", 
+            "location": "/Observable/#scan", 
             "text": "(accumulator: (summary: U, value: T, index: number) =  U, defaultValue?: U): Observable U  Creates a derivative stream of values where\non every value that parent pushes\nthere is  accumulator  function called\ngetting last pushed value and new value that has been pushed by parent  Observable .\nResult of the function is next value of newly created  Observable .\nFirst call is with summary being undefined unless  defautValue  is also passed.", 
-            "title": "Observable.prototype.scan"
+            "title": "scan"
         }, 
         {
-            "location": "/Observable/#observableprototypeflatten", 
+            "location": "/Observable/#flatten", 
             "text": "(): Observable U  When parent  Observable  is releasing other  Observable s as values\nuse  flatten  to create a derivative stream that consists only of values\nthat are released by these \"observable values\".", 
-            "title": "Observable.prototype.flatten"
+            "title": "flatten"
         }, 
         {
-            "location": "/Observable/#observableprototypemerge", 
+            "location": "/Observable/#merge", 
             "text": "`(...args: Observable ;[]): Observable ;  Creates a stream containing all values of parent and of provided in arguments streams.", 
-            "title": "Observable.prototype.merge"
+            "title": "merge"
         }, 
         {
-            "location": "/Observable/#observableprototypedistinct", 
+            "location": "/Observable/#distinct", 
             "text": "(comparator?: (prev: T, next: T) =  boolean): Observable T ;  Creates a derivative stream of values\nbut eliminates repeated subsequent value occurences.  If  comparator  is passed, it is going to be used\nto determine if a value is distinct from previous one.\nOtherwise strict equal is incorporated.", 
-            "title": "Observable.prototype.distinct"
+            "title": "distinct"
         }, 
         {
-            "location": "/Observable/#observableprototypebuffer", 
+            "location": "/Observable/#buffer", 
             "text": "(maxLastValues: number = 0): Observable T[]  Creates a derivative stream of parent  Observable  values gathered in array.\nNew values set is released after\nall other  Observable s values are pushed through\nand all  Domain  actions being called.\nYou can specify how many of there messages has to be remembered.", 
-            "title": "Observable.prototype.buffer"
+            "title": "buffer"
         }, 
         {
-            "location": "/Observable/#observableprototypebuffercount", 
+            "location": "/Observable/#materialize", 
+            "text": "(defaultState: T): Atom T  Creates a derivative stream with an  Atom  where all values pushed by source are pushed by this node too.\nResulting  Atom  will start with  defaultState  state value.  async function example() {\n    const a = new Observable().materialize(1)\n    await leThreeHoursLater()\n    console.log(a.deref()) // logs '1'\n}", 
+            "title": "materialize"
+        }, 
+        {
+            "location": "/Observable/#operators-specific", 
+            "text": "", 
+            "title": "Operators - specific"
+        }, 
+        {
+            "location": "/Observable/#startwith", 
+            "text": "(firstValue: T): Observable T ;  Creates a derivative stream of values where\nit has all values of parent stream, but these are preceeded\nwith  firstValue  that is immediately shared with all other nodes\nthat subscribed to the newly created stream.", 
+            "title": "startWith"
+        }, 
+        {
+            "location": "/Observable/#buffercount", 
             "text": "(bufferSize: number, customBufferCount: number = null): Observable T[]  Creates a derivative stream containing parent  Observable  values\ngathered in an Array.\nNew values set is released\nevery  bufferSize -th parent  Observable  value or\nevery  customBufferCount -th parent  Observable  value\nif second argument is present.  As it might be still mysterious how it works\nconsider these graphical representations\nof how values are pushed in time:  const a = Observable.of(1, 2, 3, 4, 5)\nconst b = a.bufferCount(2)\n\na --1--2--3--4--5--|\nb -----[1,2]-[3,4]-[5]|  const a = Observable.of(1, 2, 3, 4, 5)\nconst b = a.bufferCount(3, 2) // now with custom window\n\na --1--2--3-------4--5-|\nb --------[1,2,3]----[3,4,5]-|", 
-            "title": "Observable.prototype.bufferCount"
+            "title": "bufferCount"
         }, 
         {
-            "location": "/Observable/#observableprototypereemit", 
+            "location": "/Observable/#reemit", 
             "text": "(): Observable T  Creates a derivative stream where all values pushed by source are pushed by this node too,\nbut also this new one will push at first last value that has been pushed by source in the past,\nif any was actually pushed.  async function example() {\n    const a = new Observable().startWith(1)\n    await leThreeHoursLater()\n    const b = a.reemit()\n    console.log(await b.toPromise()) // logs '1'\n}", 
-            "title": "Observable.prototype.reemit"
+            "title": "reemit"
+        }, 
+        {
+            "location": "/Atom/", 
+            "text": "class \nAtom\nT\n\n\n(subscriber: (observer: {next: (value: T) =\n void, error: (err: Error) =\n void, complete: () =\n void}) =\n void | () =\n void)\n\n\nConstruct with \nsubscriber\n function that receives \nobserver\n object. \nObserver\n is for pushing values, errors and completion signal.\n\n\nSubscriber\n function may return function that should be called if \nAtom\n receives \ncomplete\n signal or is cancelled.\n\n\n\n\nstatic \nof\n\n\n(...args: T[]): Atom\nT\n;\n\n\nFunction to create an \nAtom\n that's state set to last given argument.\n\n\nconst a = Atom.of(1, 2, 3)\nconsole.log(a.deref()) // 3\n\n\n\n\nStream is immediately completed after all values are pushed.\n\n\n\n\nstatic \nfrom\n\n\n(values: T[]): Atom\nT\n;\n\n\nFunction to create an \nAtom\n that's state set to last value of an \nIterable\n.\nGiven other \nAtom\n, copies it's state.\n\n\nStream is immediately completed after all values are pushed.\n\n\nSubscribable interface\n\n\n\n\nsubscribe\n\n\n( { start: (sub: Subscription) =\n void, next: (value: T) =\n void, error: (err: Error) =\n void, complete: () =\n void } ) =\n { unsubscribe(): void }\n\n\n( onNext?: (value: T) =\n void, onError?: (err: Error) =\n void, onCompletion?: () =\n void ) =\n { unsubscribe(): void }\n\n\nRegisters a function called every time when the \nAtom\n changes value that it holds, error is pushed or \nAtom\n is complete.\n\n\nReturns a function to unregister the subscription.\n\n\n\n\ntoPromise\n\n\n() =\n T\n\n\nReturns next \nvalue\n that's going to be pushed through the \nAtom\n instance.\n\n\n// Example\nconst source = new Atom()\nsetTimeout(() =\n source.next(1), 100)\nconst value = await source.toPromise()\n\n\n\n\nObserver interface\n\n\n\n\nnext\n\n\n(nextValue: T) =\n void\n\n\nSends value signal through the \nAtom\n instance. Values can be received, by \nAtom.prototype.subscribe\n method or \nAtom.prototype.previous\n.\n\n\n\n\nerror\n\n\n(error: Error) =\n void\n\n\nSends error signal through the \nAtom\n instance. Errors can be received, with \nAtom.prototype.subscribe\n method.\n\n\n\n\ncomplete\n\n\n() =\n void\n\n\nSends \ncomplete\n signal through the \nAtom\n instance. Completion can be handled, with \nAtom.prototype.subscribe\n method.\n\n\nOperators - common\n\n\n\n\nmap\n\n\n(action: (value: T) =\n U): Atom\nU\n\n\nCreates a derivative stream of values where\nevery value pushed by a parent is transformed with \naction\n function and push further by \nAtom\n -\nresult of this function call.\n\n\n\n\nfilter\n\n\n(filter: (value: T) =\n boolean): Atom\nT\n;\n\n\nCreates a derivative stream of values where\nonly those values that meet requirements formulated\nwith \nfilter\n function are going to be pushed by that derivative \nAtom\n.\n\n\nFirst value of \nAtom\n is not validated by provided function\n\n\n\n\nscan\n\n\n(accumulator: (summary: U, value: T, index: number) =\n U, defaultValue?: U): Atom\nU\n\n\nCreates a derivative stream of values where\non every value that parent pushes\nthere is \naccumulator\n function called\ngetting last pushed value and new value that has been pushed by parent \nAtom\n.\nResult of the function is next value of newly created \nAtom\n.\nFirst call is with summary being undefined unless \ndefautValue\n is also passed.\n\n\n\n\nflatten\n\n\n(): Atom\nU\n\n\nWhen parent \nAtom\n is releasing other \nAtom\ns as values\nuse \nflatten\n to create a derivative stream that consists only of values\nthat are released by these \"Atom values\".\n\n\n\n\nmerge\n\n\n`(...args: Atom\n;[]): Atom\n;\n\n\nCreates a stream containing all values of parent and of provided in arguments streams.\n\n\n\n\ndistinct\n\n\n(comparator?: (prev: T, next: T) =\n boolean): Atom\nT\n;\n\n\nCreates a derivative stream of values\nbut eliminates repeated subsequent value occurences.\n\n\nIf \ncomparator\n is passed, it is going to be used\nto determine if a value is distinct from previous one.\nOtherwise strict equal is incorporated.\n\n\n\n\nbuffer\n\n\n(maxLastValues: number = 0): Atom\nT[]\n\n\nCreates a derivative stream of parent \nAtom\n values gathered in array.\nNew values set is released after\nall other \nAtom\ns values are pushed through\nand all \nDomain\n actions being called.\nYou can specify how many of there messages has to be remembered.\n\n\n\n\nmaterialize\n\n\n(defaultState: T): Atom\nT\n\n\nReturns itself.", 
+            "title": "Atom"
+        }, 
+        {
+            "location": "/Atom/#class-atomt", 
+            "text": "(subscriber: (observer: {next: (value: T) =  void, error: (err: Error) =  void, complete: () =  void}) =  void | () =  void)  Construct with  subscriber  function that receives  observer  object.  Observer  is for pushing values, errors and completion signal.  Subscriber  function may return function that should be called if  Atom  receives  complete  signal or is cancelled.", 
+            "title": "class Atom&lt;T&gt;"
+        }, 
+        {
+            "location": "/Atom/#static-of", 
+            "text": "(...args: T[]): Atom T ;  Function to create an  Atom  that's state set to last given argument.  const a = Atom.of(1, 2, 3)\nconsole.log(a.deref()) // 3  Stream is immediately completed after all values are pushed.", 
+            "title": "static of"
+        }, 
+        {
+            "location": "/Atom/#static-from", 
+            "text": "(values: T[]): Atom T ;  Function to create an  Atom  that's state set to last value of an  Iterable .\nGiven other  Atom , copies it's state.  Stream is immediately completed after all values are pushed.", 
+            "title": "static from"
+        }, 
+        {
+            "location": "/Atom/#subscribable-interface", 
+            "text": "", 
+            "title": "Subscribable interface"
+        }, 
+        {
+            "location": "/Atom/#subscribe", 
+            "text": "( { start: (sub: Subscription) =  void, next: (value: T) =  void, error: (err: Error) =  void, complete: () =  void } ) =  { unsubscribe(): void }  ( onNext?: (value: T) =  void, onError?: (err: Error) =  void, onCompletion?: () =  void ) =  { unsubscribe(): void }  Registers a function called every time when the  Atom  changes value that it holds, error is pushed or  Atom  is complete.  Returns a function to unregister the subscription.", 
+            "title": "subscribe"
+        }, 
+        {
+            "location": "/Atom/#topromise", 
+            "text": "() =  T  Returns next  value  that's going to be pushed through the  Atom  instance.  // Example\nconst source = new Atom()\nsetTimeout(() =  source.next(1), 100)\nconst value = await source.toPromise()", 
+            "title": "toPromise"
+        }, 
+        {
+            "location": "/Atom/#observer-interface", 
+            "text": "", 
+            "title": "Observer interface"
+        }, 
+        {
+            "location": "/Atom/#next", 
+            "text": "(nextValue: T) =  void  Sends value signal through the  Atom  instance. Values can be received, by  Atom.prototype.subscribe  method or  Atom.prototype.previous .", 
+            "title": "next"
+        }, 
+        {
+            "location": "/Atom/#error", 
+            "text": "(error: Error) =  void  Sends error signal through the  Atom  instance. Errors can be received, with  Atom.prototype.subscribe  method.", 
+            "title": "error"
+        }, 
+        {
+            "location": "/Atom/#complete", 
+            "text": "() =  void  Sends  complete  signal through the  Atom  instance. Completion can be handled, with  Atom.prototype.subscribe  method.", 
+            "title": "complete"
+        }, 
+        {
+            "location": "/Atom/#operators-common", 
+            "text": "", 
+            "title": "Operators - common"
+        }, 
+        {
+            "location": "/Atom/#map", 
+            "text": "(action: (value: T) =  U): Atom U  Creates a derivative stream of values where\nevery value pushed by a parent is transformed with  action  function and push further by  Atom  -\nresult of this function call.", 
+            "title": "map"
+        }, 
+        {
+            "location": "/Atom/#filter", 
+            "text": "(filter: (value: T) =  boolean): Atom T ;  Creates a derivative stream of values where\nonly those values that meet requirements formulated\nwith  filter  function are going to be pushed by that derivative  Atom .  First value of  Atom  is not validated by provided function", 
+            "title": "filter"
+        }, 
+        {
+            "location": "/Atom/#scan", 
+            "text": "(accumulator: (summary: U, value: T, index: number) =  U, defaultValue?: U): Atom U  Creates a derivative stream of values where\non every value that parent pushes\nthere is  accumulator  function called\ngetting last pushed value and new value that has been pushed by parent  Atom .\nResult of the function is next value of newly created  Atom .\nFirst call is with summary being undefined unless  defautValue  is also passed.", 
+            "title": "scan"
+        }, 
+        {
+            "location": "/Atom/#flatten", 
+            "text": "(): Atom U  When parent  Atom  is releasing other  Atom s as values\nuse  flatten  to create a derivative stream that consists only of values\nthat are released by these \"Atom values\".", 
+            "title": "flatten"
+        }, 
+        {
+            "location": "/Atom/#merge", 
+            "text": "`(...args: Atom ;[]): Atom ;  Creates a stream containing all values of parent and of provided in arguments streams.", 
+            "title": "merge"
+        }, 
+        {
+            "location": "/Atom/#distinct", 
+            "text": "(comparator?: (prev: T, next: T) =  boolean): Atom T ;  Creates a derivative stream of values\nbut eliminates repeated subsequent value occurences.  If  comparator  is passed, it is going to be used\nto determine if a value is distinct from previous one.\nOtherwise strict equal is incorporated.", 
+            "title": "distinct"
+        }, 
+        {
+            "location": "/Atom/#buffer", 
+            "text": "(maxLastValues: number = 0): Atom T[]  Creates a derivative stream of parent  Atom  values gathered in array.\nNew values set is released after\nall other  Atom s values are pushed through\nand all  Domain  actions being called.\nYou can specify how many of there messages has to be remembered.", 
+            "title": "buffer"
+        }, 
+        {
+            "location": "/Atom/#materialize", 
+            "text": "(defaultState: T): Atom T  Returns itself.", 
+            "title": "materialize"
         }, 
         {
             "location": "/Combine/", 

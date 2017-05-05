@@ -15,7 +15,7 @@
     
     
       
-        <title>Observable - Documentation</title>
+        <title>Atom - Documentation</title>
       
     
     
@@ -71,7 +71,7 @@
             
               
             
-            Observable
+            Atom
           
         </span>
       </div>
@@ -137,17 +137,28 @@
       
   <li class="md-nav__item">
     
+      <a href="../Observable/" title="Observable" class="md-nav__link">
+        Observable
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
       
     
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        Observable
+        Atom
       </label>
     
-    <a href="./" title="Observable" class="md-nav__link md-nav__link--active">
-      Observable
+    <a href="./" title="Atom" class="md-nav__link md-nav__link--active">
+      Atom
     </a>
     
       
@@ -174,27 +185,9 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#static-frompromise" title="static fromPromise" class="md-nav__link">
-    static fromPromise
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
-    
-  </li>
-
-    
-      
-      
-  <li class="md-nav__item">
-    
-      <a href="../Atom/" title="Atom" class="md-nav__link">
-        Atom
-      </a>
     
   </li>
 
@@ -255,13 +248,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#static-frompromise" title="static fromPromise" class="md-nav__link">
-    static fromPromise
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -275,108 +261,91 @@
                
               
                 
-                <h1 id="class-observablet">class <code>Observable&lt;T&gt;</code></h1>
+                <h1 id="class-atomt">class <code>Atom&lt;T&gt;</code></h1>
 <p><code>(subscriber: (observer: {next: (value: T) =&gt; void, error: (err: Error) =&gt; void, complete: () =&gt; void}) =&gt; void | () =&gt; void)</code></p>
 <p>Construct with <code>subscriber</code> function that receives <code>observer</code> object. <code>Observer</code> is for pushing values, errors and completion signal.</p>
-<p><code>Subscriber</code> function may return function that should be called if <code>Observable</code> receives <code>complete</code> signal or is cancelled.</p>
+<p><code>Subscriber</code> function may return function that should be called if <code>Atom</code> receives <code>complete</code> signal or is cancelled.</p>
 <hr />
 <h2 id="static-of">static <em>of</em></h2>
-<p><code>(...args: T[]): Observable&lt;T&gt;;</code></p>
-<p>Function to create an <code>Observable</code> that immediately pushes values given as arguments.</p>
-<p><strong>Stream is immediately completed after all values are pushed.</strong>
-If you wish to create a stream and kickstart it with a value(s), use <code>startWith</code>.</p>
+<p><code>(...args: T[]): Atom&lt;T&gt;;</code></p>
+<p>Function to create an <code>Atom</code> that's state set to last given argument.</p>
+<pre><code class="javascript">const a = Atom.of(1, 2, 3)
+console.log(a.deref()) // 3
+</code></pre>
+
+<p><strong>Stream is immediately completed after all values are pushed.</strong></p>
 <hr />
 <h2 id="static-from">static <em>from</em></h2>
-<p><code>(values: T[]): Observable&lt;T&gt;;</code></p>
-<p>Function to create an <code>Observable</code> that immediately pushes values given as an array of values.</p>
-<p><strong>Stream is immediately completed after all values are pushed.</strong>
-If you wish to create a stream and kickstart it with a value(s), use <code>startWith</code>.</p>
-<hr />
-<h2 id="static-frompromise">static <em>fromPromise</em></h2>
-<p><code>(values: Promise&lt;T&gt;): Observable&lt;T&gt;;</code></p>
-<p>Function to create an <code>Observable</code> that pushes a value
-revealed with provided <code>Promise</code> and then completes
-as no more values to get from it.</p>
+<p><code>(values: T[]): Atom&lt;T&gt;;</code></p>
+<p>Function to create an <code>Atom</code> that's state set to last value of an <code>Iterable</code>.
+Given other <code>Atom</code>, copies it's state.</p>
+<p><strong>Stream is immediately completed after all values are pushed.</strong></p>
 <h1 id="subscribable-interface">Subscribable interface</h1>
 <hr />
 <h2 id="subscribe">subscribe</h2>
 <p><code>( { start: (sub: Subscription) =&gt; void, next: (value: T) =&gt; void, error: (err: Error) =&gt; void, complete: () =&gt; void } ) =&gt; { unsubscribe(): void }</code></p>
 <p><code>( onNext?: (value: T) =&gt; void, onError?: (err: Error) =&gt; void, onCompletion?: () =&gt; void ) =&gt; { unsubscribe(): void }</code></p>
-<p>Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.</p>
+<p>Registers a function called every time when the <code>Atom</code> changes value that it holds, error is pushed or <code>Atom</code> is complete.</p>
 <p>Returns a function to unregister the subscription.</p>
 <hr />
 <h2 id="topromise">toPromise</h2>
 <p><code>() =&gt; T</code></p>
-<p>Returns next <strong>value</strong> that's going to be pushed through the <code>Observable</code> instance.</p>
+<p>Returns next <strong>value</strong> that's going to be pushed through the <code>Atom</code> instance.</p>
 <pre><code class="javascript">// Example
-const source = new Observable()
+const source = new Atom()
 setTimeout(() =&gt; source.next(1), 100)
 const value = await source.toPromise()
-</code></pre>
-
-<hr />
-<h2 id="previous">previous</h2>
-<h3 id="deprecated-use-deref-and-hasref">DEPRECATED - use deref and hasRef</h3>
-<p><code>() =&gt; T | NO_VALUE</code></p>
-<p>Returns previous <strong>value</strong> that has been pushed through the <code>Observable</code> instance.
-If no value has been pushed yet, NO_VALUE object is released.</p>
-<pre><code class="javascript">import {Observable, NO_VALUE} from 'immview'
-// Example
-const source = new Observable(({next}) =&gt; { next(1) })
-source.previous() === NO_VALUE // true
-source.subscribe(value =&gt; {
-    value === source.previous() // true
-})
 </code></pre>
 
 <h1 id="observer-interface">Observer interface</h1>
 <hr />
 <h2 id="next">next</h2>
 <p><code>(nextValue: T) =&gt; void</code></p>
-<p>Sends value signal through the <code>Observable</code> instance. Values can be received, by <code>Observable.prototype.subscribe</code> method or <code>Observable.prototype.previous</code>.</p>
+<p>Sends value signal through the <code>Atom</code> instance. Values can be received, by <code>Atom.prototype.subscribe</code> method or <code>Atom.prototype.previous</code>.</p>
 <hr />
 <h2 id="error">error</h2>
 <p><code>(error: Error) =&gt; void</code></p>
-<p>Sends error signal through the <code>Observable</code> instance. Errors can be received, with <code>Observable.prototype.subscribe</code> method.</p>
+<p>Sends error signal through the <code>Atom</code> instance. Errors can be received, with <code>Atom.prototype.subscribe</code> method.</p>
 <hr />
 <h2 id="complete">complete</h2>
 <p><code>() =&gt; void</code></p>
-<p>Sends <code>complete</code> signal through the <code>Observable</code> instance. Completion can be handled, with <code>Observable.prototype.subscribe</code> method.</p>
+<p>Sends <code>complete</code> signal through the <code>Atom</code> instance. Completion can be handled, with <code>Atom.prototype.subscribe</code> method.</p>
 <h1 id="operators-common">Operators - common</h1>
 <hr />
 <h2 id="map">map</h2>
-<p><code>(action: (value: T) =&gt; U): Observable&lt;U&gt;</code></p>
+<p><code>(action: (value: T) =&gt; U): Atom&lt;U&gt;</code></p>
 <p>Creates a derivative stream of values where
-every value pushed by a parent is transformed with <code>action</code> function and push further by <code>Observable</code> -
+every value pushed by a parent is transformed with <code>action</code> function and push further by <code>Atom</code> -
 result of this function call.</p>
 <hr />
 <h2 id="filter">filter</h2>
-<p><code>(filter: (value: T) =&gt; boolean): Observable&lt;T&gt;;</code></p>
+<p><code>(filter: (value: T) =&gt; boolean): Atom&lt;T&gt;;</code></p>
 <p>Creates a derivative stream of values where
 only those values that meet requirements formulated
-with <code>filter</code> function are going to be pushed by that derivative <code>Observable</code>.</p>
+with <code>filter</code> function are going to be pushed by that derivative <code>Atom</code>.</p>
+<p><strong>First value of <code>Atom</code> is not validated by provided function</strong></p>
 <hr />
 <h2 id="scan">scan</h2>
-<p><code>(accumulator: (summary: U, value: T, index: number) =&gt; U, defaultValue?: U): Observable&lt;U&gt;</code></p>
+<p><code>(accumulator: (summary: U, value: T, index: number) =&gt; U, defaultValue?: U): Atom&lt;U&gt;</code></p>
 <p>Creates a derivative stream of values where
 on every value that parent pushes
 there is <code>accumulator</code> function called
-getting last pushed value and new value that has been pushed by parent <code>Observable</code>.
-Result of the function is next value of newly created <code>Observable</code>.
+getting last pushed value and new value that has been pushed by parent <code>Atom</code>.
+Result of the function is next value of newly created <code>Atom</code>.
 First call is with summary being undefined unless <code>defautValue</code> is also passed.</p>
 <hr />
 <h2 id="flatten">flatten</h2>
-<p><code>(): Observable&lt;U&gt;</code></p>
-<p>When parent <code>Observable</code> is releasing other <code>Observable</code>s as values
+<p><code>(): Atom&lt;U&gt;</code></p>
+<p>When parent <code>Atom</code> is releasing other <code>Atom</code>s as values
 use <code>flatten</code> to create a derivative stream that consists only of values
-that are released by these "observable values".</p>
+that are released by these "Atom values".</p>
 <hr />
 <h2 id="merge">merge</h2>
-<p>`(...args: Observable<T>;[]): Observable<T>;</p>
+<p>`(...args: Atom<T>;[]): Atom<T>;</p>
 <p>Creates a stream containing all values of parent and of provided in arguments streams.</p>
 <hr />
 <h2 id="distinct">distinct</h2>
-<p><code>(comparator?: (prev: T, next: T) =&gt; boolean): Observable&lt;T&gt;;</code></p>
+<p><code>(comparator?: (prev: T, next: T) =&gt; boolean): Atom&lt;T&gt;;</code></p>
 <p>Creates a derivative stream of values
 but eliminates repeated subsequent value occurences.</p>
 <p>If <code>comparator</code> is passed, it is going to be used
@@ -384,71 +353,16 @@ to determine if a value is distinct from previous one.
 Otherwise strict equal is incorporated.</p>
 <hr />
 <h2 id="buffer">buffer</h2>
-<p><code>(maxLastValues: number = 0): Observable&lt;T[]&gt;</code></p>
-<p>Creates a derivative stream of parent <code>Observable</code> values gathered in array.
+<p><code>(maxLastValues: number = 0): Atom&lt;T[]&gt;</code></p>
+<p>Creates a derivative stream of parent <code>Atom</code> values gathered in array.
 New values set is released after
-all other <code>Observable</code>s values are pushed through
+all other <code>Atom</code>s values are pushed through
 and all <code>Domain</code> actions being called.
 You can specify how many of there messages has to be remembered.</p>
 <hr />
 <h2 id="materialize">materialize</h2>
 <p><code>(defaultState: T): Atom&lt;T&gt;</code></p>
-<p>Creates a derivative stream with an <code>Atom</code> where all values pushed by source are pushed by this node too.
-Resulting <code>Atom</code> will start with <code>defaultState</code> state value.</p>
-<pre><code class="javascript">async function example() {
-    const a = new Observable().materialize(1)
-    await leThreeHoursLater()
-    console.log(a.deref()) // logs '1'
-}
-</code></pre>
-
-<h1 id="operators-specific">Operators - specific</h1>
-<hr />
-<h2 id="startwith">startWith</h2>
-<p><code>(firstValue: T): Observable&lt;T&gt;;</code></p>
-<p>Creates a derivative stream of values where
-it has all values of parent stream, but these are preceeded
-with <code>firstValue</code> that is immediately shared with all other nodes
-that subscribed to the newly created stream.</p>
-<hr />
-<h2 id="buffercount">bufferCount</h2>
-<p><code>(bufferSize: number, customBufferCount: number = null): Observable&lt;T[]&gt;</code></p>
-<p>Creates a derivative stream containing parent <code>Observable</code> values
-gathered in an Array.
-New values set is released
-every <code>bufferSize</code>-th parent <code>Observable</code> value or
-every <code>customBufferCount</code>-th parent <code>Observable</code> value
-if second argument is present.</p>
-<p>As it might be still mysterious how it works
-consider these graphical representations
-of how values are pushed in time:</p>
-<pre><code>const a = Observable.of(1, 2, 3, 4, 5)
-const b = a.bufferCount(2)
-
-a --1--2--3--4--5--|
-b -----[1,2]-[3,4]-[5]|
-</code></pre>
-
-<pre><code>const a = Observable.of(1, 2, 3, 4, 5)
-const b = a.bufferCount(3, 2) // now with custom window
-
-a --1--2--3-------4--5-|
-b --------[1,2,3]----[3,4,5]-|
-</code></pre>
-
-<hr />
-<h2 id="reemit">reemit</h2>
-<p><code>(): Observable&lt;T&gt;</code></p>
-<p>Creates a derivative stream where all values pushed by source are pushed by this node too,
-but also this new one will push at first last value that has been pushed by source in the past,
-if any was actually pushed.</p>
-<pre><code class="javascript">async function example() {
-    const a = new Observable().startWith(1)
-    await leThreeHoursLater()
-    const b = a.reemit()
-    console.log(await b.toPromise()) // logs '1'
-}
-</code></pre>
+<p>Returns itself.</p>
               
             </article>
           </div>
@@ -461,7 +375,7 @@ if any was actually pushed.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="Immview" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../Observable/" title="Observable" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -470,19 +384,19 @@ if any was actually pushed.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Immview
+                Observable
               </span>
             </div>
           </a>
         
         
-          <a href="../Atom/" title="Atom" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../Combine/" title="Combine" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Atom
+                Combine
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

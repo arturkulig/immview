@@ -2,6 +2,7 @@ site_name: Documentation
 pages:
     - Immview: index.md
     - Observable: Observable.md
+    - Atom: Atom.md
     - Combine: Combine.md
     - Domain: Domain.md
 theme: 'material'
