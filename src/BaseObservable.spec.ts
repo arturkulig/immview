@@ -1,6 +1,4 @@
 import { dispatch } from './DispatcherInstance'
-import { DispatcherPriorities } from './DispatcherPriorities'
-const { ALL } = DispatcherPriorities
 import { BaseObservable } from './BaseObservable'
 
 const fail = function (done, msg): () => void {
@@ -9,10 +7,6 @@ const fail = function (done, msg): () => void {
         setTimeout(done)
     }
 }
-
-const then =
-    (action: () => any) =>
-        dispatch(action, ALL)
 
 describe('BaseObservable', () => {
     describe('can be created', () => {
