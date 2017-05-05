@@ -2,9 +2,6 @@ import { dispatch } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 const { ALL } = DispatcherPriorities
 import { BaseObservable } from './BaseObservable'
-import {
-    NO_VALUE
-} from './Types'
 
 const fail = function (done, msg): () => void {
     return (): void => {
@@ -39,26 +36,11 @@ describe('BaseObservable', () => {
         })
     })
 
-    it('allowing multiple subscriptions before pushing values', done => {
-        const subject = new BaseObservable(observer => {
-            observer.next(5)
-        })
-        let o1SubHit = null
-        subject.subscribe(v => { o1SubHit = v })
-        let o2SubHit = null
-        subject.subscribe(v => { o2SubHit = v })
-        then(() => {
-            expect({ o1SubHit }).toEqual({ o1SubHit: 5 })
-            expect({ o2SubHit }).toEqual({ o2SubHit: 5 })
-            setTimeout(done)
-        })
-    })
-
-    it('has previous() equal to last pushed value', done => {
+    it('has deref() equal to last pushed value', done => {
         const subject = new BaseObservable(observer => { observer.next(6) })
-        expect(subject.previous()).toBe(NO_VALUE)
+        expect(subject.hasRef()).toBe(false)
         subject.subscribe(value => {
-            expect(value).toEqual(subject.previous())
+            expect(value).toEqual(subject.deref())
             done()
         })
     })

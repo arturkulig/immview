@@ -21,8 +21,10 @@ describe('Domain', () => {
         }
 
         const subject = new DerivativeOfDomain()
-        subject.test(true)
-        expect(subject.tested).toBe(false)
+        dispatch(() => {
+            subject.test(true)
+            expect(subject.tested).toBe(false)
+        }, ALL)
         dispatch(() => {
             expect(subject.tested).toBe(true)
             setTimeout(done)
@@ -40,15 +42,18 @@ describe('Domain', () => {
             @action
             test(v: boolean) {
                 this.tested = v
-                return Promise.resolve()
+                return Promise.resolve(v)
             }
         }
 
         const subject = new DerivativeOfDomain()
-        subject.test(true).then(() => {
-            expect(subject.tested).toBe(true)
-            setTimeout(done)
-        })
-        expect(subject.tested).toBe(false)
+        dispatch(() => {
+            subject.test(true).then(result => {
+                expect(subject.tested).toBe(true)
+                expect(result).toBe(true)
+                setTimeout(done)
+            })
+            expect(subject.tested).toBe(false)
+        }, ALL)
     })
 })

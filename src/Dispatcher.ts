@@ -5,7 +5,6 @@ export interface Task {
 
 export class Dispatcher {
     private running = false
-    private deferred = false
     private subsequentCalls: number = 0
 
     get isRunning(): boolean {
@@ -14,7 +13,7 @@ export class Dispatcher {
 
     tasks: Task[] = []
 
-    push(execute: () => any, priority): Dispatcher {
+    push(execute: () => any, priority): this {
         for (let i = 0; i < this.tasks.length; i++) {
             if (this.tasks[i].priority > priority) {
                 this.tasks.splice(i, 0, { execute, priority })
@@ -36,7 +35,6 @@ export class Dispatcher {
 
         if (!task) {
             this.running = false
-            this.deferred = false
             this.subsequentCalls = 0
             return
         }
@@ -48,14 +46,7 @@ export class Dispatcher {
 
         this.subsequentCalls++
 
-        if (task.priority > 0 && !this.deferred) {
-            Promise.resolve().then((() => {
-                this.deferred = true
-                this.execute(task.execute)
-            }))
-        } else {
-            this.execute(task.execute)
-        }
+        this.execute(task.execute)
     }
 
     execute(task) {

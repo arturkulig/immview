@@ -382,15 +382,13 @@ describe('Observable', () => {
 
     it('::reemit - should reemit last value', async () => {
         const a = new Observable().startWith(1)
-        const a2 = a.reemit()
-        expect(a.previous()).toBe(NO_VALUE)
-        expect(a2.previous()).toBe(NO_VALUE)
-
-        expect(await a.toPromise()).toBe(1)
-        expect(await a2.toPromise()).toBe(1)
-
+        expect({ aHasRef: a.hasRef(), aRef: a.deref() }).toEqual({ aHasRef: false, aRef: null })
         const b = a.reemit()
-        expect(b.previous()).toBe(NO_VALUE)
+        expect({ bHasRef: b.hasRef(), bRef: b.deref() }).toEqual({ bHasRef: false, bRef: null })
+
         expect(await b.toPromise()).toBe(1)
+
+        const c = b.reemit()
+        expect(await c.toPromise()).toBe(1)
     })
 })
