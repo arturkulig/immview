@@ -1,9 +1,7 @@
 import { dispatch, flush } from './DispatcherInstance'
-import { DispatcherPriorities } from './DispatcherPriorities'
 
 import { Observable } from './Observable'
 import { Atom } from './Atom'
-import { NO_VALUE } from './Types'
 import { Domain } from './Domain'
 
 describe('Domain', () => {
@@ -78,36 +76,5 @@ describe('Domain', () => {
             expect(v).toBe(expectedValues.shift())
             if (values.length === 3) setTimeout(done)
         })
-    })
-
-    it('allows creation of tagged Domains', async () => {
-        let tested = false
-        const subject = Domain.tagged`Root${'0'}fAllDevil`(new Observable(), { test() { tested = true } })
-        expect(subject.name).toBe('Root0fAllDevil')
-        await subject.test()
-        expect(tested).toBe(true)
-    })
-
-    it('allows creation of tagged Domains', async () => {
-        let tested = false
-        const subject = Domain.create('Root0fAllDevil', new Observable(), { test() { tested = true } })
-        expect(subject.name).toBe('Root0fAllDevil')
-        await subject.test()
-        expect(tested).toBe(true)
-    })
-
-    it('allows creation of tagged Domains with a stream', async () => {
-        let tested = false
-        const subjectStream = new Observable<any>()
-        const subject = Domain.create('Root0fAllDevil', subjectStream, { test() { tested = true } })
-        expect(subject.name).toBe('Root0fAllDevil')
-        await subject.test()
-        expect(tested).toBe(true)
-
-        expect(subject.hasRef()).toBe(false)
-        subject.subscribe(() => { })
-        subjectStream.next(1)
-        await flush()
-        expect(subject.deref()).toBe(1)
     })
 })

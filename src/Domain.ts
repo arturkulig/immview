@@ -6,7 +6,6 @@ import {
     ValueListener,
     ErrorListener,
     CompletionListener,
-
 } from './Types'
 import { Atom } from './Atom'
 import { DispatcherPriorities } from './DispatcherPriorities'
@@ -18,6 +17,8 @@ export interface Actions<T> {
 }
 
 export class Domain<T> implements OpStream<T> {
+    name: string
+
     constructor(
         protected $: OpStream<T>
     ) {
@@ -26,36 +27,9 @@ export class Domain<T> implements OpStream<T> {
         }
     }
 
-    public static tagged(parts: TemplateStringsArray, ...filling: string[]) {
-        const creator: typeof Domain.create = (...args) => {
-            const instance = Domain.create.apply(undefined, args)
-            instance.name = parts.reduce((result, item, i) => result + (i > 0 ? filling[i - 1] : '') + item)
-            return instance
-        }
-        return creator
-    }
-
-    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(name: string, stream: OpStream<DomainT>, actions: ActionsT, fields: FieldsT): Domain<DomainT> & ActionsT & FieldsT
-    public static create<DomainT, ActionsT extends Actions<DomainT>>(name: string, stream: OpStream<DomainT>, actions: ActionsT): Domain<DomainT> & ActionsT
-    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(stream: OpStream<DomainT>, actions: ActionsT, fields: FieldsT): Domain<DomainT> & ActionsT & FieldsT
-    public static create<DomainT, ActionsT extends Actions<DomainT>>(stream: OpStream<DomainT>, actions: ActionsT): Domain<DomainT> & ActionsT
-    public static create<T, U extends Actions<T>, V extends {}>(...args: any[]) {
-        let name: string
-        let $: OpStream<T>
-        let actions: U
-        let fields: V
-
-        if (typeof args[0] === 'string') {
-            name = args.shift()
-        }
-        if (typeof args[0] === 'object' && args[0] !== null && typeof args[0].subscribe === 'function') {
-            $ = args.shift()
-        }
-        actions = args.shift()
-        fields = args.shift()
-
-        const instance = (new Domain($) as Object)
-        instance['name'] = name !== undefined ? name : `${(instance as Domain<T>).$.name}\$!`
+    public static create<DomainT, ActionsT extends Actions<DomainT>, FieldsT extends {}>(stream: OpStream<DomainT>, actions: ActionsT, fields?: FieldsT): Domain<DomainT> & ActionsT & FieldsT {
+        const instance = (new Domain(stream) as Object)
+        instance['name'] = `${(instance as Domain<DomainT>).$.name}\$!`
 
         if (actions) {
             for (let actionsKey in actions) {
@@ -83,7 +57,7 @@ export class Domain<T> implements OpStream<T> {
             }
         }
 
-        return (instance as Domain<T> & U & V)
+        return (instance as Domain<DomainT> & ActionsT & FieldsT)
     }
 
     start(subscription: Subscription) { this.$.start(subscription) }
@@ -102,8 +76,6 @@ export class Domain<T> implements OpStream<T> {
     hasRef(): boolean { return this.$.hasRef() }
     throw(reason: Error): void { this.$.throw(reason) }
     destroy(): void { this.$.destroy() }
-
-    name: string
 
     toPromise(): Promise<T> { return this.$.toPromise() }
     map<U>(action: (value: T) => U): OpStream<U> { return this.$.map(action) }
