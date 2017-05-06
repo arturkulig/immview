@@ -38,7 +38,9 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
                 }
                 complete()
             })
-            latter$.name = `${values.toString() || `#${latter$.priority}`}$`
+            if (values.toString()) {
+                latter$.name = values.toString()
+            }
             return latter$
         }
 
@@ -126,7 +128,7 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
 
     buffer(maxLastValues?: number): Observable<T[]> {
         const latter$ = new Observable<T[]>()
-        ops.buffer(this, latter$, DispatcherPriorities.OBSERVABLE_BUFFER, maxLastValues)
+        ops.buffer(this, latter$, maxLastValues)
         return latter$
     }
 

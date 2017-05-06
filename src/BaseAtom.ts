@@ -30,7 +30,6 @@ const dispatchAtom = job => dispatch(job, DispatcherPriorities.ATOM)
 export class BaseAtom<T> extends Base<T> {
     constructor(initialValue: T) {
         super(dispatchAtom)
-        this.name = `${this.priority}\$`
         this.ref(initialValue)
     }
 

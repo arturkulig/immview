@@ -35,7 +35,9 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
                 val = result.value
             }
             const latter$ = new Atom<T>(val)
-            latter$.name = `${values.toString() || `#${latter$.priority}`}$`
+            if (values.toString()) {
+                latter$.name = values.toString()
+            }
             latter$.complete()
             return latter$
         }
@@ -85,7 +87,7 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
 
     buffer(maxLastValues?: number): Atom<T[]> {
         const latter$ = new Atom<T[]>([this.deref()])
-        ops.buffer(this, latter$, DispatcherPriorities.ATOM_BUFFER, maxLastValues)
+        ops.buffer(this, latter$, maxLastValues)
         return latter$
     }
 

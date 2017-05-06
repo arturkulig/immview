@@ -24,8 +24,6 @@ export class BaseObservable<T> extends Base<T> {
 
         if (subscriber && typeof subscriber.name === 'string' && subscriber.name.length > 0) {
             this.name = `${subscriber.name}\$`
-        } else {
-            this.name = `${this.priority}\$`
         }
 
         if (subscriber) {

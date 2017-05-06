@@ -18,14 +18,12 @@ export abstract class Base<T> implements Stream<T> {
     private lastValue: T
 
     closed: boolean
-    priority: number
     name: string
     observers: Observer<T>[]
 
     constructor(protected dispatch: (job: Function) => void) {
         this.closed = false
-        this.priority = ID()
-        this.name = `${this.priority}\$`
+        this.name = `${ID()}\$`
         this.observers = []
         this.lastValue = null
         this.awaitingMessages = []
@@ -127,11 +125,15 @@ export abstract class Base<T> implements Stream<T> {
         switch (messageType) {
             case MessageTypes.Next: {
                 const next = messageValue as NextStep<T>
-                this.ref(
-                    (typeof next === 'function')
-                        ? next(this.deref())
-                        : next
-                )
+                if (typeof next === 'function') {
+                    const endMeasurement = diagnose.isOn && diagnose.measure(`${this.name} next(${next.name || ''})`)
+                    const nextVal = next(this.deref())
+                    if (endMeasurement) endMeasurement()
+                    this.ref(nextVal)
+                } else {
+                    this.ref(next)
+                }
+
                 break
             }
             case MessageTypes.Error: {

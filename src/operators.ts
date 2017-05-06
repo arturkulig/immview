@@ -175,7 +175,6 @@ export function bufferCount<T>(
 
 export function buffer<T>(
     this: void, former$: Stream<T>, latter$: Stream<T[]>,
-    priority: DispatcherPriorities,
     maxLastValues: number = 0
 ) {
     let values: T[] = []
@@ -191,7 +190,7 @@ export function buffer<T>(
                         values.splice(0).reverse()
                     )
                 },
-                priority
+                DispatcherPriorities.BUFFER
             )
         },
         err => { latter$.error(err) },
