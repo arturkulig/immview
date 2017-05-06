@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0
+
+- feat: `Atom` class has beed added. It behaves very much like `Observable`, has a compatible interface, but it is for holding persistent state rather than just pushing messages that have temporary nature. It cannot be created without a state value and upon new subscription `Atom` pushes last state value to that subscriber.
+- feat: `Observables` release pending messages as soon as first subscription is created. Making sure all subscriptions meant to be created are already created is up to developer. Usually `Promise.resolve().then(/* here */)` should be sufficient.
+- feat: `Combine` extends `Atom` class now instead of `Observable`. `Observable`s can be still connected to a `Combine` instance.
+
 ## 2.2
 
 - feat: `Observable.fromPromise`
