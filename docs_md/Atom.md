@@ -1,10 +1,8 @@
 # class `Atom<T>`
 
-`(subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)`
+`new (initialState: T)`
 
-Construct with `subscriber` function that receives `observer` object. `Observer` is for pushing values, errors and completion signal.
-
-`Subscriber` function may return function that should be called if `Atom` receives `complete` signal or is cancelled.
+Instantiate an `Atom` with it's default state.
 
 ---
 ## static *of*

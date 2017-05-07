@@ -1,21 +1,61 @@
-# class Domain`<T>` extends [Observable](./Observable)`<T>`
-`( source: Observable<T> )`
+# class Domain`<T>`
+`new ( source: Observable<T> )`
 
 Class constructor alone will be only helpful when extending `Domain` class.
 
+You can create a `Domain` either through class inheritance or with factory function `Domain.create`.
+
+`Domain` have operator functions on prototype
+that are present both in `Observable` and `Atom`
+and calling them will actually call operators on stream object
+that the `Domain` has been provided with.
+
 ---
-## Domain.create
-`( name?: string, source?: observable<T>, actions: { [name: string]: () => promise&lt;any&gt; | void }, fields?: {}) => Domain`
+## new Domain through inheritance
+```javascript
+import {Combine, Domain, action} from 'immview'
+import {HorizonDomain} from './HorizonDomain'
+import {MusclesDomain} from './MusclesDomain'
+
+const EyesDomain = (() => {
+	class EyesDomain extends Domain {
+		constructor() {
+			super(
+				new Combine({
+					horizon: HorizonDomain,
+					muscles: MusclesDomain,
+				})
+			)
+		}
+
+		@action
+		async roll() {
+			MusclesDomain.doMuscleStuff()
+		}
+	}
+	return new EyesDomain()
+})()
+```
+
+---
+## Domain.create`<T>`
+`(source: Observable<T> | Atom<T>, actions: { [name: string]: () => promise&lt;any&gt; | void }, fields?: {}) => Domain`
 
 `Domain` class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of `Domain`s scope.
-For example: if you have a folder like:
+
+For example, if you have a folder like...
 ```
 └ SomeDomain
-  ├ index.js // here is Domain creation
+  ├ index.js // just export
+  ├ SomeDomain.js // here is Domain creation
   ├ SomeDomainState.js // downstream - source observables or stream transformations
   └ SomeDomainActions.js // functions to manipulate `Domain`'s state
 ```
-you should export SomeDomain from index.js and use only that in any other file.
+...or just...
+```
+└ SomeDomain.js // everything
+```
+...you should export SomeDomain from index.js and use only that in any other JavaScript module.
 
 First argument of the factory function is an observable emiting messages that will be emited by the `Domain`'s instance too.
 Only single data source can be tied to a **Domain**, but you can always use `Combine` to combine multiple streams.
@@ -33,37 +73,18 @@ import {MusclesDomain} from './MusclesDomain'
 
 const EyesDomain = Domain.create(
 	new Combine({
-		HorizonDomain,
-		MusclesDomain,
+		horizon: HorizonDomain,
+		muscles: MusclesDomain,
 	}),
 	{
-		roll() {
+		async roll() {
 			MusclesDomain.doMuscleStuff()
 		}
-	},
-	{
-		EXTRAOCULAR_MUSCLES: 6
 	}
 )
 
 EyesDomain.roll().then(() => { console.log('I saw that!') })
-EyesDomain.EXTRAOCULAR_MUSCLES // 6
 ```
-
----
-## Domain.tagged
-`name` => `( source: observable<T> , actions: { [name: string]: () => promise&lt;any&gt; | void }, fields: {}) => Domain`
-
-Basically the same as `Domain.create`,
-but it returns a function that receives same arguments as `Domain.create`,
-that creates `Domain` using name provided with tagged template string literal.
-
-Helpful for debugging purposes.
-
-```javascript
-import {Domain} from 'immview'
-Domain.tagged`Yolo`(new Observable(observer => { observer.next('once')}), {})
-````
 
 ---
 ## *DomainInstance*.[ACTION_NAME]

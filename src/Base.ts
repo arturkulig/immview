@@ -111,9 +111,9 @@ export abstract class Base<T> implements Stream<T> {
         const __this = this
         return {
             unsubscribe() {
-                __this.observers = __this.observers.filter(
-                    registeredObserver => registeredObserver !== observer
-                )
+                let pos
+                if ((pos = __this.observers.indexOf(observer)) < 0) return
+                __this.observers.splice(pos, 1)
             },
             get closed() { return __this.observers.indexOf(observer) === -1 }
         }

@@ -1,6 +1,6 @@
 # class `Observable<T>`
 
-`(subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)`
+`new (subscriber: (observer: {next: (value: T) => void, error: (err: Error) => void, complete: () => void}) => void | () => void)`
 
 Construct with `subscriber` function that receives `observer` object. `Observer` is for pushing values, errors and completion signal.
 

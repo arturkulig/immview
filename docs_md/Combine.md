@@ -1,5 +1,5 @@
-# class Combine`<T>` extends [Observable](./Observable)`<T>`
-`( { [name: string]: Observable } ): Observable`
+# class Combine`<T>` extends [Atom](./Atom)`<T>`
+`new ({ [name: string]: Observable|Atom|Domain })`
 
 Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.
 

@@ -4,12 +4,14 @@ In order to create a complete **Domain** we have to create state stream and acti
 
 ## State
 
-Let's create *To do* domain. It should have it's state and best way to stream it is with expectable structure. We will stream `Array<{label: string, done: boolean}>` then.
+Let's create *To do* domain. There should be no misunderstanding about what it should do.
+
+The `Domain` should have a state, so I'll express that with `Atom` that encapsulate `Array<{label: string, done: boolean}>` structure.
 
 ```javascript
-import { Observable, Domain } from 'immview'
+import { Atom, Domain } from 'immview'
 
-const ToDoDomainStream = new Observable().startWith([])
+const ToDo$ = new Atom([])
 ```
 
 That'll create a state stream. We will use it later.
@@ -19,9 +21,9 @@ That'll create a state stream. We will use it later.
 Actions for a **Domain** are simply functions. They can be aware of all what is within the **Domain**. In this example, reasonable would be to create `add`, `check` and `remove` actions.
 
 ```javascript
-const ToDoDomainActions = {
+const ToDoActions = {
   add(label) {
-    ToDoDomainStream.next(
+    ToDo$.next(
       todos => [
         { label, done: false },
         ...todos
@@ -30,7 +32,7 @@ const ToDoDomainActions = {
   },
 
   check(index) {
-    ToDoDomainStream.next(
+    ToDo$.next(
       todos => todos.map(
           (todo, i) => (
               i === index
@@ -42,7 +44,7 @@ const ToDoDomainActions = {
   },
 
   remove(index) {
-    ToDoDomainStream.next(
+    ToDo$.next(
       todos => todos.filter((_, i) => i !== index)
     )
   }
@@ -55,8 +57,8 @@ Finally, we are ready to actually create a **Domain** instance, as all parts nec
 
 ```javascript
 const ToDoDomain = Domain.create(
-  ToDoDomainStream,
-  ToDoDomainActions
+  ToDo$,
+  ToDoActions
 )
 ```
 
@@ -72,8 +74,5 @@ ToDoDomain.add('Eat a pizza')
 ToDoDomain.check(0)
 // console: [{ label: "Eat a pizza", done: true }]
 ```
-
-> Please, be aware that all action calls and writes to **Observable** instances are going to be dispatched to a execution queue that will run them in call order one after another with prioritization of **Observable** values pushing.
-> This won't be even noticable in this example as calls in it are not nested in a way that would reveal it.
 
 Domain is now ready to be used to connect it a react component using [immview-react-connect](https://github.com/arturkulig/immview-react-connect).
