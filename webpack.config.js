@@ -1,7 +1,8 @@
-var path = require('path')
-var webpack = require('webpack')
+const path = require('path')
+const webpack = require('webpack')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-var config = {
+const config = {
     entry: path.resolve(__dirname, 'src/index.ts'),
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -10,13 +11,15 @@ var config = {
         libraryTarget: 'umd',
     },
     resolve: {
-        extensions: ['.ts', '.js', '']
+        extensions: ['.tsx', '.ts', '.js']
     },
     module: {
-        loaders: [
+        rules: [
             {
-                test: /\.ts$/,
-                loader: 'ts-loader'
+                test: /\.tsx?$/,
+                use: {
+                    loader: 'awesome-typescript-loader'
+                }
             },
         ],
     },
@@ -31,15 +34,13 @@ var config = {
 }
 
 if (process.env.NODE_ENV === 'production') {
-    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-        compressor: {
-            pure_getters: true,
-            unsafe: true,
-            unsafe_comps: true,
-            screw_ie8: true,
-            warnings: false
-        }
+    config.plugins.push(new UglifyJSPlugin({
+        mangle: false,
+        comments: false,
+        sourceMap: true,
+        compress: true
     }))
 }
+
 
 module.exports = config

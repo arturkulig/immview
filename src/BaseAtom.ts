@@ -23,8 +23,6 @@ import {
     normalizeToObserver,
 } from './Base'
 
-const noop = () => { }
-
 const dispatchAtom = job => dispatch(job, DispatcherPriorities.ATOM)
 
 export class BaseAtom<T> extends Base<T> {

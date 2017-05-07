@@ -4,7 +4,6 @@ import {
 import { diagnose } from './Diagnose'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
-function noop() { }
 
 export function toPromise<T>(this: void, former$: Stream<T>): Promise<T> {
     return new Promise((resolve, reject) => {
