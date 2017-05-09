@@ -272,12 +272,12 @@
         }, 
         {
             "location": "/Combine/", 
-            "text": "class Combine\nT\n extends \nAtom\nT\n\n\nnew ({ [name: string]: Observable|Atom|Domain })\n\n\nResponsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.\n\n\nconst join = new Combine({\n    a: new Observable(observer =\n { observer.next('a') }),\n    b: new Observable(observer =\n { observer.next('b') })\n})\njoin.subscribe(v =\n {\n    console.log(v) // {a: 'a', b: 'b'}\n})", 
+            "text": "class Combine\nT\n extends \nAtom\nT\n\n\nnew ({ [name: string]: Observable|Atom|Domain })\n\n\nResponsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.\n\n\nnew Combine({\n    a: new Atom('a'),\n    b: new Atom('b'),\n    c: new Observable(observer =\n { observer.next('c') })\n})\n    .subscribe(v =\n {\n        console.log(v)\n            // { a: 'a', b: 'b', c: null }\n            // { a: 'a', b: 'b', c: 'c' }\n    })", 
             "title": "Combine"
         }, 
         {
             "location": "/Combine/#class-combinet-extends-atomt", 
-            "text": "new ({ [name: string]: Observable|Atom|Domain })  Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.  const join = new Combine({\n    a: new Observable(observer =  { observer.next('a') }),\n    b: new Observable(observer =  { observer.next('b') })\n})\njoin.subscribe(v =  {\n    console.log(v) // {a: 'a', b: 'b'}\n})", 
+            "text": "new ({ [name: string]: Observable|Atom|Domain })  Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.  new Combine({\n    a: new Atom('a'),\n    b: new Atom('b'),\n    c: new Observable(observer =  { observer.next('c') })\n})\n    .subscribe(v =  {\n        console.log(v)\n            // { a: 'a', b: 'b', c: null }\n            // { a: 'a', b: 'b', c: 'c' }\n    })", 
             "title": "class Combine&lt;T&gt; extends Atom&lt;T&gt;"
         }, 
         {

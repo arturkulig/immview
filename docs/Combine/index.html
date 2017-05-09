@@ -233,13 +233,16 @@
                 <h1 id="class-combinet-extends-atomt">class Combine<code>&lt;T&gt;</code> extends <a href="../Atom">Atom</a><code>&lt;T&gt;</code></h1>
 <p><code>new ({ [name: string]: Observable|Atom|Domain })</code></p>
 <p>Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.</p>
-<pre><code class="javascript">const join = new Combine({
-    a: new Observable(observer =&gt; { observer.next('a') }),
-    b: new Observable(observer =&gt; { observer.next('b') })
+<pre><code class="javascript">new Combine({
+    a: new Atom('a'),
+    b: new Atom('b'),
+    c: new Observable(observer =&gt; { observer.next('c') })
 })
-join.subscribe(v =&gt; {
-    console.log(v) // {a: 'a', b: 'b'}
-})
+    .subscribe(v =&gt; {
+        console.log(v)
+            // { a: 'a', b: 'b', c: null }
+            // { a: 'a', b: 'b', c: 'c' }
+    })
 </code></pre>
               
             </article>
