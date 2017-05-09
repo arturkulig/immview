@@ -159,6 +159,17 @@
       
   <li class="md-nav__item">
     
+      <a href="../AtomObservableDiff/" title="Atom or Observable?" class="md-nav__link">
+        Atom or Observable?
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
       <a href="../Combine/" title="Combine" class="md-nav__link">
         Combine
       </a>
@@ -194,15 +205,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#domaincreate" title="Domain.create" class="md-nav__link">
-    Domain.create
+  <a href="#new-domain-through-inheritance" title="new Domain through inheritance" class="md-nav__link">
+    new Domain through inheritance
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#domaintagged" title="Domain.tagged" class="md-nav__link">
-    Domain.tagged
+  <a href="#domaincreatet" title="Domain.create&lt;T&gt;" class="md-nav__link">
+    Domain.create&lt;T&gt;
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#domaininstanceaction_name" title="DomainInstance.[ACTION_NAME]" class="md-nav__link">
+    DomainInstance.[ACTION_NAME]
   </a>
   
 </li>
@@ -235,15 +253,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#domaincreate" title="Domain.create" class="md-nav__link">
-    Domain.create
+  <a href="#new-domain-through-inheritance" title="new Domain through inheritance" class="md-nav__link">
+    new Domain through inheritance
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#domaintagged" title="Domain.tagged" class="md-nav__link">
-    Domain.tagged
+  <a href="#domaincreatet" title="Domain.create&lt;T&gt;" class="md-nav__link">
+    Domain.create&lt;T&gt;
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#domaininstanceaction_name" title="DomainInstance.[ACTION_NAME]" class="md-nav__link">
+    DomainInstance.[ACTION_NAME]
   </a>
   
 </li>
@@ -261,21 +286,57 @@
                
               
                 
-                <h1 id="class-domaint-extends-observablet">class Domain<code>&lt;T&gt;</code> extends <a href="../Observable">Observable</a><code>&lt;T&gt;</code></h1>
-<p><code>( source: Observable&lt;T&gt; )</code></p>
+                <h1 id="class-domaint">class Domain<code>&lt;T&gt;</code></h1>
+<p><code>new ( source: Observable&lt;T&gt; )</code></p>
 <p>Class constructor alone will be only helpful when extending <code>Domain</code> class.</p>
+<p>You can create a <code>Domain</code> either through class inheritance or with factory function <code>Domain.create</code>.</p>
+<p><code>Domain</code> have operator functions on prototype
+that are present both in <code>Observable</code> and <code>Atom</code>
+and calling them will actually call operators on stream object
+that the <code>Domain</code> has been provided with.</p>
 <hr />
-<h2 id="domaincreate">Domain.create</h2>
-<p><code>( name?: string, source?: observable&lt;T&gt;, actions: { [name: string]: () =&gt; promise&amp;lt;any&amp;gt; | void }, fields?: {}) =&gt; Domain</code></p>
-<p><code>Domain</code> class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of <code>Domain</code>s scope.
-For example: if you have a folder like:</p>
+<h2 id="new-domain-through-inheritance">new Domain through inheritance</h2>
+<pre><code class="javascript">import {Combine, Domain, action} from 'immview'
+import {HorizonDomain} from './HorizonDomain'
+import {MusclesDomain} from './MusclesDomain'
+
+const EyesDomain = (() =&gt; {
+    class EyesDomain extends Domain {
+        constructor() {
+            super(
+                new Combine({
+                    horizon: HorizonDomain,
+                    muscles: MusclesDomain,
+                })
+            )
+        }
+
+        @action
+        async roll() {
+            MusclesDomain.doMuscleStuff()
+        }
+    }
+    return new EyesDomain()
+})()
+</code></pre>
+
+<hr />
+<h2 id="domaincreatet">Domain.create<code>&lt;T&gt;</code></h2>
+<p><code>(source: Observable&lt;T&gt; | Atom&lt;T&gt;, actions: { [name: string]: () =&gt; promise&amp;lt;any&amp;gt; | void }, fields?: {}) =&gt; Domain</code></p>
+<p><code>Domain</code> class by design is the only thing that should be exported and used (maybe with an exception of type definitions) outside of <code>Domain</code>s scope.</p>
+<p>For example, if you have a folder like...</p>
 <pre><code>└ SomeDomain
-  ├ index.js // here is Domain creation
+  ├ index.js // just export
+  ├ SomeDomain.js // here is Domain creation
   ├ SomeDomainState.js // downstream - source observables or stream transformations
   └ SomeDomainActions.js // functions to manipulate `Domain`'s state
 </code></pre>
 
-<p>you should export SomeDomain from index.js and use only that in any other file.</p>
+<p>...or just...</p>
+<pre><code>└ SomeDomain.js // everything
+</code></pre>
+
+<p>...you should export SomeDomain from index.js and use only that in any other JavaScript module.</p>
 <p>First argument of the factory function is an observable emiting messages that will be emited by the <code>Domain</code>'s instance too.
 Only single data source can be tied to a <strong>Domain</strong>, but you can always use <code>Combine</code> to combine multiple streams.</p>
 <p>Second argument is an object aggregating functions used to create actions and other values that will be exposed as part of the <strong>Domain</strong> interface.
@@ -289,44 +350,26 @@ import {MusclesDomain} from './MusclesDomain'
 
 const EyesDomain = Domain.create(
     new Combine({
-        HorizonDomain,
-        MusclesDomain,
+        horizon: HorizonDomain,
+        muscles: MusclesDomain,
     }),
     {
-        roll() {
+        async roll() {
             MusclesDomain.doMuscleStuff()
         }
-    },
-    {
-        EXTRAOCULAR_MUSCLES: 6
     }
 )
 
 EyesDomain.roll().then(() =&gt; { console.log('I saw that!') })
-EyesDomain.EXTRAOCULAR_MUSCLES // 6
 </code></pre>
 
 <hr />
-<h2 id="domaintagged">Domain.tagged</h2>
-<p><code>name</code> =&gt; <code>( source: observable&lt;T&gt; , actions: { [name: string]: () =&gt; promise&amp;lt;any&amp;gt; | void }, fields: {}) =&gt; Domain</code></p>
-<p>Basically the same as <code>Domain.create</code>,
-but it returns a function that receives same arguments as <code>Domain.create</code>,
-that creates <code>Domain</code> using name provided with tagged template string literal.</p>
-<p>Helpful for debugging purposes.</p>
-<pre><code class="javascript">import {Domain} from 'immview'
-Domain.tagged`Yolo`(new Observable(observer =&gt; { observer.next('once')}), {})
-````
-
----
-## *DomainInstance*.[ACTION_NAME]
-`(...args): Promise`
-
-A function that was in a provided in constructor set of actions.
-It is **not** exactly the same function as provided, because it is wrapped with internal scheduler call.
-Because it's deferred execution **it always returns a Promise** resolved with that function result.
-
-```javascript
-const domain = Domain.create(
+<h2 id="domaininstanceaction_name"><em>DomainInstance</em>.[ACTION_NAME]</h2>
+<p><code>(...args): Promise</code></p>
+<p>A function that was in a provided in constructor set of actions.
+It is <strong>not</strong> exactly the same function as provided, because it is wrapped with internal scheduler call.
+Because it's deferred execution <strong>it always returns a Promise</strong> resolved with that function result.</p>
+<pre><code class="javascript">const domain = Domain.create(
     new Observable(observer =&gt; { ... }),
     { foo: () =&gt; console.log('bar') }
 )

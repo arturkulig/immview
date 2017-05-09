@@ -203,6 +203,17 @@
       
   <li class="md-nav__item">
     
+      <a href="../AtomObservableDiff/" title="Atom or Observable?" class="md-nav__link">
+        Atom or Observable?
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
       <a href="../Combine/" title="Combine" class="md-nav__link">
         Combine
       </a>
@@ -276,7 +287,7 @@
               
                 
                 <h1 id="class-observablet">class <code>Observable&lt;T&gt;</code></h1>
-<p><code>(subscriber: (observer: {next: (value: T) =&gt; void, error: (err: Error) =&gt; void, complete: () =&gt; void}) =&gt; void | () =&gt; void)</code></p>
+<p><code>new (subscriber: (observer: {next: (value: T) =&gt; void, error: (err: Error) =&gt; void, complete: () =&gt; void}) =&gt; void | () =&gt; void)</code></p>
 <p>Construct with <code>subscriber</code> function that receives <code>observer</code> object. <code>Observer</code> is for pushing values, errors and completion signal.</p>
 <p><code>Subscriber</code> function may return function that should be called if <code>Observable</code> receives <code>complete</code> signal or is cancelled.</p>
 <hr />

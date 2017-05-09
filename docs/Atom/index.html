@@ -196,6 +196,17 @@
       
   <li class="md-nav__item">
     
+      <a href="../AtomObservableDiff/" title="Atom or Observable?" class="md-nav__link">
+        Atom or Observable?
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
       <a href="../Combine/" title="Combine" class="md-nav__link">
         Combine
       </a>
@@ -262,9 +273,8 @@
               
                 
                 <h1 id="class-atomt">class <code>Atom&lt;T&gt;</code></h1>
-<p><code>(subscriber: (observer: {next: (value: T) =&gt; void, error: (err: Error) =&gt; void, complete: () =&gt; void}) =&gt; void | () =&gt; void)</code></p>
-<p>Construct with <code>subscriber</code> function that receives <code>observer</code> object. <code>Observer</code> is for pushing values, errors and completion signal.</p>
-<p><code>Subscriber</code> function may return function that should be called if <code>Atom</code> receives <code>complete</code> signal or is cancelled.</p>
+<p><code>new (initialState: T)</code></p>
+<p>Instantiate an <code>Atom</code> with it's default state.</p>
 <hr />
 <h2 id="static-of">static <em>of</em></h2>
 <p><code>(...args: T[]): Atom&lt;T&gt;;</code></p>
@@ -390,13 +400,13 @@ You can specify how many of there messages has to be remembered.</p>
           </a>
         
         
-          <a href="../Combine/" title="Combine" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../AtomObservableDiff/" title="Atom or Observable?" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Combine
+                Atom or Observable?
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

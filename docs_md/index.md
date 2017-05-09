@@ -19,11 +19,11 @@ functions that exist on these classes prototypes.
 ```javascript
 import { Atom, Domain } from 'immview'
 
-const ToDo$ = new Atom([])
+const toDoList$ = new Atom([])
 
-const ToDoActions = {
+const toDoActions = {
   add(label) {
-    ToDo$.next(
+    toDoList$.next(
       todos => [
         { label, done: false },
         ...todos
@@ -32,7 +32,7 @@ const ToDoActions = {
   },
 
   check(index) {
-    ToDo$.next(
+    toDoList$.next(
       todos => todos.map(
           (todo, i) => (
               i === index
@@ -44,23 +44,31 @@ const ToDoActions = {
   },
 
   remove(index) {
-    ToDo$.next(
+    toDoList$.next(
       todos => todos.filter((_, i) => i !== index)
     )
   }
 }
 
-const ToDoDomain = Domain.create(
-  ToDo$,
-  ToDoActions
+const ToDo$ = Domain.create(
+  toDoList$,
+  toDoActions
 )
 
-ToDoDomain.subscribe(v => console.log(v))
+ToDo$.subscribe(v => console.log(JSON.stringify(v)))
 // console: []
 
-ToDoDomain.add('Eat a pizza')
-// console: [{ label: "Eat a pizza" }]
+ToDo$.add('Eat a pizza')
+// console: [{ label: "Eat a pizza", done: false }]
 
-ToDoDomain.check(0)
+ToDo$.check(0)
 // console: [{ label: "Eat a pizza", done: true }]
 ```
+
+## Demo
+
+> see above live on https://runkit.com/arturkulig/immview-todo-example
+
+## React
+
+If you are using React to create presentation layer of your app you should check [immview-react-connect](https://github.com/arturkulig/immview-react-connect)

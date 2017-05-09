@@ -129,6 +129,10 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
     
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Immview
+      </label>
+    
     <a href="." title="Immview" class="md-nav__link md-nav__link--active">
       Immview
     </a>
@@ -137,6 +141,32 @@
 <nav class="md-nav md-nav--secondary">
   
   
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#example" title="Example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo" title="Demo" class="md-nav__link">
+    Demo
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#react" title="React" class="md-nav__link">
+    React
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
     
@@ -160,6 +190,17 @@
     
       <a href="Atom/" title="Atom" class="md-nav__link">
         Atom
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="AtomObservableDiff/" title="Atom or Observable?" class="md-nav__link">
+        Atom or Observable?
       </a>
     
   </li>
@@ -202,6 +243,32 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#example" title="Example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#demo" title="Demo" class="md-nav__link">
+    Demo
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#react" title="React" class="md-nav__link">
+    React
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -216,17 +283,74 @@
                   <h1>Immview</h1>
                 
                 <p><strong>Immview</strong> is a library to create <code>Domain</code>s - <em>non-visual components</em> -
-similar to flux stores, exposing their <strong>state</strong> or emitting <strong>signals</strong>
-through <code>Observable</code>s pushing values and having specific to their concerns <strong>actions</strong>.
+similar to flux stores, exposing their <strong>state</strong> (through <code>Atom</code>s) or emitting <strong>signals</strong>
+(through <code>Observable</code>s) and having specific to their concerns <strong>actions</strong>.
 Their primary role is to encapsulate a concern
 and to be the only thing exported from a javascript module or modules
 that deal with the concern.</p>
-<p>It completely replaces any flux implementation or Redux.</p>
+<p>It completely replaces any flux implementation or Redux, although surely could be integrated with one easily.</p>
 <p>All <code>Domain</code>s must be provided with a single stream of values
-(so either <code>Origin</code> or any other transformed <code>Observable</code>),
-but not all <code>Observable</code>s must be attached to a <code>Domain</code> -
+(<code>Atom</code> or <code>Observable</code> class instance),
+but not all <code>Observable</code>s and <code>Atom</code>s must be attached to a <code>Domain</code> -
 you can perform many transformations on a source
-before it is exposed through a <code>Domain</code>.</p>
+before it is exposed through a <code>Domain</code>.
+These transformations are done with operators -
+functions that exist on these classes prototypes.</p>
+<h2 id="example">Example</h2>
+<pre><code class="javascript">import { Atom, Domain } from 'immview'
+
+const toDoList$ = new Atom([])
+
+const toDoActions = {
+  add(label) {
+    toDoList$.next(
+      todos =&gt; [
+        { label, done: false },
+        ...todos
+      ]
+    )
+  },
+
+  check(index) {
+    toDoList$.next(
+      todos =&gt; todos.map(
+          (todo, i) =&gt; (
+              i === index
+                ? { label: todo.label, done: true }
+                : todo
+          )
+      )
+    )
+  },
+
+  remove(index) {
+    toDoList$.next(
+      todos =&gt; todos.filter((_, i) =&gt; i !== index)
+    )
+  }
+}
+
+const ToDo$ = Domain.create(
+  toDoList$,
+  toDoActions
+)
+
+ToDo$.subscribe(v =&gt; console.log(JSON.stringify(v)))
+// console: []
+
+ToDo$.add('Eat a pizza')
+// console: [{ label: &quot;Eat a pizza&quot;, done: false }]
+
+ToDo$.check(0)
+// console: [{ label: &quot;Eat a pizza&quot;, done: true }]
+</code></pre>
+
+<h2 id="demo">Demo</h2>
+<blockquote>
+<p>see above live on https://runkit.com/arturkulig/immview-todo-example</p>
+</blockquote>
+<h2 id="react">React</h2>
+<p>If you are using React to create presentation layer of your app you should check <a href="https://github.com/arturkulig/immview-react-connect">immview-react-connect</a></p>
               
             </article>
           </div>

@@ -11,7 +11,7 @@ The `Domain` should have a state, so I'll express that with `Atom` that encapsul
 ```javascript
 import { Atom, Domain } from 'immview'
 
-const ToDo$ = new Atom([])
+const toDoList$ = new Atom([])
 ```
 
 That'll create a state stream. We will use it later.
@@ -21,9 +21,9 @@ That'll create a state stream. We will use it later.
 Actions for a **Domain** are simply functions. They can be aware of all what is within the **Domain**. In this example, reasonable would be to create `add`, `check` and `remove` actions.
 
 ```javascript
-const ToDoActions = {
+const toDoActions = {
   add(label) {
-    ToDo$.next(
+    toDoList$.next(
       todos => [
         { label, done: false },
         ...todos
@@ -32,7 +32,7 @@ const ToDoActions = {
   },
 
   check(index) {
-    ToDo$.next(
+    toDoList$.next(
       todos => todos.map(
           (todo, i) => (
               i === index
@@ -44,7 +44,7 @@ const ToDoActions = {
   },
 
   remove(index) {
-    ToDo$.next(
+    toDoList$.next(
       todos => todos.filter((_, i) => i !== index)
     )
   }
@@ -56,22 +56,22 @@ const ToDoActions = {
 Finally, we are ready to actually create a **Domain** instance, as all parts necessary to do that are in place.
 
 ```javascript
-const ToDoDomain = Domain.create(
-  ToDo$,
-  ToDoActions
+const ToDo$ = Domain.create(
+  toDoList$,
+  toDoActions
 )
 ```
 
 That's really all! You can now call an actions on that **Domain** like:
 
 ```javascript
-ToDoDomain.subscribe(v => console.log(v))
+ToDo$.subscribe(v => console.log(JSON.stringify(v)))
 // console: []
 
-ToDoDomain.add('Eat a pizza')
-// console: [{ label: "Eat a pizza" }]
+ToDo$.add('Eat a pizza')
+// console: [{ label: "Eat a pizza", done: false }]
 
-ToDoDomain.check(0)
+ToDo$.check(0)
 // console: [{ label: "Eat a pizza", done: true }]
 ```
 

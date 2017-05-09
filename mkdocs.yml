@@ -3,6 +3,7 @@ pages:
     - Immview: index.md
     - Observable: Observable.md
     - Atom: Atom.md
+    - Atom or Observable?: AtomObservableDiff.md
     - Combine: Combine.md
     - Domain: Domain.md
 theme: 'material'

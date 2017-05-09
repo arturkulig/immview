@@ -15,7 +15,7 @@
     
     
       
-        <title>Combine - Documentation</title>
+        <title>Atom or Observable? - Documentation</title>
       
     
     
@@ -71,7 +71,7 @@
             
               
             
-            Combine
+            Atom or Observable?
           
         </span>
       </div>
@@ -159,24 +159,17 @@
       
   <li class="md-nav__item">
     
-      <a href="../AtomObservableDiff/" title="Atom or Observable?" class="md-nav__link">
-        Atom or Observable?
-      </a>
-    
-  </li>
-
-    
-      
-      
-  <li class="md-nav__item">
-    
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
       
     
     
-    <a href="./" title="Combine" class="md-nav__link md-nav__link--active">
-      Combine
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Atom or Observable?
+      </label>
+    
+    <a href="./" title="Atom or Observable?" class="md-nav__link md-nav__link--active">
+      Atom or Observable?
     </a>
     
       
@@ -186,7 +179,30 @@
     
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-use-which" title="Where to use which?" class="md-nav__link">
+    Where to use which?
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../Combine/" title="Combine" class="md-nav__link">
+        Combine
+      </a>
     
   </li>
 
@@ -219,6 +235,18 @@
     
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-use-which" title="Where to use which?" class="md-nav__link">
+    Where to use which?
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -230,17 +258,51 @@
                
               
                 
-                <h1 id="class-combinet-extends-atomt">class Combine<code>&lt;T&gt;</code> extends <a href="../Atom">Atom</a><code>&lt;T&gt;</code></h1>
-<p><code>new ({ [name: string]: Observable|Atom|Domain })</code></p>
-<p>Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.</p>
-<pre><code class="javascript">const join = new Combine({
-    a: new Observable(observer =&gt; { observer.next('a') }),
-    b: new Observable(observer =&gt; { observer.next('b') })
-})
-join.subscribe(v =&gt; {
-    console.log(v) // {a: 'a', b: 'b'}
-})
+                <h1 id="whats-the-difference-between-atom-and-observable-classes">What's the difference between <code>Atom</code> and <code>Observable</code> classes?</h1>
+<p>Both <code>Atom</code> and <code>Observable</code> look very similar at first glance,
+but they really have very different purpose.</p>
+<p><code>Atom</code> is encapsulated observable state value.</p>
+<p><code>Observable</code> is encapsulated stream of messages, 
+that is: values that are relevant only at time of their publishing.</p>
+<p>Let's have this as an example:</p>
+<pre><code class="javascript">import {Atom, Observable} from &quot;immview&quot;
+
+const a$ = new Atom('-')
+a$.next('first')
+a$.next('second')
+a$.subscribe(v =&gt; console.log(`A  ${v}`))
+    // logs: A  second
+a$.subscribe(v =&gt; console.log(`A2 ${v}`))
+    // logs: A2 second
+a$.next('third')
+    // logs: A  third
+    // logs: A2 third
+
+const o$ = new Observable(({next}) =&gt; {next('-')})
+o$.next('first')
+o$.next('second')
+o$.subscribe(v =&gt; console.log(`O  ${v}`))
+    // logs: O  -
+    // logs: O  first
+    // logs: O  second
+o$.subscribe(v =&gt; console.log(`O2 ${v}`))
+o$.next('third')
+    // logs: O  third
+    // logs: O2 third
+
+log.join('\n')
 </code></pre>
+
+<blockquote>
+<p>see that running live on https://runkit.com/arturkulig/immview-atom-observable-difference</p>
+</blockquote>
+<p>As you can see first few values pushed through the <code>a$ (Atom)</code> <strong>are lost</strong>.
+This is because these previous values are not that <code>Atom</code>'s state anymore. It will allow reading it's value to every subscriber and will notify these subscribers if state changes, but it is not a message queue, so previous states are not relevant.</p>
+<p><code>Observable</code> on the other hand is just <strong>a message queue</strong>. No message is lost and all queued messages are dispatched to subscribers as soon as possible. You can make sure that all subscriptions are created by the time first value is pushed, so all of them are notified of all messages, but that is up to a library user, it might not be important after all.</p>
+<h2 id="where-to-use-which">Where to use which?</h2>
+<p>Different nature of both of these streaming primitives may be still unclear? More real-life example might be of use.</p>
+<p>Consider connectivity through HTTP tooling prepared with <code>Immview</code>. In case you want to broadcast structures that inform about fetching status of different resources you'd use an <code>Observable</code>, but if you wish to maintain a registry of requesting and finally - content of  every requested remote resource - you'd prefer an <code>Atom</code> for the job.</p>
+<p>You might as well have both! First an <code>Observable</code> that just broadcasts requests status and then an <code>Atom</code> (might be even in different <code>Domain</code>) that reduces these messages to a single structure that contains information about all resources.</p>
               
             </article>
           </div>
@@ -253,7 +315,7 @@ join.subscribe(v =&gt; {
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../AtomObservableDiff/" title="Atom or Observable?" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../Atom/" title="Atom" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -262,19 +324,19 @@ join.subscribe(v =&gt; {
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Atom or Observable?
+                Atom
               </span>
             </div>
           </a>
         
         
-          <a href="../Domain/" title="Domain" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../Combine/" title="Combine" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Domain
+                Combine
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
