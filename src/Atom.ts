@@ -1,8 +1,9 @@
-import { BaseAtom } from './BaseAtom'
 import {
     OpStream,
     Stream,
 } from './Types'
+import { BaseAtom } from './BaseAtom'
+import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
@@ -91,8 +92,14 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
         return latter$
     }
 
-    materialize() {
-        return this
+    materialize(initialState?: T) {
+        return this as Atom<T>
+    }
+
+    vaporize() {
+        const latter$ = new Observable<T>()
+        this.subscribe(latter$)
+        return latter$
     }
 }
 

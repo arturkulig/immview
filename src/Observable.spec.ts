@@ -391,4 +391,19 @@ describe('Observable', () => {
         const c = b.reemit()
         expect(await c.toPromise()).toBe(1)
     })
+
+    it('::materialize', () => {
+        const former$ = new Observable()
+        const latter$ = former$.materialize(0)
+        expect(latter$.deref()).toBe(0)
+        former$.next(1)
+        expect(latter$.deref()).toBe(1)
+    })
+
+    it('::vaporize', async () => {
+        const former$ = new Observable()
+        const latter$ = former$.vaporize()
+        former$.next(1)
+        expect(await latter$.toPromise()).toBe(1)
+    })
 })

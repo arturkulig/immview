@@ -1,7 +1,7 @@
-import { BaseObservable } from './BaseObservable'
 import {
     OpStream
 } from './Types'
+import { BaseObservable } from './BaseObservable'
 import { Atom } from './Atom'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
@@ -137,6 +137,10 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
         this.subscribe(latter$)
         latter$.name = `${this.name} ⚛️`
         return latter$
+    }
+
+    vaporize() {
+        return this as Observable<T>
     }
 }
 

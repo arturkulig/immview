@@ -325,4 +325,18 @@ describe('Atom', () => {
             }, ALL)
         })
     })
+
+    it('::materialize', () => {
+        const former$ = new Atom(1)
+        const latter$ = former$.materialize(0)
+        expect(latter$.deref()).toBe(1)
+        former$.next(2)
+        expect(latter$.deref()).toBe(2)
+    })
+
+    it('::vaporize', async () => {
+        const former$ = new Atom(1)
+        const latter$ = former$.vaporize()
+        expect(await latter$.toPromise()).toBe(1)
+    })
 })

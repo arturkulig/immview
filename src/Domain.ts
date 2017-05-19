@@ -8,6 +8,7 @@ import {
     CompletionListener,
 } from './Types'
 import { Atom } from './Atom'
+import { Observable } from './Observable'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatchAndReturn } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
@@ -88,4 +89,5 @@ export class Domain<T> implements OpStream<T> {
     distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T> { return this.distinct(comparator) }
     buffer(maxLastValues: number): OpStream<T[]> { return this.$.buffer(maxLastValues) }
     materialize(initialState: T): Atom<T> { return this.$.materialize(initialState) }
+    vaporize(initialState: T): Observable<T> { return this.$.vaporize(initialState) }
 }
