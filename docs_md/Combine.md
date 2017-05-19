@@ -15,3 +15,5 @@ new Combine({
             // { a: 'a', b: 'b', c: 'c' }
     })
 ```
+
+`Combine` is an `Atom` extension, therefore .hasRef will always return `true`. It will close (completes) itself as any of given sources does the same.

@@ -13,7 +13,6 @@ export class Combine<V extends {}> extends Atom<V> {
 
         this.sources = sources
 
-        let completions = 0
         forEachMap(sources, (source, key) => {
             sourceNames.push({ key, name: source.name })
             source.subscribe(
@@ -24,10 +23,7 @@ export class Combine<V extends {}> extends Atom<V> {
                     this.error(error)
                 },
                 () => {
-                    completions++
-                    if (completions === sourceNames.length) {
-                        this.complete()
-                    }
+                    this.complete()
                 }
             )
         })

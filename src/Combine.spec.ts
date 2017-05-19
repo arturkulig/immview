@@ -71,4 +71,23 @@ describe('Combine', () => {
         }, 100)
         o3.next('o3')
     })
+
+    it('closes as first of sources closes', () => {
+        const values = []
+        const o1 = new Atom<string>('start')
+        const o2 = new Atom<string>('start')
+        const o3 = new Atom<string>('start')
+
+        new Combine<{ o1: string, o2: string, o3: string }>({ o1, o2, o3, })
+            .subscribe(v => values.push(v))
+
+        o1.next('o1')
+        o2.complete()
+        o3.next('o3')
+
+        expect(values).toEqual([
+            { o1: 'start', o2: 'start', o3: 'start' },
+            { o1: 'o1', o2: 'start', o3: 'start' },
+        ])
+    })
 })
