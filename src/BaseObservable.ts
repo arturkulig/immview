@@ -49,10 +49,10 @@ export class BaseObservable<T> extends Base<T> {
         return this.deref()
     }
 
-    destroy(): void {
-        Base.prototype.destroy.call(this)
+    complete(): void {
         this.cancelSubscriber()
         this.cancelSubscriber = noop
+        Base.prototype.complete.call(this)
     }
 
     protected flush = () => {

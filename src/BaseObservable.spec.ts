@@ -30,6 +30,14 @@ describe('BaseObservable', () => {
         })
     })
 
+    it('subscription destroyer will be destroyed', () => {
+        let spyCalled = false
+        const spy = () => { spyCalled = true }
+        const $ = new BaseObservable(() => spy)
+        $.complete()
+        expect({ spyCalled }).toEqual({ spyCalled: true })
+    })
+
     it('has deref() equal to last pushed value', done => {
         const subject = new BaseObservable(observer => { observer.next(6) })
         expect(subject.hasRef()).toBe(false)

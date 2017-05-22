@@ -13,10 +13,10 @@ import {
     MessageTypes,
 } from './Types'
 
-function pf() {
+function fillAsyncIterSymbol() {
     (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
 }
-pf()
+fillAsyncIterSymbol()
 
 export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
     protected awaitingMessages: Message<T>[]
@@ -50,20 +50,6 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
 
     hasRef() {
         return false
-    }
-
-    throw(err: Error): void {
-        this.observers.forEach(
-            observer => observer.error(err)
-        )
-    }
-
-    destroy(): void {
-        this.closed = true
-        this.awaitingMessages.splice(0)
-        this.observers.splice(0).forEach(
-            observer => observer.complete()
-        )
     }
 
     // observer interface
@@ -143,11 +129,17 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
             }
             case MessageTypes.Error: {
                 const reason = messageValue as Error
-                this.throw(reason)
+                this.observers.forEach(
+                    observer => observer.error(reason)
+                )
                 break
             }
             case MessageTypes.Complete: {
-                this.destroy()
+                this.closed = true
+                this.awaitingMessages.splice(0)
+                this.observers.splice(0).forEach(
+                    observer => observer.complete()
+                )
                 break
             }
         }

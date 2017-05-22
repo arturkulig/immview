@@ -42,8 +42,6 @@ export interface Receiver<T> {
     ref(reference: T): void
     deref(): T
     hasRef(): boolean
-    throw(reason: Error): void
-    destroy(): void
 }
 
 export interface Named {
