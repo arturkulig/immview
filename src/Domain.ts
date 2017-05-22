@@ -13,11 +13,16 @@ import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatchAndReturn } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
 
+function fillAsyncIterSymbol() {
+    (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
+}
+fillAsyncIterSymbol()
+
 export interface Actions<T> {
     [id: string]: (this: Domain<T>, ...args: any[]) => void | Promise<any>
 }
 
-export class Domain<T> implements OpStream<T> {
+export class Domain<T> implements OpStream<T>, AsyncIterable<T> {
     name: string
 
     constructor(
@@ -75,8 +80,6 @@ export class Domain<T> implements OpStream<T> {
     ref(reference: T) { this.$.ref(reference) }
     deref(): T { return this.$.deref() }
     hasRef(): boolean { return this.$.hasRef() }
-    throw(reason: Error): void { this.$.throw(reason) }
-    destroy(): void { this.$.destroy() }
 
     toPromise(): Promise<T> { return this.$.toPromise() }
     map<U>(action: (value: T) => U): OpStream<U> { return this.$.map(action) }
@@ -90,4 +93,5 @@ export class Domain<T> implements OpStream<T> {
     buffer(maxLastValues: number): OpStream<T[]> { return this.$.buffer(maxLastValues) }
     materialize(initialState: T): Atom<T> { return this.$.materialize(initialState) }
     vaporize(initialState: T): Observable<T> { return this.$.vaporize(initialState) }
+    [Symbol.asyncIterator](): AsyncIterator<T> { return this.$[Symbol.asyncIterator]() }
 }
