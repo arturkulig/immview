@@ -1,5 +1,6 @@
 import {
     Stream,
+    Subscription,
 } from './Types'
 import { diagnose } from './Diagnose'
 import { DispatcherPriorities } from './DispatcherPriorities'
@@ -7,7 +8,24 @@ import { dispatch } from './DispatcherInstance'
 
 export function toPromise<T>(this: void, former$: Stream<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-        former$.subscribe(resolve, reject)
+        let subscription: Subscription = null
+        former$.subscribe({
+            start: sub => {
+                subscription = sub
+            },
+            next: v => {
+                subscription.unsubscribe()
+                resolve(v)
+            },
+            error: v => {
+                subscription.unsubscribe()
+                reject(v)
+            },
+            complete: () => {
+                subscription.unsubscribe()
+                reject(new Error('No value emitted, but stream has ended'))
+            },
+        })
     })
 }
 
