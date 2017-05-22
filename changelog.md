@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1
+
+- fix: `Combine` completes upon **any** of sources completion.
+- feat: `Atom`, `Observable` and `Domain` fulfill `AsyncIterable` interface making them usable with `for...await...of` loops.
+
 ## 3.0
 
 - feat: `Atom` class has beed added. It behaves very much like `Observable`, has a compatible interface, but it is for holding persistent state rather than just pushing messages that have temporary nature. It cannot be created without a state value and upon new subscription `Atom` pushes last state value to that subscriber.
