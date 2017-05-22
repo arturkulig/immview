@@ -1,4 +1,4 @@
-import { dispatch } from './DispatcherInstance'
+import { dispatch, flush } from './DispatcherInstance'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { Base } from './Base'
 import { BaseObservable } from './BaseObservable'
@@ -11,10 +11,6 @@ const fail = function (done, msg): () => void {
         setTimeout(done)
     }
 }
-
-const then =
-    (action: () => any) =>
-        dispatch(action, DispatcherPriorities.ALL)
 
 const BaseDerivatives: [<T>(v: T) => Base<T>, string][] = [
     [first => new BaseObservable(observer => observer.next(first)), 'BaseObservable'],
@@ -136,7 +132,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 o3.next('o3.1')
                 o1.next('o1.2')
 
-                then(() => {
+                flush().then(() => {
                     expect(result).toEqual([
                         null,
                         null,
@@ -193,19 +189,19 @@ BaseDerivatives.forEach(([make, name]) => {
                 const subscription = $.subscribe(v => { values.push(v) })
 
                 $.next(1)
-                then(() => {
+                flush().then(() => {
                     expect(values).toEqual([0, 1])
                     $.next(2)
                 })
-                then(() => {
+                flush().then(() => {
                     expect(values).toEqual([0, 1, 2])
                 })
-                then(() => {
+                flush().then(() => {
                     subscription.unsubscribe()
                     expect(subscription.closed).toBe(true)
                     $.next(3)
                 })
-                then(() => {
+                flush().then(() => {
                     expect(values).toEqual([0, 1, 2])
                     setTimeout(done)
                 })
@@ -217,26 +213,42 @@ BaseDerivatives.forEach(([make, name]) => {
                 const subscription = $.subscribe(v => { values.push(v) })
 
                 $.next(1)
-                then(() => {
+                flush().then(() => {
                     expect(values).toEqual([0, 1])
 
                     $.next(2)
                 })
-                then(() => {
+                flush().then(() => {
                     expect(values).toEqual([0, 1, 2])
 
                     $.complete()
                 })
-                then(() => {
+                flush().then(() => {
                     expect(subscription.closed).toBe(true)
 
                     $.next(3)
                 })
-                then(() => {
+                flush().then(() => {
                     expect(values).toEqual([0, 1, 2])
                     setTimeout(done)
                 })
             })
+        })
+
+        describe('is async iterable', async () => {
+            const $ = make<number>(0)
+            const gotValues = (async () => {
+                let got: number[] = []
+                for await (let v of $) {
+                    got.push(v)
+                }
+                return got
+            })()
+            await flush()
+            $.next(2)
+            $.next(1)
+            $.complete()
+            expect(await gotValues).toEqual([0, 2, 1])
         })
     })
 

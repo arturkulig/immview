@@ -7,7 +7,8 @@
             "dom",
             "es6",
             "dom.iterable",
-            "es2015.promise"
+            "es2015.promise",
+            "esnext.asynciterable"
         ],
         "experimentalDecorators": true,
         "alwaysStrict": true,

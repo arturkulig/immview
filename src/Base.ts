@@ -13,7 +13,12 @@ import {
     MessageTypes,
 } from './Types'
 
-export abstract class Base<T> implements Stream<T> {
+function pf() {
+    (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
+}
+pf()
+
+export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
     protected awaitingMessages: Message<T>[]
     private lastValue: T
 
@@ -144,6 +149,46 @@ export abstract class Base<T> implements Stream<T> {
             case MessageTypes.Complete: {
                 this.destroy()
                 break
+            }
+        }
+    }
+
+
+    [Symbol.asyncIterator](): AsyncIterator<T> {
+        const consumers: Array<(v: IteratorResult<T>) => void> = []
+        const products: IteratorResult<T>[] = []
+        const sub = this.subscribe({
+            next: value => {
+                products.push({ done: false, value })
+                while (products.length && consumers.length) {
+                    consumers.shift()(products.shift())
+                }
+            },
+            complete: () => {
+                products.push({ done: true, value: this.lastValue })
+                while (products.length && consumers.length) {
+                    consumers.shift()(products.shift())
+                }
+            }
+        })
+        return {
+            next: () => {
+                const passer = new Promise<IteratorResult<T>>(resolve => { consumers.push(resolve) })
+                while (products.length && consumers.length) {
+                    consumers.shift()(products.shift())
+                }
+                return passer
+            },
+            throw: (e?: any) => {
+                sub.unsubscribe()
+                this.error(e)
+                this.complete()
+                return Promise.resolve({ done: true, value: this.lastValue })
+            },
+            return: () => {
+                sub.unsubscribe()
+                this.complete()
+                return Promise.resolve({ done: true, value: this.lastValue })
             }
         }
     }
