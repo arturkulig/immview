@@ -51,8 +51,20 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
     }
 
     map<U>(action: (value: T) => U): Atom<U> {
-        const latter$ = new Atom<U>(action(this.deref()))
-        ops.map(this, latter$, action)
+        const firstTransformed = action(this.deref())
+        const latter$ = new Atom<U>(firstTransformed)
+        let skippedFirst = false
+        ops.map(
+            this,
+            latter$,
+            v => {
+                if (skippedFirst) {
+                    return action(v)
+                }
+                skippedFirst = true
+                return firstTransformed
+            }
+        )
         return latter$
     }
 
