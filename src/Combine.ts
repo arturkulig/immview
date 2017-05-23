@@ -6,6 +6,7 @@ import {
 
 export class Combine<V extends {}> extends Atom<V> {
     sources: {[id in keyof V]: Stream<V[id]> }
+    subs: Subscription[]
     constructor(sources: {[id in keyof V]: Stream<V[id]> }) {
         const sourceNames = [] as { key: string, name: string }[]
 
@@ -13,18 +14,22 @@ export class Combine<V extends {}> extends Atom<V> {
 
         this.sources = sources
 
+        this.subs = []
+
         forEachMap(sources, (source, key) => {
             sourceNames.push({ key, name: source.name })
-            source.subscribe(
-                value => {
-                    this.next(state => ({ ...(state as {}), [key]: value } as V))
-                },
-                error => {
-                    this.error(error)
-                },
-                () => {
-                    this.complete()
-                }
+            this.subs.push(
+                source.subscribe(
+                    value => {
+                        this.next(state => ({ ...(state as {}), [key]: value } as V))
+                    },
+                    error => {
+                        this.error(error)
+                    },
+                    () => {
+                        this.complete()
+                    }
+                )
             )
         })
 
@@ -40,6 +45,11 @@ export class Combine<V extends {}> extends Atom<V> {
                 ))
                 .join(', ')
             }}`
+    }
+
+    complete() {
+        this.subs.splice(0).forEach(sub => { !sub.closed && sub.unsubscribe() })
+        Atom.prototype.complete.call(this)
     }
 }
 

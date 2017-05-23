@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2
+
+- fix: Operators (.map, .filter etc) cancel subscription on source if target has been closed
+
 ## 3.1
 
 - fix: `Combine` completes upon **any** of sources completion.
