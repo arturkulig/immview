@@ -18,9 +18,12 @@ function fillAsyncIterSymbol() {
 }
 fillAsyncIterSymbol()
 
+const noValueDeref = () => null
+const hasRefT = () => true
+const hasRefF = () => false
+
 export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
     protected awaitingMessages: Message<T>[]
-    private lastValue: T
 
     closed: boolean
     name: string
@@ -30,22 +33,21 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
         this.closed = false
         this.name = `${ID()}\$`
         this.observers = []
-        this.lastValue = null
         this.awaitingMessages = []
     }
 
     // reference interface
 
     ref(value: T) {
-        this.lastValue = value
-        this.hasRef = () => true
+        this.deref = () => value
+        this.hasRef = hasRefT
         this.observers.forEach(
             observer => observer.next(value)
         )
     }
 
     deref(): T {
-        return this.lastValue
+        return null
     }
 
     hasRef() {
@@ -157,7 +159,7 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
                 }
             },
             complete: () => {
-                products.push({ done: true, value: this.lastValue })
+                products.push({ done: true, value: this.deref() })
                 while (products.length && consumers.length) {
                     consumers.shift()(products.shift())
                 }
@@ -175,12 +177,12 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
                 sub.unsubscribe()
                 this.error(e)
                 this.complete()
-                return Promise.resolve({ done: true, value: this.lastValue })
+                return Promise.resolve({ done: true, value: this.deref() })
             },
             return: () => {
                 sub.unsubscribe()
                 this.complete()
-                return Promise.resolve({ done: true, value: this.lastValue })
+                return Promise.resolve({ done: true, value: this.deref() })
             }
         }
     }
