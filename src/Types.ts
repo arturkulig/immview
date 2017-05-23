@@ -8,6 +8,8 @@ export interface Subscription {
 
 export type Transformer<T> = (currentValue: T) => T
 
+export type NextStep<T> = T | Transformer<T>
+
 export interface Closeable {
     closed: boolean
 }
@@ -15,7 +17,15 @@ export interface Closeable {
 export type Observer<T> =
     {
         start: (subscription: Subscription) => void
-        next: (candidate: T | Transformer<T>) => void
+        next: (candidate: T) => void
+        error: (error: Error) => void
+        complete: () => void
+    }
+
+export type StreamObserver<T> =
+    {
+        start: (subscription: Subscription) => void
+        next: (candidate: NextStep<T>) => void
         error: (error: Error) => void
         complete: () => void
     }
@@ -49,7 +59,7 @@ export interface Named {
 }
 
 export type Stream<T> =
-    Observer<T> &
+    StreamObserver<T> &
     Closeable &
     Subscribable<T> &
     Named &
@@ -72,7 +82,5 @@ export type OpStream<T> =
 
 export type NO_VALUE_T = {}
 export const NO_VALUE = {} as NO_VALUE_T
-
-export type NextStep<T> = T | Transformer<T>
 export type Message<T> = [MessageTypes, NextStep<T> | Error | void]
 export enum MessageTypes { Next, Error, Complete }

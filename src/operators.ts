@@ -1,10 +1,13 @@
 import {
     Stream,
     Subscription,
+    Observer,
 } from './Types'
 import { diagnose } from './Diagnose'
 import { DispatcherPriorities } from './DispatcherPriorities'
 import { dispatch } from './DispatcherInstance'
+
+function noop() { }
 
 export function toPromise<T>(this: void, former$: Stream<T>): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -29,33 +32,76 @@ export function toPromise<T>(this: void, former$: Stream<T>): Promise<T> {
     })
 }
 
+function tie<T, U>(
+    this: void,
+    source$: Stream<T>,
+    benefactor$: Stream<U>,
+    subscription: Observer<T>
+) {
+    let sub: Subscription = null
+    source$.subscribe({
+        start: _sub => {
+            sub = _sub
+            subscription.start(sub)
+        },
+        next: value => {
+            if (benefactor$.closed) {
+                sub.unsubscribe()
+                return
+            }
+            subscription.next(value)
+        },
+        error: err => {
+            if (benefactor$.closed) {
+                sub.unsubscribe()
+                return
+            }
+            subscription.error(err)
+        },
+        complete: () => {
+            if (benefactor$.closed) {
+                sub.unsubscribe()
+                return
+            }
+            subscription.complete()
+        }
+    })
+    return sub
+}
+
 export function map<T, U>(
     this: void, former$: Stream<T>, latter$: Stream<U>,
-    action: (value: T) => U
+    transform: (value: T) => U
 ) {
-    former$.subscribe(
-        value => {
+    tie(former$, latter$, {
+        start: noop,
+        next: value => {
             try {
                 const diagDone = (
                     diagnose.isOn &&
                     diagnose.measure(`\$> ${latter$.name}`)
                 )
-                const nextValue = action(value)
+                const nextValue = transform(value)
                 diagDone && diagDone()
                 latter$.next(nextValue)
             } catch (e) {
                 latter$.error(e)
             }
         },
-        err => { latter$.error(err) },
-        () => { latter$.complete() }
-    )
-    latter$.name = `${former$.name} ➡️ ${action.name}`
+        error: err => {
+            latter$.error(err)
+        },
+        complete: () => {
+            latter$.complete()
+        }
+    })
+    latter$.name = `${former$.name} ➡️ ${transform.name}`
 }
 
 export function flatten<T>(this: void, former$: Stream<Stream<T>>, latter$: Stream<T>) {
-    former$.subscribe(
-        nextSource => {
+    tie(former$, latter$, {
+        start: noop,
+        next: nextSource => {
             nextSource && nextSource.subscribe(
                 nextSourceValue => {
                     latter$.next(nextSourceValue)
@@ -63,9 +109,9 @@ export function flatten<T>(this: void, former$: Stream<Stream<T>>, latter$: Stre
                 err => latter$.error(err)
             )
         },
-        err => { latter$.error(err) },
-        () => { latter$.complete() }
-    )
+        error: err => { latter$.error(err) },
+        complete: () => { latter$.complete() }
+    })
     latter$.name = `${former$.name} 🗜️`
 }
 
@@ -76,8 +122,9 @@ export function scan<T, U>(
 ) {
     let summary: U = defaultValue
     let index = 0
-    former$.subscribe(
-        value => {
+    tie(former$, latter$, {
+        start: noop,
+        next: value => {
             try {
                 summary = reductor(summary, value, index++)
                 latter$.next(summary)
@@ -85,9 +132,9 @@ export function scan<T, U>(
                 latter$.error(e)
             }
         },
-        err => { latter$.error(err) },
-        () => { latter$.complete() }
-    )
+        error: err => { latter$.error(err) },
+        complete: () => { latter$.complete() }
+    })
     latter$.name = `${former$.name} ⤵️ ${reductor.name}`
 }
 
@@ -95,24 +142,25 @@ export function filter<T>(
     this: void, former$: Stream<T>, latter$: Stream<T>,
     filter: (value: T) => boolean
 ) {
-    former$.subscribe(
-        value => {
+    tie(former$, latter$, {
+        start: noop,
+        next: value => {
             try {
                 filter(value) && latter$.next(value)
             } catch (e) {
                 latter$.error(e)
             }
         },
-        err => { latter$.error(err) },
-        () => { latter$.complete() }
-    )
+        error: err => { latter$.error(err) },
+        complete: () => { latter$.complete() }
+    })
     latter$.name = `${former$.name} 🔎 ${filter.name}`
 }
 
 export function merge<T>(this: void, sources: Stream<T>[], latter$: Stream<T>) {
     let completeSignalsAmount = 0
     const subscriber = {
-        start() { },
+        start: noop,
         next(value: T) { latter$.next(value) },
         error(error: Error) { latter$.error(error) },
         complete() {
@@ -122,8 +170,8 @@ export function merge<T>(this: void, sources: Stream<T>[], latter$: Stream<T>) {
             }
         },
     }
-    for (let source of sources) {
-        source.subscribe(subscriber)
+    for (let source$ of sources) {
+        tie(source$, latter$, subscriber)
     }
     latter$.name = `(📎 ${sources.map(o => o.name).join(',')} )`
 }
@@ -134,8 +182,8 @@ export function distinct<T>(
 ) {
     let last
     let everPushed = false
-    former$.subscribe({
-        start() { },
+    tie(former$, latter$, {
+        start: noop,
         next(value: T) {
             if (comparator) {
                 if (!comparator(last, value)) return
@@ -168,8 +216,9 @@ export function bufferCount<T>(
 ) {
     const bufferStep = customBufferStep === undefined ? bufferWindow : customBufferStep
     let history: T[] = []
-    former$.subscribe(
-        value => {
+    tie(former$, latter$, {
+        start: noop,
+        next(value) {
             history.push(value)
             if (history.length === bufferWindow) {
                 latter$.next([...history])
@@ -179,14 +228,16 @@ export function bufferCount<T>(
                 )
             }
         },
-        err => latter$.error(err),
-        () => {
+        error(err) {
+            latter$.error(err)
+        },
+        complete() {
             if (history.length > bufferWindow - bufferStep) {
                 latter$.next([...history])
             }
             latter$.complete()
         }
-    )
+    })
     latter$.name = `${former$.name} 💤${bufferWindow},${bufferStep}`
 }
 
@@ -195,8 +246,9 @@ export function buffer<T>(
     maxLastValues: number = 0
 ) {
     let values: T[] = []
-    former$.subscribe(
-        nextValue => {
+    tie(former$, latter$, {
+        start: noop,
+        next(nextValue) {
             values = maxLastValues > 0
                 ? [nextValue, ...values].splice(0, maxLastValues)
                 : [nextValue, ...values]
@@ -210,8 +262,10 @@ export function buffer<T>(
                 DispatcherPriorities.BUFFER
             )
         },
-        err => { latter$.error(err) },
-        () => {
+        error(err) {
+            latter$.error(err)
+        },
+        complete() {
             if (values.length > 0) {
                 latter$.next(
                     values.splice(0).reverse()
@@ -219,6 +273,6 @@ export function buffer<T>(
             }
             latter$.complete()
         }
-    )
+    })
     latter$.name = `${former$.name} 💤`
 }
