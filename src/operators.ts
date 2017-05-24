@@ -9,29 +9,6 @@ import { dispatch } from './DispatcherInstance'
 
 function noop() { }
 
-export function toPromise<T>(this: void, former$: Stream<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-        let subscription: Subscription = null
-        former$.subscribe({
-            start: sub => {
-                subscription = sub
-            },
-            next: v => {
-                subscription.unsubscribe()
-                resolve(v)
-            },
-            error: v => {
-                subscription.unsubscribe()
-                reject(v)
-            },
-            complete: () => {
-                subscription.unsubscribe()
-                reject(new Error('No value emitted, but stream has ended'))
-            },
-        })
-    })
-}
-
 function tie<T, U>(
     this: void,
     source$: Stream<T>,

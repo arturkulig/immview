@@ -22,7 +22,7 @@ const noValueDeref = () => null
 const hasRefT = () => true
 const hasRefF = () => false
 
-export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
+export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLike<T> {
     protected awaitingMessages: Message<T>[]
 
     closed: boolean
@@ -185,6 +185,44 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T> {
                 return Promise.resolve({ done: true, value: this.deref() })
             }
         }
+    }
+
+    then<TResult1, TResult2 = never>(
+        onsuccess?: ((value: T) => PromiseLike<TResult1> | TResult1) | undefined | null,
+        onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+    ): Promise<TResult1> {
+        return new Promise<TResult1>((resolve, reject) => {
+            let sub
+            this.subscribe({
+                start: _sub => { sub = _sub },
+                next: value => {
+                    sub.unsubscribe()
+                    try {
+                        resolve(
+                            (onsuccess as any)
+                                ? (onsuccess as any)(value)
+                                : value
+                        )
+                    } catch (e) {
+                        reject(e)
+                    }
+                },
+                error: error => {
+                    sub.unsubscribe()
+                    reject(onrejected(error))
+                },
+                complete: () => {
+                    sub.unsubscribe()
+                    reject(new Error('no value emitted'))
+                }
+            })
+        })
+    }
+
+    catch<TResult2 = never>(
+        onrejected: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+    ) {
+        return this.then(null, onrejected)
     }
 }
 

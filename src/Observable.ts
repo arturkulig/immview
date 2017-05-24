@@ -81,7 +81,7 @@ export class Observable<T> extends BaseObservable<T> implements OpStream<T> {
     }
 
     toPromise(): Promise<T> {
-        return ops.toPromise(this)
+        return this.then<T>()
     }
 
     map<U>(action: (value: T) => U): Observable<U> {

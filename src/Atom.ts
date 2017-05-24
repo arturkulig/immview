@@ -47,7 +47,7 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
     }
 
     toPromise(): Promise<T> {
-        return ops.toPromise(this)
+        return this.then<T>()
     }
 
     map<U>(action: (value: T) => U): Atom<U> {

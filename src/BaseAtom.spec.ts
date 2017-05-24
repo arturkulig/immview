@@ -22,4 +22,11 @@ describe('BaseAtom', () => {
             }).not.toThrow()
         })
     })
+
+    it('is promise-like', async () => {
+        const value = { details: 666 }
+        const subject = new BaseAtom(value)
+        const derefed = await subject
+        expect(derefed).toBe(value)
+    })
 })

@@ -3,6 +3,7 @@
 ## 3.2
 
 - fix: Operators (.map, .filter etc) cancel subscription on source if target has been closed
+- feat: `Atom`, `Observable` and `Domain` fulfill `PromiseLike` interface. Deref-ing with `await` keyword in possible.
 
 ## 3.1
 

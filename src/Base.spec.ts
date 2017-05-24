@@ -18,7 +18,6 @@ const BaseDerivatives: [<T>(v: T) => Base<T>, string][] = [
 ]
 
 BaseDerivatives.forEach(([make, name]) => {
-    //
     describe(name, () => {
         describe('provides observer to subscriber', () => {
             it('allowing pushing plain values', done => {
