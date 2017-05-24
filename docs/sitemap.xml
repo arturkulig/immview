@@ -4,49 +4,47 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2017-05-09</lastmod>
+     <lastmod>2017-05-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
 
     
+        
     <url>
      <loc>/Observable/</loc>
-     <lastmod>2017-05-09</lastmod>
+     <lastmod>2017-05-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
+        
     <url>
      <loc>/Atom/</loc>
-     <lastmod>2017-05-09</lastmod>
+     <lastmod>2017-05-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
-    <url>
-     <loc>/AtomObservableDiff/</loc>
-     <lastmod>2017-05-09</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    
-
-    
+        
     <url>
      <loc>/Combine/</loc>
-     <lastmod>2017-05-09</lastmod>
+     <lastmod>2017-05-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
+        
+    <url>
+     <loc>/Domain/</loc>
+     <lastmod>2017-05-24</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
     
 
     
+        
     <url>
-     <loc>/Domain/</loc>
-     <lastmod>2017-05-09</lastmod>
+     <loc>/AtomObservableDiff/</loc>
+     <lastmod>2017-05-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
+        
     
 
 </urlset>

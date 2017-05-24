@@ -29,7 +29,7 @@ const EyesDomain = (() => {
 		}
 
 		@action
-		async roll() {
+		roll() {
 			MusclesDomain.doMuscleStuff()
 		}
 	}
@@ -67,9 +67,9 @@ Calling an action however will return a Promise resolved after action function e
 
 ```javascript
 // example usage
-import {Combine, Domain} from 'immview'
-import {HorizonDomain} from './HorizonDomain'
-import {MusclesDomain} from './MusclesDomain'
+import { Combine, Domain } from 'immview'
+import { HorizonDomain } from './HorizonDomain'
+import { MusclesDomain } from './MusclesDomain'
 
 const EyesDomain = Domain.create(
 	new Combine({
@@ -77,22 +77,27 @@ const EyesDomain = Domain.create(
 		muscles: MusclesDomain,
 	}),
 	{
-		async roll() {
-			MusclesDomain.doMuscleStuff()
-		}
+		roll
 	}
 )
+
+function roll() {
+	MusclesDomain.doMuscleStuff()
+}
+
+// usage...
 
 EyesDomain.roll().then(() => { console.log('I saw that!') })
 ```
 
 ---
 ## *DomainInstance*.[ACTION_NAME]
-`(...args): Promise`
+`(...args): Promise<any> | void`
 
 A function that was in a provided in constructor set of actions.
 It is **not** exactly the same function as provided, because it is wrapped with internal scheduler call.
-Because it's deferred execution **it always returns a Promise** resolved with that function result.
+Because it's potentially deferred execution **it always returns a `Promise`** resolved with that function result.
+If function throws, `Promise` will be rejected.
 
 ```javascript
 const domain = Domain.create(

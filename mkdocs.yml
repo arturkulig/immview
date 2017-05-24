@@ -1,12 +1,14 @@
-site_name: Documentation
+site_name: Immview 3
 pages:
-    - Immview: index.md
-    - Observable: Observable.md
-    - Atom: Atom.md
-    - Atom or Observable?: AtomObservableDiff.md
-    - Combine: Combine.md
-    - Domain: Domain.md
-theme: 'material'
-repo_name: https://github.com/arturkulig/immview
+    - Start: index.md
+    - Docs:
+        - Observable: Observable.md
+        - Atom: Atom.md
+        - Combine: Combine.md
+        - Domain: Domain.md
+    - Guides:
+        - Atom or Observable?: AtomObservableDiff.md
+theme: 'cinder'
+repo_url: https://github.com/arturkulig/immview
 docs_dir: docs_md
 site_dir: docs
