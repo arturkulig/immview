@@ -77,4 +77,11 @@ describe('Domain', () => {
             if (values.length === 3) setTimeout(done)
         })
     })
+
+    it('is promise-like', async () => {
+        const value = { details: 666 }
+        const subject = new Domain(new Atom(value))
+        const derefed = await subject
+        expect(derefed).toBe(value)
+    })
 })

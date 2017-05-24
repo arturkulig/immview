@@ -46,4 +46,14 @@ describe('BaseObservable', () => {
             done()
         })
     })
+
+    it('is promise-like', async () => {
+        const value = { details: 666 }
+        const subject = new BaseObservable()
+        setTimeout(() => {
+            subject.next(value)
+        }, 10)
+        const derefed = await subject
+        expect(derefed).toBe(value)
+    })
 })

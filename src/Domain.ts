@@ -22,7 +22,7 @@ export interface Actions<T> {
     [id: string]: (this: Domain<T>, ...args: any[]) => void | Promise<any>
 }
 
-export class Domain<T> implements OpStream<T>, AsyncIterable<T> {
+export class Domain<T> implements OpStream<T>, AsyncIterable<T>, PromiseLike<T> {
     name: string
 
     constructor(
@@ -94,4 +94,8 @@ export class Domain<T> implements OpStream<T>, AsyncIterable<T> {
     materialize(initialState: T): Atom<T> { return this.$.materialize(initialState) }
     vaporize(initialState: T): Observable<T> { return this.$.vaporize(initialState) }
     [Symbol.asyncIterator](): AsyncIterator<T> { return this.$[Symbol.asyncIterator]() }
+    then<TResult1, TResult2 = never>(
+        onsuccess?: ((value: T) => PromiseLike<TResult1> | TResult1) | undefined | null,
+        onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+    ) { return this.$.toPromise().then(onsuccess, onrejected) }
 }
