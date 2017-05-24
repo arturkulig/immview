@@ -1,4 +1,4 @@
-# Immview 3 <img src="https://travis-ci.org/arturkulig/immview.svg?branch=master" />
+# [Immview 3](arturkulig.github.io/immview) <img src="https://travis-ci.org/arturkulig/immview.svg?branch=master" />
 
 **Immview** is a library to create `Domain`s - *non-visual components* -
 similar to flux stores, exposing their **state** (through `Atom`s) or emitting **signals**
@@ -49,17 +49,27 @@ FooSenderDomain.send()
 
 ## Installation
 
-Immview is registered on NPM.
+Get it on `npm`
 
 ```bash
-npm i immview --save
+npm i -S immview
 ```
+
+or with `yarn`
+
+```bash
+yarn add immview
+```
+
+## Docs
+
+Visit [arturkulig.github.io/immview](http://arturkulig.github.io/immview/) for documentation.
 
 ## Presentation
 
 If you are using React to create presentation layer of your app you should check [immview-react-connect](https://github.com/arturkulig/immview-react-connect)
 
-# Read more
+## Read more
 * [Documentation](http://arturkulig.github.io/immview/)
 * [Simple usage](./usage_simple.md)
 * [Changelog](./changelog.md)

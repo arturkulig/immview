@@ -7,46 +7,62 @@ Construct with `subscriber` function that receives `observer` object. `Observer`
 `Subscriber` function may return function that should be called if `Observable` receives `complete` signal or is cancelled.
 
 ---
-## static *of*
+### static *of*
 `(...args: T[]): Observable<T>;`
 
 Function to create an `Observable` that immediately pushes values given as arguments.
 
-**Stream is immediately completed after all values are pushed.**
+
+> **Important**
+>
+> Stream is immediately completed after all values are pushed.
+
 If you wish to create a stream and kickstart it with a value(s), use `startWith`.
 
 ---
-## static *from*
+### static *from*
 `(values: T[]): Observable<T>;`
 
 Function to create an `Observable` that immediately pushes values given as an array of values.
 
-**Stream is immediately completed after all values are pushed.**
+> **Important**
+>
+> Stream is immediately completed after all values are pushed.
+
 If you wish to create a stream and kickstart it with a value(s), use `startWith`.
 
 ---
-## static *fromPromise*
-`(values: Promise<T>): Observable<T>;`
+### static *fromPromise*
+`(values: Promise<T>): Observable<T>`
 
 Function to create an `Observable` that pushes a value
 revealed with provided `Promise` and then completes
 as no more values to get from it.
 
-# Subscribable interface
+## Subscribable interface
 
 ---
-## subscribe
-`( { start: (sub: Subscription) => void, next: (value: T) => void, error: (err: Error) => void, complete: () => void } ) => { unsubscribe(): void }`
+### subscribe
+`({`
+`start: (sub: Subscription) => void,`
+`next: (value: T) => void,`
+`error: (err: Error) => void,`
+`complete: () => void`
+`} ) => { unsubscribe(): void }`
 
-`( onNext?: (value: T) => void, onError?: (err: Error) => void, onCompletion?: () => void ) => { unsubscribe(): void }`
+`(`
+`onNext?: (value: T) => void,`
+`onError?: (err: Error) => void,`
+`onCompletion?: () => void`
+`) => { unsubscribe(): void }`
 
 Registers a function called every time when the Observable changes value that it holds, error is pushed or Observable is complete.
 
 Returns a function to unregister the subscription.
 
 ---
-## toPromise
-`() => T`
+### toPromise
+`() => Promise<T>`
 
 Returns next **value** that's going to be pushed through the `Observable` instance.
 
@@ -57,48 +73,74 @@ setTimeout(() => source.next(1), 100)
 const value = await source.toPromise()
 ```
 
----
-## previous
-### DEPRECATED - use deref and hasRef
-`() => T | NO_VALUE`
+## Promise interface
 
-Returns previous **value** that has been pushed through the `Observable` instance.
-If no value has been pushed yet, NO_VALUE object is released.
+`Observable`s are also implementing interface of a `Promise`,
+ so it actually is possible to deref as if `Observable` was a `Promise`
+ and use it both with `.then` and `async..await`
 
+### with `await`
 ```javascript
-import {Observable, NO_VALUE} from 'immview'
-// Example
-const source = new Observable(({next}) => { next(1) })
-source.previous() === NO_VALUE // true
-source.subscribe(value => {
-    value === source.previous() // true
-})
+(async () => {
+    console.log(
+        await new Observable(observer => { observer.next(1) })
+    )
+    // logs: 1
+})()
 ```
 
-# Observer interface
+### then
+`<U>(onsuccess?: (value: T) => Promise<U> | U, onrejection?: (reason: any) => any): Promise<U>`
+```javascript
+    new Observable(
+        observer => { observer.next(1) }).then(_ => console.log(_)
+    )
+    // logs: 1
+```
+
+## AsyncIterable interface
+
+ `Observable`s implement interface for asynchronous iteration with `for..await..of` looping.
+
+```javascript
+let source = new Observable()
+(async () => {
+    for await (let value of source) {
+        console.log(value)
+    }
+})()
+source.next(1)
+source.next(2)
+// logs 1
+// logs 2
+```
+
+## Observer interface
 
 ---
-## next
+### next
 `(nextValue: T) => void`
 
-Sends value signal through the `Observable` instance. Values can be received, by `Observable.prototype.subscribe` method or `Observable.prototype.previous`.
+Sends value signal through the `Observable` instance. 
+Values can be received, by `.subscribe`, `.toPromise`, `.then` methods 
+or through asynchronous iteration over the `Observable`.
 
 ---
-## error
+### error
 `(error: Error) => void`
 
-Sends error signal through the `Observable` instance. Errors can be received, with `Observable.prototype.subscribe` method.
+Sends error signal through the `Observable` instance. Errors can be received, with `.subscribe` method.
 
 ---
-## complete
+### complete
 `() => void`
 
-Sends `complete` signal through the `Observable` instance. Completion can be handled, with `Observable.prototype.subscribe` method.
+Sends `complete` signal through the `Observable` instance. Completion can be handled, with `.subscribe` method.
 
-# Operators - common
+## Operators - common
 
 ---
-## map
+### map
 `(action: (value: T) => U): Observable<U>`
 
 Creates a derivative stream of values where
@@ -106,7 +148,7 @@ every value pushed by a parent is transformed with `action` function and push fu
 result of this function call.
 
 ---
-## filter
+### filter
 `(filter: (value: T) => boolean): Observable<T>;`
 
 Creates a derivative stream of values where
@@ -114,7 +156,7 @@ only those values that meet requirements formulated
 with `filter` function are going to be pushed by that derivative `Observable`.
 
 ---
-## scan
+### scan
 `(accumulator: (summary: U, value: T, index: number) => U, defaultValue?: U): Observable<U>`
 
 Creates a derivative stream of values where
@@ -125,7 +167,7 @@ Result of the function is next value of newly created `Observable`.
 First call is with summary being undefined unless `defautValue` is also passed.
 
 ---
-## flatten
+### flatten
 `(): Observable<U>`
 
 When parent `Observable` is releasing other `Observable`s as values
@@ -133,13 +175,13 @@ use `flatten` to create a derivative stream that consists only of values
 that are released by these "observable values".
 
 ---
-## merge
+### merge
 `(...args: Observable<T>;[]): Observable<T>;
 
 Creates a stream containing all values of parent and of provided in arguments streams.
 
 ---
-## distinct
+### distinct
 `(comparator?: (prev: T, next: T) => boolean): Observable<T>;`
 
 Creates a derivative stream of values
@@ -150,7 +192,7 @@ to determine if a value is distinct from previous one.
 Otherwise strict equal is incorporated.
 
 ---
-## buffer
+### buffer
 `(maxLastValues: number = 0): Observable<T[]>`
 
 Creates a derivative stream of parent `Observable` values gathered in array.
@@ -160,7 +202,7 @@ and all `Domain` actions being called.
 You can specify how many of there messages has to be remembered.
 
 ---
-## materialize
+### materialize
 `(defaultState: T): Atom<T>`
 
 Creates a derivative stream with an `Atom` where all values pushed by source are pushed by this node too.
@@ -174,10 +216,10 @@ async function example() {
 }
 ```
 
-# Operators - specific
+## Operators - specific
 
 ---
-## startWith
+### startWith
 `(firstValue: T): Observable<T>;`
 
 Creates a derivative stream of values where
@@ -186,7 +228,7 @@ with `firstValue` that is immediately shared with all other nodes
 that subscribed to the newly created stream.
 
 ---
-## bufferCount
+### bufferCount
 `(bufferSize: number, customBufferCount: number = null): Observable<T[]>`
 
 Creates a derivative stream containing parent `Observable` values
@@ -217,18 +259,18 @@ b --------[1,2,3]----[3,4,5]-|
 ```
 
 ---
-## reemit
+### reemit
 `(): Observable<T>`
 
 Creates a derivative stream where all values pushed by source are pushed by this node too,
-but also this new one will push at first last value that has been pushed by source in the past,
-if any was actually pushed.
+but also this new one will push at first last value that has been emited by the source,
+if that is available.
 
 ```javascript
 async function example() {
     const a = new Observable().startWith(1)
     await leThreeHoursLater()
     const b = a.reemit()
-    console.log(await b.toPromise()) // logs '1'
+    b.subscribe(value => console.log(value)) // logs '1'
 }
 ```

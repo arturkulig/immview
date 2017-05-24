@@ -1,4 +1,5 @@
-**Immview** is a library to create `Domain`s - *non-visual components* -
+# Immview 3
+...is a library to create `Domain`s - *non-visual components* -
 similar to flux stores, exposing their **state** (through `Atom`s) or emitting **signals**
 (through `Observable`s) and having specific to their concerns **actions**.
 Their primary role is to encapsulate a concern
@@ -15,7 +16,7 @@ before it is exposed through a `Domain`.
 These transformations are done with operators -
 functions that exist on these classes prototypes.
 
-## Example
+## Quick intro
 ```javascript
 import { Atom, Domain } from 'immview'
 
@@ -65,9 +66,23 @@ ToDo$.check(0)
 // console: [{ label: "Eat a pizza", done: true }]
 ```
 
-## Demo
+### Live preview
 
 > see above live on https://runkit.com/arturkulig/immview-todo-example
+
+## Installation
+
+Get it on `npm`
+
+```
+npm i -S immview
+```
+
+or with `yarn`
+
+```
+yarn add immview
+```
 
 ## React
 
