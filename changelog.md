@@ -5,6 +5,7 @@
 - feat: `Atom`, `Observable` and `Domain` fulfill `PromiseLike` interface. Deref-ing with `await` keyword in possible.
 - fix: Operators (.map, .filter etc) cancel subscription on source if target has been closed
 - fix: `AsyncIterable` & `PromiseLike` interfaces in Stream, so streams returned with operators can present it too
+- fix: Exiting iteration over stream should not complete that stream
 
 ## 3.1
 

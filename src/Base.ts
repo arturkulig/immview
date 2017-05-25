@@ -178,13 +178,10 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
             },
             throw: (e?: any) => {
                 sub.unsubscribe()
-                this.error(e)
-                this.complete()
                 return Promise.resolve({ done: true, value: this.deref() })
             },
             return: () => {
                 sub.unsubscribe()
-                this.complete()
                 return Promise.resolve({ done: true, value: this.deref() })
             }
         }
