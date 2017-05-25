@@ -63,7 +63,9 @@ export type Stream<T> =
     Closeable &
     Subscribable<T> &
     Named &
-    Receiver<T>
+    Receiver<T> &
+    AsyncIterable<T> &
+    PromiseLike<T>
 
 export type OpStream<T> =
     Stream<T> &
@@ -77,7 +79,7 @@ export type OpStream<T> =
         distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T>
         buffer(maxLastValues: number): OpStream<T[]>
         materialize(initialState: T): Atom<T>
-        vaporize(initialState: T): Observable<T>
+        vaporize(): Observable<T>
     }
 
 export type NO_VALUE_T = {}
