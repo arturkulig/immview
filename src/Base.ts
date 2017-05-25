@@ -62,6 +62,7 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
     }
 
     next(nextValue: NextStep<T>) {
+        if (this.closed) return
         this.awaitingMessages.push([
             MessageTypes.Next,
             nextValue,
@@ -70,6 +71,7 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
     }
 
     error(reason: Error) {
+        if (this.closed) return
         this.awaitingMessages.push([
             MessageTypes.Error,
             reason,
@@ -78,6 +80,7 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
     }
 
     complete() {
+        if (this.closed) return
         this.awaitingMessages.push([
             MessageTypes.Complete,
             undefined,
