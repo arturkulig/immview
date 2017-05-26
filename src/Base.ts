@@ -166,6 +166,9 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
                 while (products.length && consumers.length) {
                     consumers.shift()(products.shift())
                 }
+                while (consumers.length) {
+                    consumers.shift()({ done: true, value: this.deref() })
+                }
             }
         })
         return {
