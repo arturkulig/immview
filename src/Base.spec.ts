@@ -248,6 +248,17 @@ BaseDerivatives.forEach(([make, name]) => {
             $.next(1)
             $.complete()
             expect(await gotValues).toEqual([0, 2, 1])
+
+            $.next(2)
+            $.next(1)
+            const completedValues = (async () => {
+                let got: number[] = []
+                for await (let v of $) {
+                    got.push(v)
+                }
+                return got
+            })()
+            expect(await completedValues).toEqual([])
         })
     })
 
