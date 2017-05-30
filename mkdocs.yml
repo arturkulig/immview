@@ -6,6 +6,7 @@ pages:
         - Atom: Atom.md
         - Combine: Combine.md
         - Domain: Domain.md
+        - Process: Process.md
     - Guides:
         - Atom or Observable?: AtomObservableDiff.md
 theme: 'cinder'

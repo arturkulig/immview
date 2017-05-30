@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <link rel="shortcut icon" href="../img/favicon.ico">
 
-    <title>Combine - Immview 3</title>
+    <title>Process - Immview 3</title>
 
     <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
@@ -87,8 +87,8 @@
 
                         
                             
-<li class="active">
-    <a href="./">Combine</a>
+<li >
+    <a href="../Combine/">Combine</a>
 </li>
 
                         
@@ -99,8 +99,8 @@
 
                         
                             
-<li >
-    <a href="../Process/">Process</a>
+<li class="active">
+    <a href="./">Process</a>
 </li>
 
                         
@@ -134,12 +134,12 @@
                 </li>
                 
                     <li >
-                        <a rel="next" href="../Atom/">
+                        <a rel="next" href="../Domain/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../Domain/">
+                        <a rel="prev" href="../AtomObservableDiff/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -164,29 +164,29 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="first-level active"><a href="#class-combinet-extends-atomt">class Combine&lt;T&gt; extends Atom&lt;T&gt;</a></li>
+        <li class="first-level active"><a href="#class-processt">class Process&lt;T&gt;</a></li>
         
     
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="class-combinet-extends-atomt">class Combine<code>&lt;T&gt;</code> extends <a href="../Atom">Atom</a><code>&lt;T&gt;</code></h1>
-<p><code>new ({ [name: string]: Observable|Atom|Domain })</code></p>
-<p>Responsible for being reactive to more than one source and placing source streams contents in their respective (according to informations provided upon initialization) field in result object.</p>
-<pre><code class="javascript">new Combine({
-    a: new Atom('a'),
-    b: new Atom('b'),
-    c: new Observable(observer =&gt; { observer.next('c') })
-})
-    .subscribe(v =&gt; {
-        console.log(v)
-            // { a: 'a', b: 'b', c: null }
-            // { a: 'a', b: 'b', c: 'c' }
-    })
-</code></pre>
+<h1 id="class-processt">class <code>Process&lt;T&gt;</code></h1>
+<p><code>Process</code> is a wrapper for a asynchronous function that
+receives observable that is a message box of that process.</p>
+<p><code>Process</code> instance is an observer, so might be used directly as subscriber.</p>
+<pre><code class="javascript">const proc = new Process(
+    async mb =&gt; {
+        for await (let msg of mb) {
+            console.log(msg)
+        }
+    }
+)
+proc.next(1) // logs 1
+proc.next(2) // logs 2
 
-<p><code>Combine</code> is an <code>Atom</code> extension, therefore .hasRef will always return <code>true</code>. It will close (completes) itself as any of given sources does the same.</p></div>
+Observable.of(3, 4).subscribe(mb) // logs 3, then 4, then completes
+</code></pre></div>
         
     </div>
 
