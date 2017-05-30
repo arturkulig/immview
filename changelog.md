@@ -3,6 +3,7 @@
 ## 3.2
 
 - feat: `Atom`, `Observable` and `Domain` fulfill `PromiseLike` interface. Deref-ing with `await` keyword in possible.
+- feat: new class `Process` is running a async function provided to constructor and receiving a observable message box
 - fix: Operators (.map, .filter etc) cancel subscription on source if target has been closed
 - fix: `AsyncIterable` & `PromiseLike` interfaces in Stream, so streams returned with operators can present it too
 - fix: Exiting iteration over stream should not complete that stream
@@ -29,9 +30,10 @@
 
 ## 2.0.0
 
+- feat: **rewrite**
 - feat: **Immview** is now written with TypeScript and exposes types declarations.
 - feat: `Domain` actions return promises of these being executed.
-- feat: `Observable` is a first class citizen of the library, not an implementation detail and follows [TC39 Observable proposal](https://github.com/tc39/proposal-observable) as closely as possible and in most usable way.
+- feat: `Observable` is a first class citizen of the library, not an implementation detail and mimics [TC39 Observable proposal](https://github.com/tc39/proposal-observable) as closely as possible and in most usable way.
 - feat: `Observable::subscribe` callback will not be immediately called with last shared value.
 - feat: `Data` is achievable through normal `Observable` creation and pushing values. All `Observable`s are observers (actually all observer's proxy) and can push messages even if are derivative to some other stream..
 - feat: `View` functionality will be achievable using `Observable::map` function only.
