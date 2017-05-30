@@ -13,6 +13,7 @@ import { Observable } from './Observable'
 import { Atom } from './Atom'
 import { Combine } from './Combine'
 import { Domain } from './Domain'
+import { Process } from './Process'
 import { action } from './Domain.action'
 import { diagnose } from './Diagnose'
 
@@ -27,6 +28,7 @@ export {
     Atom,
     Stream,
     OpStream,
+    Process,
 
     NO_VALUE,
 
