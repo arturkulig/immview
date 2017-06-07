@@ -59,14 +59,20 @@ describe('Atom', () => {
 
     it('::filter can filter messages', () => {
         const pushValues = [1, 2, 3]
-        const expectedValues = [1, 3]
+
         const result = []
+        const processedValues = []
+
         const subject = new Atom(pushValues[0])
         subject
-            .filter(value => value > 2)
+            .filter(value => {
+                processedValues.push(value)
+                return value > 2
+            })
             .subscribe(value => { result.push(value) })
         pushValues.slice(1).forEach(v => subject.next(v))
-        expect(result).toEqual(expectedValues)
+        expect(result).toEqual([1, 3])
+        expect(processedValues).toEqual([2, 3])
     })
 
     describe('::scan - can scan messages, and reduce output', () => {
@@ -269,13 +275,27 @@ describe('Atom', () => {
         it('with a comparator', () => {
             const ref = {}
             const pushValues = [1, 2, 2, 3, ref, ref, 1]
-            const values = []
+
+            const processedValues = []
+            const receivedValues = []
+
             const subject = new Atom(pushValues[0])
             subject
-                .distinct((prev, next) => (typeof prev !== typeof next))
-                .subscribe(v => { values.push(v) })
+                .distinct((prev, next) => {
+                    processedValues.push([prev, next])
+                    return (typeof prev !== typeof next)
+                })
+                .subscribe(v => { receivedValues.push(v) })
             pushValues.slice(1).forEach(v => subject.next(v))
-            expect(values).toEqual([1, ref, 1])
+            expect(receivedValues).toEqual([1, ref, 1])
+            expect(processedValues).toEqual([
+                [1, 2],
+                [1, 2],
+                [1, 3],
+                [1, ref],
+                [ref, ref],
+                [ref, 1]
+            ])
         })
     })
 

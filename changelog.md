@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.1
+- fix: `filter` and `distinct` operators are not triggered for first values
+
 ## 3.2
 
 - feat: `Atom`, `Observable` and `Domain` fulfill `PromiseLike` interface. Deref-ing with `await` keyword in possible.

@@ -80,9 +80,13 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
         return latter$
     }
 
-    filter(filter: (value: T) => boolean): Atom<T> {
+    filter(predicate: (value: T) => boolean): Atom<T> {
         const latter$ = new Atom<T>(this.deref())
-        ops.filter(this, latter$, filter)
+        let currentPredicate = value => {
+            currentPredicate = predicate
+            return true
+        }
+        ops.filter(this, latter$, value => currentPredicate(value))
         return latter$
     }
 
@@ -92,9 +96,17 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
         return latter$
     }
 
-    distinct(comparator?: (prev: T, next: T) => boolean): Atom<T> {
+    distinct(predicate?: (prev: T, next: T) => boolean): Atom<T> {
         const latter$ = new Atom<T>(this.deref())
-        ops.distinct(this, latter$, comparator)
+        if (predicate) {
+            let currentPredicate = (p, n) => {
+                currentPredicate = predicate
+                return true
+            }
+            ops.distinct(this, latter$, (p, n) => currentPredicate(p, n))
+        } else {
+            ops.distinct(this, latter$)
+        }
         return latter$
     }
 
