@@ -1,7 +1,7 @@
 # Changelog
 
 ## 3.2.1
-- fix: `filter` and `distinct` operators are not triggered for first values
+- fix: `filter` and `distinct` operators are not triggered for initial `Atom`s values
 
 ## 3.2
 
