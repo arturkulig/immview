@@ -39,6 +39,8 @@ export class BaseAtom<T> extends Base<T> {
         this.dispatch(this.flush)
     }
 
+    subscribe(observer: Observer<T>): Subscription
+    subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): Subscription
     subscribe(...args): Subscription {
         const observer = normalizeToObserver<T>(args)
 
