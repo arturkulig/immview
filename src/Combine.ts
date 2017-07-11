@@ -64,7 +64,7 @@ function
 }
 
 function forEachMap<T, K extends keyof T>(input: T, action: (value: T[K], key: K) => void) {
-    for (let name in input) {
+    for (const name in input) {
         if (!Object.prototype.hasOwnProperty.call(input, name)) return
         action(input[name as K], name as K)
     }

@@ -71,7 +71,7 @@ describe('Observable', () => {
     })
 
     it('::startWith - can create a new stream with initial, immediately released  value', done => {
-        let values = []
+        const values = []
         Observable.of(2, 3).startWith(1).subscribe(v => {
             values.push(v)
         })
@@ -280,8 +280,8 @@ describe('Observable', () => {
 
     describe('::distinct - creates a stream with only distinct values', () => {
         it('without a comparator', done => {
-            let values = []
-            let ref = {}
+            const values = []
+            const ref = {}
             Observable.of<any>(1, 2, 2, 3, ref, ref, 1).distinct().subscribe(v => { values.push(v) })
             dispatch(() => {
                 expect(values).toEqual([1, 2, 3, ref, 1])
@@ -290,15 +290,28 @@ describe('Observable', () => {
         })
 
         it('with a comparator', done => {
-            let values = []
-            let ref = {}
+            const values = []
+            const compared = []
+            const ref = {}
             Observable
                 .of<any>(1, 2, 2, 3, ref, ref, 1)
-                .distinct((prev, next) => (typeof prev !== typeof next))
+                .distinct((prev, next) => (compared.push([prev, next]), typeof prev !== typeof next))
                 .subscribe(v => { values.push(v) })
             dispatch(() => {
-                expect(values).toEqual([1, ref, 1])
-                done()
+                try {
+                    expect(values).toEqual([1, ref, 1])
+                    expect(compared).toEqual([
+                        [1, 2],
+                        [1, 2],
+                        [1, 3],
+                        [1, ref],
+                        [ref, ref],
+                        [ref, 1]
+                    ])
+                    done()
+                } catch (e) {
+                    done.fail(e)
+                }
             }, ALL)
         })
     })
@@ -307,7 +320,7 @@ describe('Observable', () => {
         it('can take buffered messages with default interval', done => {
             const pushValues = [1, 2, 3, 4]
             const expectedValues = [[1, 2], [3, 4]]
-            let result = []
+            const result = []
             Observable.from(pushValues).bufferCount(2).subscribe(
                 value => {
                     result.push(value)
@@ -322,7 +335,7 @@ describe('Observable', () => {
         it('can take buffered messages with set interval', done => {
             const pushValues = [1, 2, 3, 4]
             const expectedValues = [[1, 2, 3], [2, 3, 4]]
-            let result = []
+            const result = []
             Observable.from(pushValues).bufferCount(3, 1).subscribe(
                 value => {
                     result.push(value)
@@ -337,7 +350,7 @@ describe('Observable', () => {
         it('should emit partial buffers if reaches end', done => {
             const pushValues = [1, 2, 3]
             const expectedValues = [[1, 2, 3]]
-            let result = []
+            const result = []
             Observable.from(pushValues).bufferCount(4).subscribe(
                 value => {
                     result.push(value)
@@ -352,7 +365,7 @@ describe('Observable', () => {
         it('should emit full buffers then partial buffer if reaches end', done => {
             const pushValues = [1, 2, 3, 4]
             const expectedValues = [[1, 2, 3], [4]]
-            let result = []
+            const result = []
             Observable.from(pushValues).bufferCount(3).subscribe(
                 value => {
                     result.push(value)
@@ -367,7 +380,7 @@ describe('Observable', () => {
         it('should emit full buffers then partial buffer with old values if reaches end', done => {
             const pushValues = [1, 2, 3, 4]
             const expectedValues = [[1, 2, 3], [3, 4]]
-            let result = []
+            const result = []
             Observable.from(pushValues).bufferCount(3, 2).subscribe(
                 value => {
                     result.push(value)

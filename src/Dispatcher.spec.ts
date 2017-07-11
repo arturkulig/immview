@@ -18,7 +18,7 @@ describe('Dispatcher', () => {
 
     it('can perform many jobs', done => {
         const result = []
-        let values = [1, 2, 3, 4, 5]
+        const values = [1, 2, 3, 4, 5]
         const dispatcher = new Dispatcher()
         values.forEach(value => {
             dispatcher.push(() => {

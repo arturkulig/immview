@@ -14,7 +14,8 @@
     "build:bundled": "NODE_ENV=production webpack -p",
     "build:unbundled": "tsc --declaration --outDir ./dist ; rm -rf ./dist/*.spec.d.ts",
     "preversion": "npm run test && npm run build",
-    "test": "tsc --noEmit && $(npm bin)/tslint --project ./tsconfig.json --config ./tslint.json --format stylish && jest",
+    "lint": "tslint --project ./tsconfig.json --config ./tslint.json --fix --format stylish",
+    "test": "tsc --noEmit && npm run lint && jest",
     "debug": "node --inspect --debug-brk ./node_modules/.bin/jest -i --runInBand"
   },
   "author": "Artur Kulig",

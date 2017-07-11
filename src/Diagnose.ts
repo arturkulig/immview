@@ -60,7 +60,7 @@ export class Diagnose {
                     return
                 }
                 const listSummary = this.list.splice(0).reduce((summary: DiagSummaryEntry[], entry: DiagEntry) => {
-                    for (let existingEntry of summary) {
+                    for (const existingEntry of summary) {
                         if (existingEntry['action name'] === entry['action name']) {
                             return summary.map(
                                 item => (item !== existingEntry

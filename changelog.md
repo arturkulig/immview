@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.3
+- fix: `distinct` operator should not trigger predicate for first value.
+
 ## 3.2.2
 - fix: `subscribe` function proper signature
 

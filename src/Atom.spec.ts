@@ -61,18 +61,18 @@ describe('Atom', () => {
         const pushValues = [1, 2, 3]
 
         const result = []
-        const processedValues = []
+        const compared = []
 
         const subject = new Atom(pushValues[0])
         subject
             .filter(value => {
-                processedValues.push(value)
+                compared.push(value)
                 return value > 2
             })
             .subscribe(value => { result.push(value) })
         pushValues.slice(1).forEach(v => subject.next(v))
         expect(result).toEqual([1, 3])
-        expect(processedValues).toEqual([2, 3])
+        expect(compared).toEqual([2, 3])
     })
 
     describe('::scan - can scan messages, and reduce output', () => {
@@ -138,7 +138,7 @@ describe('Atom', () => {
                 value => { result.push(value) }
             )
             dispatch(() => {
-                for (let v of pushValues.slice(1)) { subject.next(v) }
+                for (const v of pushValues.slice(1)) { subject.next(v) }
             }, ALL)
             expect(result).toEqual(expectedValues)
         })
@@ -151,7 +151,7 @@ describe('Atom', () => {
                 value => { result.push(value) }
             )
             dispatch(() => {
-                for (let v of pushValues.slice(1)) { subject.next(v) }
+                for (const v of pushValues.slice(1)) { subject.next(v) }
             }, ALL)
             expect(result).toEqual(expectedValues)
         })
@@ -165,7 +165,7 @@ describe('Atom', () => {
                 value => { result.push(value) }
             )
             dispatch(() => {
-                for (let v of pushValues.slice(1)) { subject.next(v) }
+                for (const v of pushValues.slice(1)) { subject.next(v) }
             }, ALL)
             expect(result).toEqual(expectedValues)
         })
@@ -179,7 +179,7 @@ describe('Atom', () => {
                 value => { result.push(value) }
             )
             dispatch(() => {
-                for (let v of pushValues.slice(1)) { subject.next(v) }
+                for (const v of pushValues.slice(1)) { subject.next(v) }
             }, ALL)
             expect(result).toEqual(expectedValues)
         })
@@ -193,7 +193,7 @@ describe('Atom', () => {
                 value => { result.push(value) }
             )
             dispatch(() => {
-                for (let v of pushValues.slice(1)) { subject.next(v) }
+                for (const v of pushValues.slice(1)) { subject.next(v) }
                 subject.complete()
             }, ALL)
             expect(result).toEqual(expectedValues)
@@ -276,19 +276,19 @@ describe('Atom', () => {
             const ref = {}
             const pushValues = [1, 2, 2, 3, ref, ref, 1]
 
-            const processedValues = []
-            const receivedValues = []
+            const compared = []
+            const values = []
 
             const subject = new Atom(pushValues[0])
             subject
-                .distinct((prev, next) => {
-                    processedValues.push([prev, next])
-                    return (typeof prev !== typeof next)
-                })
-                .subscribe(v => { receivedValues.push(v) })
+                .distinct((prev, next) => (
+                    compared.push([prev, next]),
+                    typeof prev !== typeof next
+                ))
+                .subscribe(v => { values.push(v) })
             pushValues.slice(1).forEach(v => subject.next(v))
-            expect(receivedValues).toEqual([1, ref, 1])
-            expect(processedValues).toEqual([
+            expect(values).toEqual([1, ref, 1])
+            expect(compared).toEqual([
                 [1, 2],
                 [1, 2],
                 [1, 3],

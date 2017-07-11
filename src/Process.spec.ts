@@ -11,7 +11,7 @@ describe('Process', () => {
     it('has message box', async () => {
         const values = []
         const proc = new Process(async mb => {
-            for await (let m of mb) {
+            for await (const m of mb) {
                 values.push(m)
             }
         })
@@ -25,7 +25,7 @@ describe('Process', () => {
         const values = []
         const source = new Observable()
         const proc = new Process(async mb => {
-            for await (let m of mb) {
+            for await (const m of mb) {
                 values.push(m)
             }
         })

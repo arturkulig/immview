@@ -237,8 +237,8 @@ BaseDerivatives.forEach(([make, name]) => {
         describe('is async iterable', async () => {
             const $ = make<number>(0)
             const gotValues = (async () => {
-                let got: number[] = []
-                for await (let v of $) {
+                const got: number[] = []
+                for await (const v of $) {
                     got.push(v)
                 }
                 return got
@@ -252,8 +252,8 @@ BaseDerivatives.forEach(([make, name]) => {
             $.next(2)
             $.next(1)
             const completedValues = (async () => {
-                let got: number[] = []
-                for await (let v of $) {
+                const got: number[] = []
+                for await (const v of $) {
                     got.push(v)
                 }
                 return got

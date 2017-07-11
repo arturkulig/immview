@@ -147,7 +147,7 @@ export function merge<T>(this: void, sources: Stream<T>[], latter$: Stream<T>) {
             }
         },
     }
-    for (let source$ of sources) {
+    for (const source$ of sources) {
         tie(source$, latter$, subscriber)
     }
     latter$.name = `(📎 ${sources.map(o => o.name).join(',')} )`
@@ -162,10 +162,12 @@ export function distinct<T>(
     tie(former$, latter$, {
         start: noop,
         next(value: T) {
-            if (comparator) {
-                if (!comparator(last, value)) return
-            } else {
-                if (everPushed && last === value) return
+            if (everPushed) {
+                if (comparator) {
+                    if (!comparator(last, value)) return
+                } else {
+                    if (last === value) return
+                }
             }
             everPushed = true
             last = value

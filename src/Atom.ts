@@ -99,11 +99,7 @@ export class Atom<T> extends BaseAtom<T> implements OpStream<T> {
     distinct(predicate?: (prev: T, next: T) => boolean): Atom<T> {
         const latter$ = new Atom<T>(this.deref())
         if (predicate) {
-            let currentPredicate = (p, n) => {
-                currentPredicate = predicate
-                return true
-            }
-            ops.distinct(this, latter$, (p, n) => currentPredicate(p, n))
+            ops.distinct(this, latter$, predicate)
         } else {
             ops.distinct(this, latter$)
         }

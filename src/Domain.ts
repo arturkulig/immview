@@ -38,7 +38,7 @@ export class Domain<T> implements OpStream<T>, AsyncIterable<T>, PromiseLike<T> 
         instance['name'] = `${(instance as Domain<DomainT>).$.name}\$!`
 
         if (actions) {
-            for (let actionsKey in actions) {
+            for (const actionsKey in actions) {
                 const currentActionName = actionsKey
                 if (!Object.prototype.hasOwnProperty.call(actions, actionsKey)) {
                     continue
@@ -55,7 +55,7 @@ export class Domain<T> implements OpStream<T>, AsyncIterable<T>, PromiseLike<T> 
         }
 
         if (fields) {
-            for (let fieldsKey in fields) {
+            for (const fieldsKey in fields) {
                 if (!Object.prototype.hasOwnProperty.call(fields, fieldsKey)) {
                     continue
                 }
