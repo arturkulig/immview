@@ -13,7 +13,7 @@ describe('Dispatcher', () => {
     })
 
     it('can perform a job', done => {
-        new Dispatcher().push(() => setTimeout(done), 0).run()
+        new Dispatcher().push(() => setTimeout(done, 0), 0).run()
     })
 
     it('can perform many jobs', done => {
@@ -27,7 +27,7 @@ describe('Dispatcher', () => {
         })
         dispatcher.push(() => {
             expect(result).toEqual(values)
-            setTimeout(done)
+            setTimeout(done, 0)
         }, 0)
         dispatcher.run()
     })

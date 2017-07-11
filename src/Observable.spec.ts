@@ -7,7 +7,7 @@ const { ALL } = DispatcherPriorities
 const fail = function (done, msg): () => void {
     return (): void => {
         expect(`${msg} WILL NOT HAPPEN`).toBe('')
-        setTimeout(done)
+        setTimeout(done, 0)
     }
 }
 
@@ -22,7 +22,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toBe(expectedValues.shift())
                     if (result.length === 3) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )
@@ -37,7 +37,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toBe(expectedValues.shift())
                     if (result.length === 3) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )
@@ -87,7 +87,7 @@ describe('Observable', () => {
             value > 2
         ).subscribe(value => {
             expect(value).toBe(3)
-            setTimeout(done)
+            setTimeout(done, 0)
         })
     })
 
@@ -102,7 +102,7 @@ describe('Observable', () => {
                 result.push(value)
                 expect(value).toBe(expectedValues.shift())
                 if (result.length === 3) {
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }
             })
         })
@@ -117,7 +117,7 @@ describe('Observable', () => {
                 result.push(value)
                 expect(value).toBe(expectedValues.shift())
                 if (result.length === 3) {
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }
             })
         })
@@ -133,7 +133,7 @@ describe('Observable', () => {
             result.push(value)
             expect(value).toBe(expectedValues.shift())
             if (result.length === 3) {
-                setTimeout(done)
+                setTimeout(done, 0)
             }
         })
     })
@@ -150,7 +150,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                setTimeout(done)
+                setTimeout(done, 0)
             }, 10)
         })
         it('with window length 1', done => {
@@ -164,7 +164,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                setTimeout(done)
+                setTimeout(done, 0)
             }, 10)
         })
 
@@ -177,7 +177,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                setTimeout(done)
+                setTimeout(done, 0)
             }, 10)
         })
 
@@ -190,7 +190,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                setTimeout(done)
+                setTimeout(done, 0)
             }, 10)
         })
 
@@ -203,7 +203,7 @@ describe('Observable', () => {
             )
             setTimeout(() => {
                 expect(result).toEqual(expectedValues)
-                setTimeout(done)
+                setTimeout(done, 0)
             }, 10)
         })
     })
@@ -219,7 +219,7 @@ describe('Observable', () => {
         })
         dispatch(() => {
             expect(result).toEqual(expectedValues)
-            setTimeout(done)
+            setTimeout(done, 0)
         }, ALL)
     })
 
@@ -233,7 +233,7 @@ describe('Observable', () => {
                 c.subscribe(value => { values.push(value) }, fail('error', done), fail('completion', done))
                 dispatch(() => {
                     expect(values).toEqual([1, 2])
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }, ALL)
             })
             it('one ends', done => {
@@ -247,7 +247,7 @@ describe('Observable', () => {
                 c.subscribe(value => { values.push(value) }, fail('error', done), fail('completion', done))
                 dispatch(() => {
                     expect(values).toEqual([1, 2])
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }, ALL)
             })
             it('both ends', done => {
@@ -258,7 +258,7 @@ describe('Observable', () => {
                 c.subscribe(value => { values.push(value) }, fail('error', done), () => { values.push('complete') })
                 dispatch(() => {
                     expect(values).toEqual([1, 2, 'complete'])
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }, ALL)
             })
         })
@@ -273,7 +273,7 @@ describe('Observable', () => {
             subject.subscribe(v => values.push(v), fail('error', done), () => values.push('complete'))
             dispatch(() => {
                 expect(values).toEqual([1, 2, 3, 4, 5, 'complete'])
-                setTimeout(done)
+                setTimeout(done, 0)
             }, ALL)
         })
     })
@@ -313,7 +313,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toEqual(expectedValues.shift())
                     if (result.length === 2) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )
@@ -328,7 +328,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toEqual(expectedValues.shift())
                     if (result.length === 2) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )
@@ -343,7 +343,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toEqual(expectedValues.shift())
                     if (result.length === 1) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )
@@ -358,7 +358,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toEqual(expectedValues.shift())
                     if (result.length === 2) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )
@@ -373,7 +373,7 @@ describe('Observable', () => {
                     result.push(value)
                     expect(value).toEqual(expectedValues.shift())
                     if (result.length === 2) {
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 }
             )

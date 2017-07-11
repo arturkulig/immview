@@ -8,7 +8,7 @@ import { Observer, NO_VALUE } from './Types'
 const fail = function (done, msg): () => void {
     return (): void => {
         expect(`${msg} WILL NOT HAPPEN`).toBe('')
-        setTimeout(done)
+        setTimeout(done, 0)
     }
 }
 
@@ -25,7 +25,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 $.subscribe(
                     value => {
                         expect(value).toBe(5)
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     },
                     fail(done, 'Error sub trigger'),
                     fail(done, 'Completion sub trigger')
@@ -39,7 +39,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 }
                 const secondValueTester = value => {
                     expect(value).toBe(5)
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }
                 let tester = firstValueTester
                 const $ = make(2)
@@ -55,7 +55,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 const $ = make(null)
                 $.subscribe(null, err => {
                     expect(err.message).toBe('666')
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 })
                 $.error(new Error('666'))
             })
@@ -72,7 +72,7 @@ BaseDerivatives.forEach(([make, name]) => {
                     () => {
                         expect({ observableClosed: $.closed }).toEqual({ observableClosed: true })
                         expect({ subscriptionClosed: sub.closed }).toEqual({ subscriptionClosed: true })
-                        setTimeout(done)
+                        setTimeout(done, 0)
                     }
                 )
 
@@ -99,7 +99,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 const verify = () => {
                     if (result.length < expectedValues.length) return
                     expect(result).toEqual(expectedValues)
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 }
 
                 $.subscribe(
@@ -141,7 +141,7 @@ BaseDerivatives.forEach(([make, name]) => {
                         'o3.1',
                         'o1.2',
                     ])
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 })
             })
         })
@@ -150,7 +150,7 @@ BaseDerivatives.forEach(([make, name]) => {
             it('allows pushing plain values', done => {
                 const $ = make(null)
                 $.subscribe(value => {
-                    if (value === 5) setTimeout(done)
+                    if (value === 5) setTimeout(done, 0)
                 })
                 $.next(5)
             })
@@ -158,7 +158,7 @@ BaseDerivatives.forEach(([make, name]) => {
             it('allows pushing values transformer', done => {
                 const $ = make<number>(null)
                 $.subscribe(value => {
-                    if (value === 5) setTimeout(done)
+                    if (value === 5) setTimeout(done, 0)
                 })
                 $.next(() => 2)
                 $.next(i => i + 3)
@@ -167,7 +167,7 @@ BaseDerivatives.forEach(([make, name]) => {
             it('allows pushing errors', done => {
                 const $ = make(null)
                 $.subscribe(null, () => {
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 })
                 $.error(new Error())
             })
@@ -175,7 +175,7 @@ BaseDerivatives.forEach(([make, name]) => {
             it('allows pushing completion signal', done => {
                 const $ = make(null)
                 $.subscribe(null, null, () => {
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 })
                 $.complete()
             })
@@ -202,7 +202,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 })
                 flush().then(() => {
                     expect(values).toEqual([0, 1, 2])
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 })
             })
 
@@ -229,7 +229,7 @@ BaseDerivatives.forEach(([make, name]) => {
                 })
                 flush().then(() => {
                     expect(values).toEqual([0, 1, 2])
-                    setTimeout(done)
+                    setTimeout(done, 0)
                 })
             })
         })

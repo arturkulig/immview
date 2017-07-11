@@ -4,10 +4,9 @@
         "types": ["node", "jasmine"],
         "module": "commonjs",
         "lib": [
-            "dom",
             "es6",
-            "dom.iterable",
-            "es2015.promise",
+            "dom",
+            "es2015.iterable",
             "esnext.asynciterable"
         ],
         "experimentalDecorators": true,

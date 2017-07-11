@@ -27,7 +27,7 @@ describe('Domain', () => {
         }, ALL)
         dispatch(() => {
             expect(subject.tested).toBe(true)
-            setTimeout(done)
+            setTimeout(done, 0)
         }, ALL)
     })
 
@@ -51,7 +51,7 @@ describe('Domain', () => {
             subject.test(true).then(result => {
                 expect(subject.tested).toBe(true)
                 expect(result).toBe(true)
-                setTimeout(done)
+                setTimeout(done, 0)
             })
             expect(subject.tested).toBe(false)
         }, ALL)

@@ -74,7 +74,9 @@ describe('Domain', () => {
         new Domain(Observable.from(pushingValues)).subscribe(v => {
             values.push(v)
             expect(v).toBe(expectedValues.shift())
-            if (values.length === 3) setTimeout(done)
+            if (values.length === 3) {
+                setTimeout(done, 0)
+            }
         })
     })
 
