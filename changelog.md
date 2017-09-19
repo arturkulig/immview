@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.4
+
+- fix: memory issues with typescript 2.4+
+
 ## 3.2.3
 - fix: `distinct` operator should not trigger predicate for first value.
 

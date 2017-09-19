@@ -56,6 +56,6 @@
     }
   },
   "dependencies": {
-    "typescript": "^2.4.0"
+    "typescript": "^2.5.2"
   }
 }

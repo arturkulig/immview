@@ -6,15 +6,16 @@ import {
     ErrorListener,
     CompletionListener,
     Subscription,
-    NO_VALUE_T,
+    NoValue,
     NO_VALUE,
     NextStep,
     Message,
-    MessageTypes,
+    MessageTypes
 } from './Types'
 
 function fillAsyncIterSymbol() {
-    (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
+    ; (Symbol as any).asyncIterator =
+        Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
 }
 fillAsyncIterSymbol()
 
@@ -22,7 +23,8 @@ const noValueDeref = () => null
 const hasRefT = () => true
 const hasRefF = () => false
 
-export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLike<T> {
+export abstract class Base<T>
+    implements Stream<T>, AsyncIterable<T>, PromiseLike<T> {
     protected awaitingMessages: Message<T>[]
 
     closed: boolean
@@ -41,9 +43,7 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
     ref(value: T) {
         this.deref = () => value
         this.hasRef = hasRefT
-        this.observers.forEach(
-            observer => observer.next(value)
-        )
+        this.observers.forEach(observer => observer.next(value))
     }
 
     deref(): T {
@@ -63,35 +63,30 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
 
     next(nextValue: NextStep<T>) {
         if (this.closed) return
-        this.awaitingMessages.push([
-            MessageTypes.Next,
-            nextValue,
-        ])
+        this.awaitingMessages.push([MessageTypes.Next, nextValue])
         this.dispatch(this.flush)
     }
 
     error(reason: Error) {
         if (this.closed) return
-        this.awaitingMessages.push([
-            MessageTypes.Error,
-            reason,
-        ])
+        this.awaitingMessages.push([MessageTypes.Error, reason])
         this.dispatch(this.flush)
     }
 
     complete() {
         if (this.closed) return
-        this.awaitingMessages.push([
-            MessageTypes.Complete,
-            undefined,
-        ])
+        this.awaitingMessages.push([MessageTypes.Complete, undefined])
         this.dispatch(this.flush)
     }
 
     // subscribable interface
 
     abstract subscribe(observer: Observer<T>): Subscription
-    abstract subscribe(onNext?: ValueListener<T>, onError?: ErrorListener, onCompletion?: CompletionListener): Subscription
+    abstract subscribe(
+        onNext?: ValueListener<T>,
+        onError?: ErrorListener,
+        onCompletion?: CompletionListener
+    ): Subscription
     abstract subscribe(...args): Subscription
 
     protected addSubscription(observer: Observer<T>) {
@@ -111,18 +106,25 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
                 if ((pos = __this.observers.indexOf(observer)) < 0) return
                 __this.observers.splice(pos, 1)
             },
-            get closed() { return __this.observers.indexOf(observer) === -1 }
+            get closed() {
+                return __this.observers.indexOf(observer) === -1
+            }
         }
     }
 
     protected abstract flush: () => void
 
-    protected swallow(messageType: MessageTypes, messageValue: NextStep<T> | Error | void) {
+    protected swallow(
+        messageType: MessageTypes,
+        messageValue: NextStep<T> | Error | void
+    ) {
         switch (messageType) {
             case MessageTypes.Next: {
                 const next = messageValue as NextStep<T>
                 if (typeof next === 'function') {
-                    const endMeasurement = diagnose.isOn && diagnose.measure(`${this.name} next(${next.name || ''})`)
+                    const endMeasurement =
+                        diagnose.isOn &&
+                        diagnose.measure(`${this.name} next(${next.name || ''})`)
                     const nextVal = next(this.deref())
                     if (endMeasurement) endMeasurement()
                     this.ref(nextVal)
@@ -134,22 +136,17 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
             }
             case MessageTypes.Error: {
                 const reason = messageValue as Error
-                this.observers.forEach(
-                    observer => observer.error(reason)
-                )
+                this.observers.forEach(observer => observer.error(reason))
                 break
             }
             case MessageTypes.Complete: {
                 this.closed = true
                 this.awaitingMessages.splice(0)
-                this.observers.splice(0).forEach(
-                    observer => observer.complete()
-                )
+                this.observers.splice(0).forEach(observer => observer.complete())
                 break
             }
         }
     }
-
 
     [Symbol.asyncIterator](): AsyncIterator<T> {
         const consumers: Array<(v: IteratorResult<T>) => void> = []
@@ -173,7 +170,9 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
         })
         return {
             next: () => {
-                const passer = new Promise<IteratorResult<T>>(resolve => { consumers.push(resolve) })
+                const passer = new Promise<IteratorResult<T>>(resolve => {
+                    consumers.push(resolve)
+                })
                 while (products.length && consumers.length) {
                     consumers.shift()(products.shift())
                 }
@@ -191,21 +190,25 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
     }
 
     then<TResult1, TResult2 = never>(
-        onsuccess?: ((value: T) => PromiseLike<TResult1> | TResult1) | undefined | null,
-        onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+        onsuccess?:
+            | ((value: T) => PromiseLike<TResult1> | TResult1)
+            | undefined
+            | null,
+        onrejected?:
+            | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+            | undefined
+            | null
     ): Promise<TResult1> {
         return new Promise<TResult1>((resolve, reject) => {
             let sub
             this.subscribe({
-                start: _sub => { sub = _sub },
+                start: _sub => {
+                    sub = _sub
+                },
                 next: value => {
                     sub.unsubscribe()
                     try {
-                        resolve(
-                            (onsuccess as any)
-                                ? (onsuccess as any)(value)
-                                : value
-                        )
+                        resolve((onsuccess as any) ? (onsuccess as any)(value) : value)
                     } catch (e) {
                         reject(e)
                     }
@@ -223,7 +226,10 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
     }
 
     catch<TResult2 = never>(
-        onrejected: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+        onrejected:
+            | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+            | undefined
+            | null
     ) {
         return this.then(null, onrejected)
     }
@@ -231,12 +237,16 @@ export abstract class Base<T> implements Stream<T>, AsyncIterable<T>, PromiseLik
 
 export function normalizeToObserver<T>(args): Observer<T> {
     if (typeof args[0] !== 'object' || args[0] === null) {
-        const [next, error, complete] = args as [ValueListener<T>, ErrorListener, CompletionListener]
+        const [next, error, complete] = args as [
+            ValueListener<T>,
+            ErrorListener,
+            CompletionListener
+        ]
         return {
             start: noop,
             next: next || noop,
             error: error || noop,
-            complete: complete || noop,
+            complete: complete || noop
         }
     }
     const observer = (args as [Observer<T>])[0]
