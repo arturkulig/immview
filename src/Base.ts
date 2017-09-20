@@ -14,10 +14,11 @@ import {
 } from './Types'
 
 function fillAsyncIterSymbol() {
-    ; (Symbol as any).asyncIterator =
-        Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
+    if (Symbol.asyncIterator === undefined) {
+        Object.assign(Symbol, { asyncIterator: Symbol('Symbol.asyncIterator') })
+    }
 }
-fillAsyncIterSymbol()
+try { fillAsyncIterSymbol() } catch (e) { }
 
 const noValueDeref = () => null
 const hasRefT = () => true

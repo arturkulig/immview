@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.5
+
+- fix: Symbol.asyncIterator is readonly, so do not overwrite it when it is in
+
 ## 3.2.4
 
 - fix: memory issues with typescript 2.4+
