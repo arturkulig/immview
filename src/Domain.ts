@@ -14,9 +14,11 @@ import { dispatchAndReturn } from './DispatcherInstance'
 import { diagnose } from './Diagnose'
 
 function fillAsyncIterSymbol() {
-    (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('Symbol.asyncIterator')
+    if (Symbol.asyncIterator === undefined) {
+        Object.assign(Symbol, { asyncIterator: Symbol('Symbol.asyncIterator') })
+    }
 }
-fillAsyncIterSymbol()
+try { fillAsyncIterSymbol() } catch (e) { }
 
 export interface Actions<T> {
     [id: string]: (this: Domain<T>, ...args: any[]) => void | Promise<any>
