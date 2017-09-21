@@ -19,10 +19,12 @@ export class Process<T, U = void> implements Observer<T>, PromiseLike<U> {
         this.closed = false
         this.end = new Promise(async resolve => {
             const result = await task.call(undefined, this.messageBox)
+            this.closed = true
             if (this.sub && !this.sub.closed) {
                 this.sub.unsubscribe()
             }
             if (!this.messageBox.closed) {
+                this.messageBox.subscribe(() => { }).unsubscribe()
                 this.messageBox.complete()
             }
             resolve(result)

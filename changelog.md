@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.7
+
+- fix: Process#closed not set to true when process dies
+
 ## 3.2.5
 
 - fix: Symbol.asyncIterator is readonly, so do not overwrite it when it is in
