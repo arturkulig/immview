@@ -190,17 +190,12 @@ export abstract class Base<T>
         }
     }
 
-    then<TResult1, TResult2 = never>(
-        onsuccess?:
-            | ((value: T) => PromiseLike<TResult1> | TResult1)
-            | undefined
-            | null,
-        onrejected?:
-            | ((reason: any) => TResult2 | PromiseLike<TResult2>)
-            | undefined
-            | null
-    ): Promise<TResult1> {
-        return new Promise<TResult1>((resolve, reject) => {
+    then<TResult1 = T, TResult2 = never>
+        (
+        onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
+        onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+        ): Promise<TResult1 | TResult2> {
+        return new Promise<T>((resolve, reject) => {
             let sub
             this.subscribe({
                 start: _sub => {
@@ -208,30 +203,21 @@ export abstract class Base<T>
                 },
                 next: value => {
                     sub.unsubscribe()
-                    try {
-                        resolve((onsuccess as any) ? (onsuccess as any)(value) : value)
-                    } catch (e) {
-                        reject(e)
-                    }
+                    resolve(value)
                 },
                 error: error => {
                     sub.unsubscribe()
-                    reject(onrejected(error))
+                    reject(error)
                 },
                 complete: () => {
                     sub.unsubscribe()
                     reject(new Error('no value emitted'))
                 }
             })
-        })
+        }).then(onfulfilled, onrejected)
     }
 
-    catch<TResult2 = never>(
-        onrejected:
-            | ((reason: any) => TResult2 | PromiseLike<TResult2>)
-            | undefined
-            | null
-    ) {
+    catch<TResult2 = never>(onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null) {
         return this.then(null, onrejected)
     }
 }

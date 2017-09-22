@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.8
+
+- fix: Throwing in rejection function in `then` of `PromiseLike` part of `Observable`/`Atom` interface not handled properly
+
 ## 3.2.7
 
 - fix: Process#closed not set to true when process dies

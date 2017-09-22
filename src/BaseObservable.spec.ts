@@ -56,4 +56,13 @@ describe('BaseObservable', () => {
         const derefed = await subject
         expect(derefed).toBe(value)
     })
+
+    it('is promise-like and casts errors to rejections', async () => {
+        const $ = new BaseObservable()
+        $.subscribe(() => { }).unsubscribe() // flush hack
+        $.error(new Error())
+        let err = null
+        await $.then(() => { }, () => { throw new Error() }).then(v => v, e => err = e)
+        expect(err).not.toBe(null)
+    })
 })
