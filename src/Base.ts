@@ -91,13 +91,6 @@ export abstract class Base<T>
     abstract subscribe(...args): Subscription
 
     protected addSubscription(observer: Observer<T>) {
-        if (this.closed) {
-            return {
-                unsubscribe: noop,
-                closed: false
-            }
-        }
-
         this.observers.push(observer)
 
         const __this = this
@@ -152,21 +145,28 @@ export abstract class Base<T>
     [Symbol.asyncIterator](): AsyncIterator<T> {
         const consumers: Array<(v: IteratorResult<T>) => void> = []
         const products: IteratorResult<T>[] = []
-        const sub = this.subscribe({
-            next: value => {
-                products.push({ done: false, value })
-                while (products.length && consumers.length) {
+
+        function consume() {
+            while (products.length && consumers.length) {
+                if (products[0].done) {
+                    consumers.shift()(products[0])
+                } else {
                     consumers.shift()(products.shift())
                 }
+            }
+        }
+        let sub = null
+        this.subscribe({
+            start: _sub => { sub = _sub },
+            next: value => {
+                if (!this.closed) {
+                    products.push({ done: false, value })
+                }
+                consume()
             },
             complete: () => {
                 products.push({ done: true, value: this.deref() })
-                while (products.length && consumers.length) {
-                    consumers.shift()(products.shift())
-                }
-                while (consumers.length) {
-                    consumers.shift()({ done: true, value: this.deref() })
-                }
+                consume()
             }
         })
         return {
@@ -174,9 +174,7 @@ export abstract class Base<T>
                 const passer = new Promise<IteratorResult<T>>(resolve => {
                     consumers.push(resolve)
                 })
-                while (products.length && consumers.length) {
-                    consumers.shift()(products.shift())
-                }
+                consume()
                 return passer
             },
             throw: (e?: any) => {

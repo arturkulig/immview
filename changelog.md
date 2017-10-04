@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.9
+
+- fix: resubscribing to closed `Observable`/`Atom` caused hanging, dead subscription
+- fix: incorrectly closed `AsyncIterator`
+
 ## 3.2.8
 
 - fix: Throwing in rejection function in `then` of `PromiseLike` part of `Observable`/`Atom` interface not handled properly

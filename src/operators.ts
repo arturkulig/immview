@@ -13,34 +13,34 @@ function tie<T, U>(
     this: void,
     source$: Stream<T>,
     benefactor$: Stream<U>,
-    subscription: Observer<T>
+    bond: Observer<T>
 ) {
     let sub: Subscription = null
     source$.subscribe({
         start: _sub => {
             sub = _sub
-            subscription.start(sub)
+            bond.start(sub)
         },
         next: value => {
             if (benefactor$.closed) {
                 sub.unsubscribe()
                 return
             }
-            subscription.next(value)
+            bond.next(value)
         },
         error: err => {
             if (benefactor$.closed) {
                 sub.unsubscribe()
                 return
             }
-            subscription.error(err)
+            bond.error(err)
         },
         complete: () => {
             if (benefactor$.closed) {
                 sub.unsubscribe()
                 return
             }
-            subscription.complete()
+            bond.complete()
         }
     })
     return sub
