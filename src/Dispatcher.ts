@@ -58,11 +58,12 @@ export class Dispatcher {
     }
 
     tooManyCalls() {
-        'If you see this, that means your code streamed many subsequent messages.'
-        'This situation might be harmful, as it may introduce serious lag of your app.'
-        'This is just a warning and a way to introduce a break, so you won\'t end up with unresponsive app'
-        'Please handle this situation and limit how many messages are pushed at once if possible.'
         debugger
+        if (typeof console === 'undefined' || !console || !console.warn) { return }
+        console.warn(['If you see this, that means your code streamed many subsequent messages.',
+            'This situation might be harmful, as it may introduce serious lag of your app.',
+            'This is just a warning and a way to introduce a break, so you won\'t end up with unresponsive app',
+            'Please handle this situation and limit how many messages are pushed at once if possible.',].join('\r\n'))
     }
 
     private findNextTask() {

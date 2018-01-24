@@ -12,7 +12,7 @@
     "start": "NODE_ENV=testing jest",
     "build": "rm -rf ./dist/*; npm run build:bundled; npm run build:unbundled",
     "build:bundled": "NODE_ENV=production webpack -p",
-    "build:unbundled": "tsc --declaration --outDir ./dist ; rm -rf ./dist/*.spec.d.ts",
+    "build:unbundled": "tsc --declaration --outDir ./dist ; rm -rf ./dist/*.spec.d.ts ; rm -rf ./dist/*.spec.js ; rm -rf ./dist/*.spec.js.map",
     "preversion": "npm run test && npm run build",
     "lint": "tslint --project ./tsconfig.json --config ./tslint.json --fix --format stylish",
     "test": "tsc --noEmit && npm run lint && jest",

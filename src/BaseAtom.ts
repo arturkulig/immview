@@ -8,7 +8,6 @@ import {
     ValueListener,
     ErrorListener,
     CompletionListener,
-    Subscribable,
     Transformer,
     Subscriber,
     Subscription,

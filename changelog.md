@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.10
+
+- fix: sources added to npm package as source maps in compiled version was referencing it
+
 ## 3.2.9
 
 - fix: resubscribing to closed `Observable`/`Atom` caused hanging, dead subscription
