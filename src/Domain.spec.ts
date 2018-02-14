@@ -12,7 +12,7 @@ describe('Domain', () => {
                     new Domain(new Observable())
                 }).not.toThrow()
             })
-            it('with Observable', () => {
+            it('with Atom', () => {
                 expect(() => {
                     new Domain(new Atom(null))
                 }).not.toThrow()
