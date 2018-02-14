@@ -91,7 +91,7 @@ export class Domain<T> implements OpStream<T>, AsyncIterable<T>, PromiseLike<T> 
     }
     filter(filter: (value: T) => boolean): OpStream<T> { return this.$.filter(filter) }
     merge(...others: OpStream<T>[]): OpStream<T> { return this.$.merge(...others) }
-    distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T> { return this.distinct(comparator) }
+    distinct(comparator?: (prev: T, next: T) => boolean): OpStream<T> { return this.$.distinct(comparator) }
     buffer(maxLastValues: number): OpStream<T[]> { return this.$.buffer(maxLastValues) }
     materialize(initialState: T): Atom<T> { return this.$.materialize(initialState) }
     vaporize(): Observable<T> { return this.$.vaporize() }
